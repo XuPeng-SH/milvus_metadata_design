@@ -72,6 +72,24 @@ class CollectionFieldIndice(db.Model, BaseMixin):
     __tablename__ = 'CollectionFieldIndice'
 
 
+class Snapshots(db.Model, BaseMixin):
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    created_on = Column(DateTime, default=datetime.datetime.utcnow)
+    status = Column(SmallInteger, default=0)
+    version = Column(JSON, default={})
+    params = Column(JSON, default={})
+
+    collection_id = Column(BigInteger)
+
+    collection = relationship(
+            'Collections',
+            primaryjoin='and_(foreign(Snapshots.collection_id) == Collections.id)',
+            backref=backref('snapshots', uselist=True, lazy='dynamic')
+    )
+
+    __tablename__ = 'Snapshots'
+
+
 class TableFiles(db.Model):
     FILE_TYPE_NEW = 0
     FILE_TYPE_RAW = 1

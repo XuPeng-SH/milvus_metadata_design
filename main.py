@@ -9,7 +9,8 @@ import models
 db.drop_all()
 db.create_all()
 
-from factories import CollectionsFactory, CollectionFieldsFactory, CollectionFieldIndiceFactory
+from factories import (CollectionsFactory, CollectionFieldsFactory, CollectionFieldIndiceFactory,
+        SnapshotsFactory)
 
 collection = CollectionsFactory()
 collection.version = {'one': '1'}
@@ -26,3 +27,9 @@ for field in fields:
     indice = field.indice.all()
     for index in indice:
         print(f'\t\t{index.name} {index.ftype}')
+
+SnapshotsFactory.create_batch(random.randint(2,6), collection=collection)
+
+snapshots = collection.snapshots.all()
+for snapshot in snapshots:
+    print(f'Snapshot {snapshot.id} {snapshot.collection.name}')
