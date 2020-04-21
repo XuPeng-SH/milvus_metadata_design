@@ -5,7 +5,7 @@ from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import BaseProvider
 from models import (Tables, TableFiles, Collections, CollectionFields, CollectionFieldIndice,
-        Snapshots)
+        Snapshots, Segments, SegmentFiles, SegmentCommits, CommitFileMapping)
 from models import db
 
 
@@ -59,6 +59,49 @@ class SnapshotsFactory(SQLAlchemyModelFactory):
 
     id = factory.Faker('random_number', digits=16, fix_len=True)
     collection = factory.SubFactory(CollectionsFactory)
+
+
+class SegmentsFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = Segments
+        sqlalchemy_session = db.session_factory
+        sqlalchemy_session_persistence = 'commit'
+
+    id = factory.Faker('random_number', digits=16, fix_len=True)
+    collection = factory.SubFactory(CollectionsFactory)
+
+
+class SegmentFilesFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = SegmentFiles
+        sqlalchemy_session = db.session_factory
+        sqlalchemy_session_persistence = 'commit'
+
+    id = factory.Faker('random_number', digits=16, fix_len=True)
+    segment = factory.SubFactory(SegmentsFactory)
+    ftype = factory.Faker('random_element', elements=(0,1,2,3,5))
+
+
+class SegmentCommitsFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = SegmentCommits
+        sqlalchemy_session = db.session_factory
+        sqlalchemy_session_persistence = 'commit'
+
+    id = factory.Faker('random_number', digits=16, fix_len=True)
+    segment = factory.SubFactory(SegmentsFactory)
+    snapshot = factory.SubFactory(SnapshotsFactory)
+
+
+class CommitFileMappingFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = CommitFileMapping
+        sqlalchemy_session = db.session_factory
+        sqlalchemy_session_persistence = 'commit'
+
+    id = factory.Faker('random_number', digits=16, fix_len=True)
+    file = factory.SubFactory(SegmentFilesFactory)
+    commit = factory.SubFactory(SegmentCommits)
 
 
 class TablesFactory(SQLAlchemyModelFactory):

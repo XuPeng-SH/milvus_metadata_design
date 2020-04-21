@@ -90,6 +90,99 @@ class Snapshots(db.Model, BaseMixin):
     __tablename__ = 'Snapshots'
 
 
+class Segments(db.Model, BaseMixin):
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    created_on = Column(DateTime, default=datetime.datetime.utcnow)
+    status = Column(SmallInteger, default=0)
+    version = Column(JSON, default={})
+
+    collection_id = Column(BigInteger)
+
+    collection = relationship(
+            'Collections',
+            primaryjoin='and_(foreign(Segments.collection_id) == Collections.id)',
+            backref=backref('segments', uselist=True, lazy='dynamic')
+    )
+
+    __tablename__ = 'Segments'
+
+
+class CommitFileMapping(db.Model, BaseMixin):
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    created_on = Column(DateTime, default=datetime.datetime.utcnow)
+
+    file_id = Column(BigInteger)
+    commit_id = Column(BigInteger)
+
+    file = relationship(
+            'SegmentFiles',
+            primaryjoin='and_(foreign(CommitFileMapping.file_id) == SegmentFiles.id)',
+    )
+
+    commit = relationship(
+            'SegmentCommits',
+            primaryjoin='and_(foreign(CommitFileMapping.commit_id) == SegmentCommits.id)',
+    )
+
+    __tablename__ = 'CommitFileMapping'
+
+
+class SegmentFiles(db.Model, BaseMixin):
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    created_on = Column(DateTime, default=datetime.datetime.utcnow)
+    status = Column(SmallInteger, default=0)
+    version = Column(JSON, default={})
+    attributes = Column(JSON, default={})
+
+    segment_id = Column(BigInteger)
+    ftype = Column(Integer)
+    entity_cnt = Column(BigInteger, default=0)
+    lsn = Column(BigInteger, default=0)
+    size = Column(BigInteger, default=0)
+
+    segment = relationship(
+            'Segments',
+            primaryjoin='and_(foreign(SegmentFiles.segment_id) == Segments.id)',
+            backref=backref('files', uselist=True, lazy='dynamic')
+    )
+
+    commit = relationship(
+        'SegmentCommits',
+        secondary=CommitFileMapping.__table__,
+        # secondary='CommitFileMapping',
+        primaryjoin='and_(foreign(CommitFileMapping.file_id) == SegmentFiles.id)',
+        secondaryjoin='and_(foreign(CommitFileMapping.commit_id) == SegmentCommits.id)',
+        backref=backref('files', uselist=True)
+    )
+
+    __tablename__ = 'SegmentFiles'
+
+
+class SegmentCommits(db.Model, BaseMixin):
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    created_on = Column(DateTime, default=datetime.datetime.utcnow)
+    status = Column(SmallInteger, default=0)
+    version = Column(JSON, default={})
+    attributes = Column(JSON, default={})
+
+    segment_id = Column(BigInteger)
+    snapshot_id = Column(BigInteger)
+
+    segment = relationship(
+            'Segments',
+            primaryjoin='and_(foreign(SegmentCommits.segment_id) == Segments.id)',
+            backref=backref('commits', uselist=True, lazy='dynamic')
+    )
+
+    snapshot = relationship(
+            'Snapshots',
+            primaryjoin='and_(foreign(SegmentCommits.snapshot_id) == Snapshots.id)',
+            backref=backref('commits', uselist=True, lazy='dynamic')
+    )
+
+    __tablename__ = 'SegmentCommits'
+
+
 class TableFiles(db.Model):
     FILE_TYPE_NEW = 0
     FILE_TYPE_RAW = 1
