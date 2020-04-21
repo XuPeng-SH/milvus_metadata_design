@@ -25,7 +25,7 @@ class BaseMixin:
 
 
 class Collections(db.Model, BaseMixin):
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
     name = Column(String(64))
@@ -33,9 +33,17 @@ class Collections(db.Model, BaseMixin):
 
     __tablename__ = 'Collections'
 
+    def create_segment(self, version={}):
+        s = Segments(collection=self, version=version)
+        return s
+
+    def create_snapshot(self):
+        s = Snapshots(collection=self)
+        return s
+
 
 class CollectionFields(db.Model, BaseMixin):
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
     name = Column(String(64))
@@ -54,7 +62,7 @@ class CollectionFields(db.Model, BaseMixin):
 
 
 class CollectionFieldIndice(db.Model, BaseMixin):
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
     name = Column(String(64))
@@ -73,7 +81,7 @@ class CollectionFieldIndice(db.Model, BaseMixin):
 
 
 class Snapshots(db.Model, BaseMixin):
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
     version = Column(JSON, default={})
@@ -90,8 +98,22 @@ class Snapshots(db.Model, BaseMixin):
     __tablename__ = 'Snapshots'
 
 
+    def get_resources(self):
+        files = self.files
+        return files
+
+    def submit(self, another):
+        resources = []
+        files = self.get_resources()
+        for f in files:
+            m = f.submit(another)
+            resources.append(f)
+            resources.append(m)
+        return resources
+
+
 class Segments(db.Model, BaseMixin):
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
     version = Column(JSON, default={})
@@ -106,35 +128,40 @@ class Segments(db.Model, BaseMixin):
 
     __tablename__ = 'Segments'
 
+    def create_file(self, ftype=None, lsn=None, size=None, version=None, attributes=None):
+        f = SegmentFiles(ftype=ftype, lsn=lsn, size=size, version=version, attributes=attributes,
+                segment=self)
+        return f
 
-class CommitFileMapping(db.Model, BaseMixin):
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+
+class SnapshotFileMapping(db.Model, BaseMixin):
+    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
 
     file_id = Column(BigInteger)
-    commit_id = Column(BigInteger)
+    snapshot_id = Column(BigInteger)
 
     file = relationship(
             'SegmentFiles',
-            primaryjoin='and_(foreign(CommitFileMapping.file_id) == SegmentFiles.id)',
+            primaryjoin='and_(foreign(SnapshotFileMapping.file_id) == SegmentFiles.id)',
     )
 
-    commit = relationship(
-            'SegmentCommits',
-            primaryjoin='and_(foreign(CommitFileMapping.commit_id) == SegmentCommits.id)',
+    snapshot = relationship(
+            'Snapshots',
+            primaryjoin='and_(foreign(SnapshotFileMapping.snapshot_id) == Snapshots.id)',
     )
 
-    __tablename__ = 'CommitFileMapping'
+    __tablename__ = 'SnapshotFileMapping'
 
 
 class SegmentFiles(db.Model, BaseMixin):
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
     version = Column(JSON, default={})
     attributes = Column(JSON, default={})
 
-    segment_id = Column(BigInteger)
+    segment_id = Column(BigInteger, nullable=False)
     ftype = Column(Integer)
     entity_cnt = Column(BigInteger, default=0)
     lsn = Column(BigInteger, default=0)
@@ -146,110 +173,16 @@ class SegmentFiles(db.Model, BaseMixin):
             backref=backref('files', uselist=True, lazy='dynamic')
     )
 
-    commit = relationship(
-        'SegmentCommits',
-        secondary=CommitFileMapping.__table__,
-        # secondary='CommitFileMapping',
-        primaryjoin='and_(foreign(CommitFileMapping.file_id) == SegmentFiles.id)',
-        secondaryjoin='and_(foreign(CommitFileMapping.commit_id) == SegmentCommits.id)',
+    snapshots = relationship(
+        'Snapshots',
+        secondary=SnapshotFileMapping.__table__,
+        primaryjoin='and_(foreign(SnapshotFileMapping.file_id) == SegmentFiles.id)',
+        secondaryjoin='and_(foreign(SnapshotFileMapping.snapshot_id) == Snapshots.id)',
         backref=backref('files', uselist=True)
     )
 
     __tablename__ = 'SegmentFiles'
 
-
-class SegmentCommits(db.Model, BaseMixin):
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
-    created_on = Column(DateTime, default=datetime.datetime.utcnow)
-    status = Column(SmallInteger, default=0)
-    version = Column(JSON, default={})
-    attributes = Column(JSON, default={})
-
-    segment_id = Column(BigInteger)
-    snapshot_id = Column(BigInteger)
-
-    segment = relationship(
-            'Segments',
-            primaryjoin='and_(foreign(SegmentCommits.segment_id) == Segments.id)',
-            backref=backref('commits', uselist=True, lazy='dynamic')
-    )
-
-    snapshot = relationship(
-            'Snapshots',
-            primaryjoin='and_(foreign(SegmentCommits.snapshot_id) == Snapshots.id)',
-            backref=backref('commits', uselist=True, lazy='dynamic')
-    )
-
-    __tablename__ = 'SegmentCommits'
-
-
-class TableFiles(db.Model):
-    FILE_TYPE_NEW = 0
-    FILE_TYPE_RAW = 1
-    FILE_TYPE_TO_INDEX = 2
-    FILE_TYPE_INDEX = 3
-    FILE_TYPE_TO_DELETE = 4
-    FILE_TYPE_NEW_MERGE = 5
-    FILE_TYPE_NEW_INDEX = 6
-    FILE_TYPE_BACKUP = 7
-
-    __tablename__ = 'TableFiles'
-
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
-    table_id = Column(String(50))
-    segment_id = Column(String(50))
-    engine_type = Column(Integer)
-    file_id = Column(String(50))
-    file_type = Column(Integer)
-    file_size = Column(Integer, default=0)
-    row_count = Column(Integer, default=0)
-    updated_time = Column(BigInteger)
-    created_on = Column(BigInteger)
-    date = Column(Integer)
-    flush_lsn = Column(Integer)
-
-    table = relationship(
-        'Tables',
-        primaryjoin='and_(foreign(TableFiles.table_id) == Tables.table_id)',
-        backref=backref('files', uselist=True, lazy='dynamic')
-    )
-
-
-class Tables(db.Model):
-    TO_DELETE = 1
-    NORMAL = 0
-
-    __tablename__ = 'Tables'
-
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
-    table_id = Column(String(50), unique=True)
-    owner_table = Column(String(50))
-    partition_tag = Column(String(50))
-    version = Column(String(50))
-    state = Column(Integer)
-    dimension = Column(Integer)
-    created_on = Column(Integer)
-    flag = Column(Integer, default=0)
-    index_file_size = Column(Integer)
-    index_params = Column(String(50))
-    engine_type = Column(Integer)
-    metric_type = Column(Integer)
-    flush_lsn = Column(Integer)
-
-    def files_to_search(self, date_range=None):
-        cond = or_(
-            TableFiles.file_type == TableFiles.FILE_TYPE_RAW,
-            TableFiles.file_type == TableFiles.FILE_TYPE_TO_INDEX,
-            TableFiles.file_type == TableFiles.FILE_TYPE_INDEX,
-        )
-        if date_range:
-            cond = and_(
-                cond,
-                or_(
-                    and_(TableFiles.date >= d[0], TableFiles.date < d[1]) for d in date_range
-                )
-            )
-
-        files = self.files.filter(cond)
-
-        return files
+    def submit(self, snapshot):
+        s = SnapshotFileMapping(snapshot=snapshot, file=self)
+        return s
