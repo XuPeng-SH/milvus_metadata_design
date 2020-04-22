@@ -14,7 +14,7 @@ db.create_all()
 
 from factories import (CollectionsFactory, CollectionFieldsFactory, CollectionFieldIndiceFactory,
         CollectionSnapshotsFactory, SegmentsFactory, SegmentFilesFactory, CollectionFieldIndice,
-        SegmentFiles,
+        SegmentFiles, SegmentCommits,
         CollectionSnapshots, Segments, Collections, CollectionFields)
 
 LSN=0
@@ -44,7 +44,6 @@ FILE_TYPES = [BINARY_FILE, STRING_FILE, IVFSQ8_FILE]
 
 def create_snapshot(new_files, prev=None):
     resources = []
-    snapshot = collection.create_ss()
     segment = collection.create_segment()
     resources.append(segment)
     for i in range(new_files):
@@ -52,7 +51,12 @@ def create_snapshot(new_files, prev=None):
         resources.append(f)
 
     Commit(*resources)
-    snapshot.append_mappings(*resources[1:])
+    segment_commit = SegmentCommits(segment=segment)
+    segment_commit.append_mappings(*resources[1:])
+    segment_commit.apply()
+    Commit(segment_commit)
+    snapshot = collection.create_ss()
+    snapshot.append_mappings(segment_commit)
 
     if prev:
         snapshot.append_mappings(*prev.mappings)
@@ -87,6 +91,14 @@ for _ in range(10):
 # print(f'Snapshots {collection.snapshots.all()}')
 snapshots = collection.snapshots.all()
 for ss in snapshots:
-    print(f'{ss} {[f.id for f in ss.files.all()]}')
+    print(f'{ss} {[f.id for f in ss.commits.all()]}')
+
+segments = collection.segments.all()
+for segment in segments:
+#     f = segment.create_file(lsn=get_lsn())
+#     Commit(f)
+#     c = segment.commit_files(f)
+#     Commit(c)
+    print(f'{segment} {segment.commits.all()}')
 
 sys.exit(0)

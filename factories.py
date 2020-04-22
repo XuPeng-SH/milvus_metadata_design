@@ -5,7 +5,7 @@ from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import BaseProvider
 from models import (Collections, CollectionFields, CollectionFieldIndice,
-        Segments, SegmentFiles, CollectionSnapshots)
+        Segments, SegmentFiles, CollectionSnapshots, SegmentCommits)
 from models import db
 
 
@@ -64,6 +64,15 @@ class SegmentsFactory(SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = 'commit'
 
     collection = factory.SubFactory(CollectionsFactory)
+
+
+class SegmentCommitsFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = SegmentCommits
+        sqlalchemy_session = db.session_factory
+        sqlalchemy_session_persistence = 'commit'
+
+    segment = factory.SubFactory(SegmentsFactory)
 
 
 class SegmentFilesFactory(SQLAlchemyModelFactory):

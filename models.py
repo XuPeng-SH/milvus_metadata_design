@@ -112,14 +112,15 @@ class CollectionSnapshots(db.Model, BaseMixin):
     __tablename__ = 'CollectionSnapshots'
 
     @property
-    def files(self):
-        return db.Session.query(SegmentFiles).filter(SegmentFiles.id.in_(self.mappings))
+    def commits(self):
+        return db.Session.query(SegmentCommits).filter(SegmentCommits.id.in_(self.mappings))
 
     def append_mappings(self, *targets):
         for target in targets:
             if isinstance(target, int):
                 self.bound.add(target)
                 continue
+            assert isinstance(target, SegmentCommits)
             self.bound.add(target.id)
 
     def apply(self):
@@ -149,6 +150,49 @@ class Segments(db.Model, BaseMixin):
         f = SegmentFiles(ftype=ftype, lsn=lsn, size=size, version=version, attributes=attributes,
                 segment=self)
         return f
+
+    def commit_files(self, *files, **kwargs):
+        target = kwargs.pop('target', None)
+        target = target if target else SegmentCommits(segment=self, **kwargs)
+        target.append_mappings(*files)
+        target.apply()
+        return target
+
+
+class SegmentCommits(db.Model, BaseMixin):
+    bound = set()
+    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
+    created_on = Column(DateTime, default=datetime.datetime.utcnow)
+    status = Column(SmallInteger, default=0)
+    version = Column(JSON, default={})
+
+    segment_id = Column(BigInteger, nullable=False)
+    mappings = Column(JSON, default={})
+
+    segment = relationship(
+            'Segments',
+            primaryjoin='and_(foreign(SegmentCommits.segment_id) == Segments.id)',
+            backref=backref('commits', uselist=True, lazy='dynamic')
+    )
+
+    __tablename__ = 'SegmentCommits'
+
+    @property
+    def files(self):
+        return db.Session.query(SegmentFiles).filter(SegmentFiles.id.in_(self.mappings))
+
+    def append_mappings(self, *targets):
+        for target in targets:
+            if isinstance(target, int):
+                self.bound.add(target)
+                continue
+            self.bound.add(target.id)
+
+    def apply(self):
+        if len(self.bound) == 0:
+            return
+        self.mappings = list(self.bound)
+        self.bound.clear()
 
 
 class SegmentFiles(db.Model, BaseMixin):
