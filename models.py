@@ -106,10 +106,14 @@ class CollectionSnapshots(db.Model, BaseMixin):
     collection = relationship(
             'Collections',
             primaryjoin='and_(foreign(CollectionSnapshots.collection_id) == Collections.id)',
-            backref=backref('ss', uselist=True, lazy='dynamic')
+            backref=backref('snapshots', uselist=True, lazy='dynamic')
     )
 
     __tablename__ = 'CollectionSnapshots'
+
+    @property
+    def files(self):
+        return db.Session.query(SegmentFiles).filter(SegmentFiles.id.in_(self.mappings))
 
     def append_mappings(self, *targets):
         for target in targets:
@@ -122,40 +126,7 @@ class CollectionSnapshots(db.Model, BaseMixin):
         if len(self.bound) == 0:
             return
         self.mappings = list(self.bound)
-        # print(f'mappings: {self.mappings} {self.bound}')
         self.bound.clear()
-
-
-class Snapshots(db.Model, BaseMixin):
-    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
-    created_on = Column(DateTime, default=datetime.datetime.utcnow)
-    status = Column(SmallInteger, default=0)
-    version = Column(JSON, default={})
-    params = Column(JSON, default={})
-
-    collection_id = Column(BigInteger)
-
-    collection = relationship(
-            'Collections',
-            primaryjoin='and_(foreign(Snapshots.collection_id) == Collections.id)',
-            backref=backref('snapshots', uselist=True, lazy='dynamic')
-    )
-
-    __tablename__ = 'Snapshots'
-
-
-    def get_resources(self):
-        files = self.files
-        return files
-
-    def submit(self, another):
-        resources = []
-        files = self.get_resources()
-        for f in files:
-            m = f.submit(another)
-            resources.append(f)
-            resources.append(m)
-        return resources
 
 
 class Segments(db.Model, BaseMixin):
@@ -180,26 +151,6 @@ class Segments(db.Model, BaseMixin):
         return f
 
 
-class SnapshotFileMapping(db.Model, BaseMixin):
-    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
-    created_on = Column(DateTime, default=datetime.datetime.utcnow)
-
-    file_id = Column(BigInteger)
-    snapshot_id = Column(BigInteger)
-
-    file = relationship(
-            'SegmentFiles',
-            primaryjoin='and_(foreign(SnapshotFileMapping.file_id) == SegmentFiles.id)',
-    )
-
-    snapshot = relationship(
-            'Snapshots',
-            primaryjoin='and_(foreign(SnapshotFileMapping.snapshot_id) == Snapshots.id)',
-    )
-
-    __tablename__ = 'SnapshotFileMapping'
-
-
 class SegmentFiles(db.Model, BaseMixin):
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
@@ -219,16 +170,68 @@ class SegmentFiles(db.Model, BaseMixin):
             backref=backref('files', uselist=True, lazy='dynamic')
     )
 
-    snapshots = relationship(
-        'Snapshots',
-        secondary=SnapshotFileMapping.__table__,
-        primaryjoin='and_(foreign(SnapshotFileMapping.file_id) == SegmentFiles.id)',
-        secondaryjoin='and_(foreign(SnapshotFileMapping.snapshot_id) == Snapshots.id)',
-        backref=backref('files', uselist=True)
-    )
+    # snapshots = relationship(
+    #     'CollectionSnapshots',
+    #     secondary=SnapshotFileMapping.__table__,
+    #     primaryjoin='and_(foreign(SnapshotFileMapping.file_id) == SegmentFiles.id)',
+    #     secondaryjoin='and_(foreign(SnapshotFileMapping.snapshot_id) == CollectionSnapshots.id)',
+    #     backref=backref('files', uselist=True)
+    # )
 
     __tablename__ = 'SegmentFiles'
 
     def submit(self, snapshot):
         s = SnapshotFileMapping(snapshot=snapshot, file=self)
         return s
+
+
+# class Snapshots(db.Model, BaseMixin):
+#     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
+#     created_on = Column(DateTime, default=datetime.datetime.utcnow)
+#     status = Column(SmallInteger, default=0)
+#     version = Column(JSON, default={})
+#     params = Column(JSON, default={})
+
+#     collection_id = Column(BigInteger)
+
+#     collection = relationship(
+#             'Collections',
+#             primaryjoin='and_(foreign(Snapshots.collection_id) == Collections.id)',
+#             backref=backref('snapshots', uselist=True, lazy='dynamic')
+#     )
+
+#     __tablename__ = 'Snapshots'
+
+
+#     def get_resources(self):
+#         files = self.files
+#         return files
+
+#     def submit(self, another):
+#         resources = []
+#         files = self.get_resources()
+#         for f in files:
+#             m = f.submit(another)
+#             resources.append(f)
+#             resources.append(m)
+#         return resources
+
+
+# class SnapshotFileMapping(db.Model, BaseMixin):
+#     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
+#     created_on = Column(DateTime, default=datetime.datetime.utcnow)
+
+#     file_id = Column(BigInteger)
+#     snapshot_id = Column(BigInteger)
+
+#     file = relationship(
+#             'SegmentFiles',
+#             primaryjoin='and_(foreign(SnapshotFileMapping.file_id) == SegmentFiles.id)',
+#     )
+
+#     snapshot = relationship(
+#             'CollectionSnapshots',
+#             primaryjoin='and_(foreign(SnapshotFileMapping.snapshot_id) == CollectionSnapshots.id)',
+#     )
+
+#     __tablename__ = 'SnapshotFileMapping'

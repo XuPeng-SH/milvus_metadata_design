@@ -14,7 +14,7 @@ db.create_all()
 
 from factories import (CollectionsFactory, CollectionFieldsFactory, CollectionFieldIndiceFactory,
         CollectionSnapshotsFactory, SegmentsFactory, SegmentFilesFactory, CollectionFieldIndice,
-        SnapshotFileMappingFactory, SegmentFiles, SnapshotFileMapping,
+        SegmentFiles,
         CollectionSnapshots, Segments, Collections, CollectionFields)
 
 LSN=0
@@ -83,5 +83,10 @@ for _ in range(10):
     end = time.time()
     print(f'Takes {end-start}')
     prev = snapshot
+
+# print(f'Snapshots {collection.snapshots.all()}')
+snapshots = collection.snapshots.all()
+for ss in snapshots:
+    print(f'{ss} {[f.id for f in ss.files.all()]}')
 
 sys.exit(0)

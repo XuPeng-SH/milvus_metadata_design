@@ -5,7 +5,7 @@ from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import BaseProvider
 from models import (Collections, CollectionFields, CollectionFieldIndice,
-        Snapshots, Segments, SegmentFiles, SnapshotFileMapping, CollectionSnapshots)
+        Segments, SegmentFiles, CollectionSnapshots)
 from models import db
 
 
@@ -48,15 +48,6 @@ class CollectionFieldIndiceFactory(SQLAlchemyModelFactory):
     field = factory.SubFactory(CollectionFieldsFactory)
 
 
-class SnapshotsFactory(SQLAlchemyModelFactory):
-    class Meta:
-        model = Snapshots
-        sqlalchemy_session = db.session_factory
-        sqlalchemy_session_persistence = 'commit'
-
-    collection = factory.SubFactory(CollectionsFactory)
-
-
 class CollectionSnapshotsFactory(SQLAlchemyModelFactory):
     class Meta:
         model = CollectionSnapshots
@@ -85,23 +76,11 @@ class SegmentFilesFactory(SQLAlchemyModelFactory):
     ftype = factory.Faker('random_element', elements=(0,1,2,3,5))
 
 
-# class SegmentCommitsFactory(SQLAlchemyModelFactory):
+# class SnapshotFileMappingFactory(SQLAlchemyModelFactory):
 #     class Meta:
-#         model = SegmentCommits
+#         model = SnapshotFileMapping
 #         sqlalchemy_session = db.session_factory
 #         sqlalchemy_session_persistence = 'commit'
 
-#     id = factory.Faker('random_number', digits=16, fix_len=True)
-#     segment = factory.SubFactory(SegmentsFactory)
-#     snapshot = factory.SubFactory(SnapshotsFactory)
-
-
-class SnapshotFileMappingFactory(SQLAlchemyModelFactory):
-    class Meta:
-        model = SnapshotFileMapping
-        sqlalchemy_session = db.session_factory
-        sqlalchemy_session_persistence = 'commit'
-
-    id = factory.Faker('random_number', digits=16, fix_len=True)
-    file = factory.SubFactory(SegmentFilesFactory)
-    snapshot = factory.SubFactory(Snapshots)
+#     file = factory.SubFactory(SegmentFilesFactory)
+#     snapshot = factory.SubFactory(CollectionSnapshotsFactory)
