@@ -41,6 +41,10 @@ class Collections(db.Model, BaseMixin):
         s = Snapshots(collection=self)
         return s
 
+    def create_ss(self):
+        s = CollectionSnapshots(collection=self)
+        return s
+
 
 class CollectionFields(db.Model, BaseMixin):
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
@@ -78,6 +82,40 @@ class CollectionFieldIndice(db.Model, BaseMixin):
     )
 
     __tablename__ = 'CollectionFieldIndice'
+
+
+class CollectionSnapshots(db.Model, BaseMixin):
+    bound = set()
+    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
+    created_on = Column(DateTime, default=datetime.datetime.utcnow)
+    status = Column(SmallInteger, default=0)
+    version = Column(JSON, default={})
+    params = Column(JSON, default={})
+    mappings = Column(JSON, default={})
+
+    collection_id = Column(BigInteger)
+
+    collection = relationship(
+            'Collections',
+            primaryjoin='and_(foreign(CollectionSnapshots.collection_id) == Collections.id)',
+            backref=backref('ss', uselist=True, lazy='dynamic')
+    )
+
+    __tablename__ = 'CollectionSnapshots'
+
+    def append_mappings(self, *targets):
+        for target in targets:
+            if isinstance(target, int):
+                self.bound.add(target)
+                continue
+            self.bound.add(target.id)
+
+    def apply(self):
+        if len(self.bound) == 0:
+            return
+        self.mappings = list(self.bound)
+        # print(f'mappings: {self.mappings} {self.bound}')
+        self.bound.clear()
 
 
 class Snapshots(db.Model, BaseMixin):

@@ -5,7 +5,7 @@ from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import BaseProvider
 from models import (Collections, CollectionFields, CollectionFieldIndice,
-        Snapshots, Segments, SegmentFiles, SnapshotFileMapping)
+        Snapshots, Segments, SegmentFiles, SnapshotFileMapping, CollectionSnapshots)
 from models import db
 
 
@@ -23,7 +23,6 @@ class CollectionsFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session_factory
         sqlalchemy_session_persistence = 'commit'
 
-    id = factory.Faker('random_number', digits=16, fix_len=True)
     name = factory.Faker('word')
 
 
@@ -33,7 +32,6 @@ class CollectionFieldsFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session_factory
         sqlalchemy_session_persistence = 'commit'
 
-    id = factory.Faker('random_number', digits=16, fix_len=True)
     name = factory.Faker('word')
     ftype = factory.Faker('random_element', elements=(0,1,2,3,5))
     collection = factory.SubFactory(CollectionsFactory)
@@ -45,7 +43,6 @@ class CollectionFieldIndiceFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session_factory
         sqlalchemy_session_persistence = 'commit'
 
-    id = factory.Faker('random_number', digits=16, fix_len=True)
     name = factory.Faker('word')
     ftype = factory.Faker('random_element', elements=(0,1,2,3,5))
     field = factory.SubFactory(CollectionFieldsFactory)
@@ -57,7 +54,15 @@ class SnapshotsFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session_factory
         sqlalchemy_session_persistence = 'commit'
 
-    id = factory.Faker('random_number', digits=16, fix_len=True)
+    collection = factory.SubFactory(CollectionsFactory)
+
+
+class CollectionSnapshotsFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = CollectionSnapshots
+        sqlalchemy_session = db.session_factory
+        sqlalchemy_session_persistence = 'commit'
+
     collection = factory.SubFactory(CollectionsFactory)
 
 
@@ -67,7 +72,6 @@ class SegmentsFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session_factory
         sqlalchemy_session_persistence = 'commit'
 
-    id = factory.Faker('random_number', digits=16, fix_len=True)
     collection = factory.SubFactory(CollectionsFactory)
 
 
@@ -77,7 +81,6 @@ class SegmentFilesFactory(SQLAlchemyModelFactory):
         sqlalchemy_session = db.session_factory
         sqlalchemy_session_persistence = 'commit'
 
-    id = factory.Faker('random_number', digits=16, fix_len=True)
     segment = factory.SubFactory(SegmentsFactory)
     ftype = factory.Faker('random_element', elements=(0,1,2,3,5))
 
