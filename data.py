@@ -63,7 +63,7 @@ class DBProxy(Proxy):
         self.model = node.__class__
 
     def do_cleanup(self):
-        print(f'Doing CLEANUP {self.model}')
+        print(f'Doing CLEANUP {self.node.id}')
         db.Session.delete(self.node)
         db.Session.commit()
 
@@ -73,7 +73,7 @@ class SnapshotsMgr:
         self.all_snapshots = defaultdict(OrderedDict)
         self.heads = {}
         self.tails = {}
-        self.keeps = 1
+        self.keeps = 5
         self.stale_sss = {}
 
     def load_snapshots(self, collection):
@@ -116,6 +116,7 @@ class SnapshotsMgr:
         self.tails.pop(cid, None)
 
     def get_snapshot(self, collection, snapshot_id=None):
+        # import pdb;pdb.set_trace()
         cid = collection
         if isinstance(cid, Collections):
             cid = cid.id
@@ -126,13 +127,17 @@ class SnapshotsMgr:
             if not collection_sss:
                 return None
         if not snapshot_id:
-            return self.tails[cid]
+            snapshot_id = self.tails[cid].id
+            # return self.tails[cid]
 
         ss = collection_sss.get(snapshot_id, None)
+        # print(f'PRE Get SS {ss.id} ref={ss.refcnt}')
         ss.ref()
+        # print(f'POST Get SS {ss.id} ref={ss.refcnt}')
+        return ss
 
     def release_snapshot(self, snapshot):
-        snapshot.unref()
+        snapshot and snapshot.unref()
 
     def cleanupcb(self, node):
         print(f'CLEANUP: Removing {node.id} from stale snapshots list')
@@ -143,7 +148,7 @@ class SnapshotsMgr:
         ss.register_cb(self.cleanupcb)
         ss.unref()
 
-    def drop_head(self, collection):
+    def drop(self, collection):
         cid = collection
         if isinstance(cid, Collections):
             cid = cid.id
@@ -159,6 +164,22 @@ class SnapshotsMgr:
 
         self.mark_as_stale(head)
 
+    def append(self, snapshot):
+        cid = snapshot.collection
+        if isinstance(cid, Collections):
+            cid = cid.id
+        proxy = DBProxy(snapshot)
+        tail = self.tails.get(cid, None)
+        if tail:
+            assert proxy.id > tail.id
+            proxy.set_prev(tail)
+            tail.set_next(proxy)
+
+        self.tails[cid] = proxy
+        self.all_snapshots[cid][proxy.id] = proxy
+
+        if len(self.all_snapshots[cid]) > self.keeps:
+            self.drop(cid)
 
 class SegmentCommitsMgr:
     def __init__(self):
@@ -178,5 +199,12 @@ if __name__ == '__main__':
     ss_mgr = SnapshotsMgr()
     ss_mgr.load_snapshots(collection)
     ss = ss_mgr.get_snapshot(collection)
-    ss_mgr.drop_head(collection)
+
+    new_ss = collection.create_ss()
+    db.Session.add(new_ss)
+    db.Session.commit()
+    ss_mgr.append(new_ss)
+
+    # ss_mgr.release_snapshot(ss)
+
     ss_mgr.close_snapshots(collection)
