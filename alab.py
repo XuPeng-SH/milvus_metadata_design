@@ -13,9 +13,9 @@ db.drop_all()
 db.create_all()
 
 from factories import (CollectionsFactory, CollectionFieldsFactory, CollectionFieldIndiceFactory,
-        CollectionSnapshotsFactory, SegmentsFactory, SegmentFilesFactory,
+        CollectionSnapshotsFactory, SegmentsFactory, SegmentFilesFactory, CollectionFieldIndice,
         SnapshotFileMappingFactory, SegmentFiles, SnapshotFileMapping,
-        CollectionSnapshots, Segments, Collections)
+        CollectionSnapshots, Segments, Collections, CollectionFields)
 
 LSN=0
 def get_lsn():
@@ -23,11 +23,18 @@ def get_lsn():
     LSN += 1
     return LSN
 
-def Commit(*instances):
+def Commit(*instances, **kwargs):
     # print(f'Instances {instances}')
     session = db.Session
     for instance in instances:
         session.add(instance)
+    to_add = kwargs.get('to_add', [])
+    for i in to_add:
+        session.add(i)
+    to_delete = kwargs.get('to_delete', [])
+    for i in to_delete:
+        i and session.delete(i)
+
     session.commit()
 
 BINARY_FILE = 1
@@ -37,7 +44,6 @@ FILE_TYPES = [BINARY_FILE, STRING_FILE, IVFSQ8_FILE]
 
 def create_snapshot(new_files, prev=None):
     resources = []
-    # to_delete = []
     snapshot = collection.create_ss()
     segment = collection.create_segment()
     resources.append(segment)
@@ -54,14 +60,26 @@ def create_snapshot(new_files, prev=None):
 
     return snapshot
 
-collection = Collections().save()
-print(f'Collection {collection.id}')
+
+VECTOR_FIELD = 1
+INT_FIELD = 2
+STRING_FIELD = 3
+
+IVFSQ8 = 1
+IVFFLAT = 2
+
+collection = Collections()
+vf = collection.create_field(name='vector', ftype=VECTOR_FIELD, params={'dimension': 512})
+vfi = vf.add_index(name='sq8', ftype=IVFSQ8, params={'metric_type': 'L2'})
+idf = collection.create_field(name='id', ftype=STRING_FIELD)
+Commit(collection, vf, vfi, idf)
+print(f'fields: {[ (f.name, f.params) for f in collection.fields.all()]}')
 
 prev = None
 for _ in range(10):
     start = time.time()
-    snapshot = create_snapshot(5, prev=prev)
-    Commit(snapshot)
+    snapshot = create_snapshot(2, prev=prev)
+    Commit(snapshot, to_delete=[prev])
     end = time.time()
     print(f'Takes {end-start}')
     prev = snapshot

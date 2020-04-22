@@ -45,6 +45,10 @@ class Collections(db.Model, BaseMixin):
         s = CollectionSnapshots(collection=self)
         return s
 
+    def create_field(self, *args, **kwargs):
+        s = CollectionFields(*args, collection=self, **kwargs)
+        return s
+
 
 class CollectionFields(db.Model, BaseMixin):
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
@@ -63,6 +67,10 @@ class CollectionFields(db.Model, BaseMixin):
     )
 
     __tablename__ = 'CollectionFields'
+
+    def add_index(self, name, ftype, params={}):
+        idx = CollectionFieldIndice(field=self, name=name, ftype=ftype, params=params)
+        return idx
 
 
 class CollectionFieldIndice(db.Model, BaseMixin):
