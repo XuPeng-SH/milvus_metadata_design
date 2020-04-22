@@ -170,6 +170,8 @@ class SegmentFiles(db.Model, BaseMixin):
             backref=backref('files', uselist=True, lazy='dynamic')
     )
 
+    __tablename__ = 'SegmentFiles'
+
     # snapshots = relationship(
     #     'CollectionSnapshots',
     #     secondary=SnapshotFileMapping.__table__,
@@ -177,12 +179,6 @@ class SegmentFiles(db.Model, BaseMixin):
     #     secondaryjoin='and_(foreign(SnapshotFileMapping.snapshot_id) == CollectionSnapshots.id)',
     #     backref=backref('files', uselist=True)
     # )
-
-    __tablename__ = 'SegmentFiles'
-
-    def submit(self, snapshot):
-        s = SnapshotFileMapping(snapshot=snapshot, file=self)
-        return s
 
 
 # class Snapshots(db.Model, BaseMixin):
