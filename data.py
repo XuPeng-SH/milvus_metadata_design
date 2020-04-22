@@ -11,7 +11,8 @@ class Proxy:
         self.prev = None
         self.next = None
         self.refcnt = 0
-        self.cleanupcb = cleanup
+        self.cleanupcb = []
+        cleanup and self.cleanupcb.append(cleanup)
 
     def set_next(self, next_node):
         next_node.prev = self
@@ -43,8 +44,13 @@ class Proxy:
         if self.refcnt <= 0:
             self.cleanup()
 
+    def register_cb(self, cb):
+        self.cleanupcb.append(cb)
+
     def cleanup(self):
-        self.cleanupcb and self.cleanupcb(self.node)
+        # self.cleanupcb and self.cleanupcb(self.node)
+        for cb in self.cleanupcb:
+            cb(self.node)
         self.do_cleanup()
 
     def do_cleanup(self):
@@ -68,6 +74,7 @@ class SnapshotsMgr:
         self.heads = {}
         self.tails = {}
         self.keeps = 1
+        self.stale_sss = {}
 
     def load_snapshots(self, collection):
         cid = collection
@@ -97,7 +104,7 @@ class SnapshotsMgr:
         if next_node is not None:
             self.heads[cid] = next_node
 
-        print(f'{self.all_snapshots}')
+        print(f'Len of SS: {len(self.all_snapshots[cid])}')
 
     def close_snapshots(self, collection):
         cid = collection
@@ -105,7 +112,6 @@ class SnapshotsMgr:
             cid = collection.id
 
         self.all_snapshots.pop(cid)
-        # import pdb;pdb.set_trace()
         self.heads.pop(cid, None)
         self.tails.pop(cid, None)
 
@@ -122,7 +128,20 @@ class SnapshotsMgr:
         if not snapshot_id:
             return self.tails[cid]
 
-        return collection_sss.get(snapshot_id, None)
+        ss = collection_sss.get(snapshot_id, None)
+        ss.ref()
+
+    def release_snapshot(self, snapshot):
+        snapshot.unref()
+
+    def cleanupcb(self, node):
+        print(f'CLEANUP: Removing {node.id} from stale snapshots list')
+        self.stale_sss.pop(node.id, None)
+
+    def mark_as_stale(self, ss):
+        self.stale_sss[ss.id] = ss
+        ss.register_cb(self.cleanupcb)
+        ss.unref()
 
     def drop_head(self, collection):
         cid = collection
@@ -138,7 +157,7 @@ class SnapshotsMgr:
         next_node.prev = None
         self.heads[cid] = next_node
 
-        head.unref()
+        self.mark_as_stale(head)
 
 
 class SegmentCommitsMgr:

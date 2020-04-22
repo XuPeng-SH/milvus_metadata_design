@@ -236,7 +236,7 @@ Commit(collection, vf, vfi, idf)
 print(f'fields: {[ (f.name, f.params) for f in collection.fields.all()]}')
 
 prev = None
-for _ in range(2):
+for _ in range(10):
     start = time.time()
     snapshot = create_snapshot(2, prev=prev)
     Commit(snapshot)
