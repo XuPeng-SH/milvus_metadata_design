@@ -51,12 +51,13 @@ def create_snapshot(new_files, prev=None):
         resources.append(f)
 
     Commit(*resources)
-    segment_commit = SegmentCommits(segment=segment)
-    segment_commit.append_mappings(*resources[1:])
-    segment_commit.apply()
+
+    segment_commit = segment.commit_files(*resources[1:])
+
     Commit(segment_commit)
-    snapshot = collection.create_ss()
-    snapshot.append_mappings(segment_commit)
+    # snapshot = collection.create_ss()
+    # snapshot.append_mappings(segment_commit)
+    snapshot = segment_commit.commit_snapshot()
 
     if prev:
         snapshot.append_mappings(*prev.mappings)

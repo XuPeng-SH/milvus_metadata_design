@@ -194,6 +194,14 @@ class SegmentCommits(db.Model, BaseMixin):
         self.mappings = list(self.bound)
         self.bound.clear()
 
+    def commit_snapshot(self, target=None, **kwargs):
+        target = kwargs.pop('target', None)
+        apply = kwargs.pop('apply', False)
+        target = target if target else self.segment.collection.create_ss()
+        target.append_mappings(self)
+        apply and target.apply()
+        return target
+
 
 class SegmentFiles(db.Model, BaseMixin):
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
