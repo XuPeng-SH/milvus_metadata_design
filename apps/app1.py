@@ -10,9 +10,6 @@ from collections import defaultdict
 import threading
 from database import db
 
-# SQLALCHEMY_DATABASE_URI='sqlite:////tmp/meta_lab/meta.sqlite?check_same_thread=False'
-# db.init_db(uri=SQLALCHEMY_DATABASE_URI)
-
 import database.models
 
 db.drop_all()
@@ -23,30 +20,8 @@ from database.factories import (CollectionsFactory, CollectionFieldsFactory, Col
         SegmentFiles, SegmentCommits,
         CollectionSnapshots, Segments, Collections, CollectionFields)
 
-LSN=0
-def get_lsn():
-    global LSN
-    LSN += 1
-    return LSN
-
-def Commit(*instances, **kwargs):
-    # print(f'Instances {instances}')
-    session = db.Session
-    for instance in instances:
-        session.add(instance)
-    to_add = kwargs.get('to_add', [])
-    for i in to_add:
-        session.add(i)
-    to_delete = kwargs.get('to_delete', [])
-    for i in to_delete:
-        i and session.delete(i)
-
-    session.commit()
-
-BINARY_FILE = 1
-STRING_FILE = 2
-IVFSQ8_FILE = 3
-FILE_TYPES = [BINARY_FILE, STRING_FILE, IVFSQ8_FILE]
+from utils import get_lsn
+from database.utils import Commit
 
 class Head: pass
 
@@ -82,27 +57,7 @@ class SnapshotsList:
         return self.nodes[-1]
 
 
-def create_snapshot(new_files, segment=None, prev=None):
-    resources = []
-    segment = segment if segment else collection.create_segment()
-    resources.append(segment)
-    for i in range(new_files):
-        f = segment.create_file(ftype=random.choice(FILE_TYPES), lsn=get_lsn())
-        resources.append(f)
-
-    Commit(*resources)
-
-    segment_commit = segment.commit_files(*resources[1:])
-
-    Commit(segment_commit)
-    snapshot = segment_commit.commit_snapshot()
-
-    if prev:
-        snapshot.append_mappings(*prev.mappings)
-    snapshot.apply()
-
-    return snapshot
-
+from database.factories import create_snapshot
 
 import queue
 class Woker(threading.Thread):
@@ -243,7 +198,7 @@ print(f'fields: {[ (f.name, f.params) for f in collection.fields.all()]}')
 prev = None
 for _ in range(10):
     start = time.time()
-    snapshot = create_snapshot(2, prev=prev)
+    snapshot = create_snapshot(collection, 2, prev=prev)
     Commit(snapshot)
     context = WorkerContext(snapshot, prev)
     prev and worker.submit(context)
@@ -253,13 +208,11 @@ for _ in range(10):
     prev = snapshot
 
 commit = prev.commits.first()
-ss = create_snapshot(3, segment=commit.segment, prev=prev)
+ss = create_snapshot(collection, 3, segment=commit.segment, prev=prev)
 Commit(ss)
 context = WorkerContext(ss, prev)
-print(f'XXXXXX {context.stale_files}')
 prev and worker.submit(context)
 
-# print(f'Snapshots {collection.snapshots.all()}')
 time.sleep(0.1)
 snapshots = collection.snapshots.all()
 for ss in snapshots:
@@ -271,14 +224,5 @@ for ss in snapshots:
 smgr = SnapshotsList()
 print(f'Current {smgr.current.id}')
 
-# segments = collection.segments.all()
-# for segment in segments:
-#     f = segment.create_file(lsn=get_lsn())
-#     Commit(f)
-#     c = segment.commit_files(f)
-#     Commit(c)
-    # print(f'{segment} {segment.commits.all()}')
-
-# time.sleep(0.1)
 worker.stop()
 sys.exit(0)
