@@ -147,6 +147,7 @@ class Level2ResourceMgr:
     level_two_model = None
     link_key = ''
     proxy_class = DBProxy
+    pk = 'id'
     def __init__(self):
         self.resources = defaultdict(OrderedDict)
 
@@ -156,8 +157,12 @@ class Level2ResourceMgr:
         self.resources[level_one_key].pop(target.id, None)
 
     def get_level2_records(self, level_one_id, **kwargs):
-        records = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
-            self.link_key)==level_one_id).all()
+        query = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
+            self.link_key)==level_one_id)
+        level2_id = kwargs.pop('level2_id', None)
+        if level2_id is not None:
+            query = query.filter(getattr(self.level_two_model, self.pk)==level2_id)
+        records = query.all()
         return records
 
     def update_level2_records(self, level_one_id, level_two_id, record):
@@ -168,12 +173,12 @@ class Level2ResourceMgr:
             proxy = self.proxy_class(record, cleanup=self.cleanupcb)
             self.update_level2_records(level_one_id, record.id, proxy)
 
-    def load(self, level_one_id):
+    def load(self, level_one_id, level2_id=None):
         lid = level_one_id
         if isinstance(level_one_id, self.proxy_class):
             lid = level_one_id.id
 
-        records = self.get_level2_records(lid)
+        records = self.get_level2_records(lid, level2_id=level2_id)
 
         self.process_new_level2_records(lid, records)
 
@@ -215,6 +220,9 @@ class Level2ResourceMgr:
                 return
 
         ss = level_one_resource.get(level_two_id, None)
+        if not ss:
+            self.load(lid, level_two_id)
+            ss = level_one_resource.get(level_two_id, None)
         # ss and print(f'PRE  Get SS {ss.id} ref={ss.refcnt}')
         ss and ss.ref()
         # ss and print(f'POST Get SS {ss.id} ref={ss.refcnt}')
@@ -314,7 +322,7 @@ class SnapshotsMgr(Level2ResourceMgr):
         for commit_id in proxy.mappings:
             commit = self.commits_mgr.get(record.collection.id, commit_id)
             proxy.register_cb(partial(UnrefFirstCB, commit))
-            print(f'\tcc {commit.id if commit else None} {commit_id}')
+            print(f'\tcid {record.collection.id} cc {commit.id if commit else None} {commit_id} {proxy.mappings}')
 
         return proxy
 
@@ -413,11 +421,16 @@ class SnapshotsMgr(Level2ResourceMgr):
             cid = cid.id
         # proxy = self.proxy_class(snapshot, cleanup=self.cleanupcb)
         proxy = self.wrap_new_level2_record(snapshot)
+        proxy.ref()
         tail = self.tails.get(cid, None)
         if tail:
             assert proxy.id > tail.id
             proxy.set_prev(tail)
             tail.set_next(proxy)
+
+        head = self.heads.get(cid, None)
+        if not head:
+            self.heads[cid] = proxy
 
         self.tails[cid] = proxy
         self.resources[cid][proxy.id] = proxy
