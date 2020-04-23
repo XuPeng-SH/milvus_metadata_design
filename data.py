@@ -3,6 +3,7 @@ SQLALCHEMY_DATABASE_URI='sqlite:////tmp/meta_lab/meta.sqlite?check_same_thread=F
 db.init_db(uri=SQLALCHEMY_DATABASE_URI)
 
 from collections import defaultdict, OrderedDict
+from functools import partial
 from models import Segments, SegmentCommits, Collections, CollectionSnapshots, SegmentFiles
 
 class Proxy:
@@ -123,8 +124,9 @@ class ResourceMgr:
                 return None
 
         ss = level_one_resource.get(level_two_id, None)
-        # ss and print(f'PRE Get SS {ss.id} ref={ss.refcnt}')
+        ss and print(f'PRE  Get SS {ss.id} ref={ss.refcnt}')
         ss and ss.ref()
+        ss and print(f'POST Get SS {ss.id} ref={ss.refcnt}')
         return ss
 
     def release(self, resource):
@@ -135,10 +137,6 @@ class SegmentFilesMgr(ResourceMgr):
     level_one_model = Collections
     level_two_model = SegmentFiles
     link_key = 'collection_id'
-
-    def __init__(self, segment_commit_mgr):
-        super().__init__()
-        self.segment_commit_mgr = segment_commit_mgr
 
 
 class SegmentsMgr(ResourceMgr):
@@ -152,9 +150,27 @@ class SegmentsCommitsMgr(ResourceMgr):
     level_two_model = SegmentCommits
     link_key = 'collection_id'
 
-    def __init__(self, segment_mgr):
+    def __init__(self, segment_mgr, segment_files_mgr):
         super().__init__()
         self.segment_mgr = segment_mgr
+        self.segment_files_mgr = segment_files_mgr
+
+    def load(self, level_one_id):
+        lid = level_one_id
+        if isinstance(level_one_id, self.level_one_model):
+            lid = level_one_id.id
+
+        records = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
+            self.link_key)==lid).all()
+
+        def cb(first, second):
+            first.unref()
+
+        for record in records:
+            segment = self.segment_mgr.get(record.collection_id, record.segment_id)
+            proxy = self.proxy_class(record, cleanup=self.cleanupcb)
+            proxy.register_cb(partial(cb, segment))
+            self.resources[lid][record.id] = proxy
 
 
 class SnapshotsMgr:
@@ -220,9 +236,9 @@ class SnapshotsMgr:
             # return self.tails[cid]
 
         ss = collection_sss.get(snapshot_id, None)
-        ss and print(f'PRE Get SS {ss.id} ref={ss.refcnt}')
+        # ss and print(f'PRE Get SS {ss.id} ref={ss.refcnt}')
         ss and ss.ref()
-        ss and print(f'POST Get SS {ss.id} ref={ss.refcnt}')
+        # ss and print(f'POST Get SS {ss.id} ref={ss.refcnt}')
         return ss
 
     def release_snapshot(self, snapshot):
@@ -282,19 +298,24 @@ if __name__ == '__main__':
     collection = db.Session.query(Collections).first()
     seg_mgr = SegmentsMgr()
     seg_mgr.load(collection)
-    segment = seg_mgr.get(collection, 2)
-    print(f'Segment cid={segment.collection.id} sid={segment.id}')
-    seg_mgr.release(segment)
+    # segment = seg_mgr.get(collection, 2)
+    # print(f'Segment cid={segment.collection.id} sid={segment.id}')
+    # seg_mgr.release(segment)
 
-    seg_commit_mgr = SegmentsCommitsMgr(seg_mgr)
+    seg_files_mgr = SegmentFilesMgr()
+    seg_files_mgr.load(collection)
+
+    seg_commit_mgr = SegmentsCommitsMgr(seg_mgr, seg_files_mgr)
     seg_commit_mgr.load(collection)
-    segment_commit = seg_commit_mgr.get(collection, segment.commits.first().id)
+    segment_commit = seg_commit_mgr.get(collection, 1)
     seg_commit_mgr.release(segment_commit)
     # print(f'Segment cid={segment.collection.id} sid={segment.id}')
 
-    seg_files_mgr = SegmentFilesMgr(seg_commit_mgr)
-    seg_files_mgr.load(collection)
+    for _, seg in seg_mgr.resources[collection.id].items():
+        print(f'Segments {seg.id} {seg.refcnt}')
 
+    for _, seg in seg_commit_mgr.resources[collection.id].items():
+        print(f'Commits {seg.id} {seg.refcnt}')
 
     sys.exit(0)
 
