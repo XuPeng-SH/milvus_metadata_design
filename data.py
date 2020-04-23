@@ -204,21 +204,27 @@ class SnapshotsMgr(ResourceMgr):
         records = super().get_level2_records(level_one_id, **kwargs)
         return sorted(records, key=lambda record: record.id, reverse=True)
 
-    def process_new_level2_records(self, level_one_id, records):
+    def wrap_new_level2_record(self, record, **kwargs):
         def cb(first, second):
             print(f'Unref {first.node.__class__.__name__} {first.id}')
             first.unref()
 
+        proxy = self.proxy_class(record, cleanup=self.cleanupcb)
+
+        print(f'ss {record.id}')
+        for commit_id in proxy.mappings:
+            commit = self.commits_mgr.get(record.collection.id, commit_id)
+            proxy.register_cb(partial(cb, commit))
+            print(f'\tcc {commit.id if commit else None} {commit_id}')
+
+        return proxy
+
+    def process_new_level2_records(self, level_one_id, records):
         next_node = None
         num = 0
         for record in records:
             num += 1
-            proxy = self.proxy_class(record, cleanup=self.cleanupcb)
-            print(f'ss {record.id}')
-            for commit_id in proxy.mappings:
-                commit = self.commits_mgr.get(record.collection.id, commit_id)
-                proxy.register_cb(partial(cb, commit))
-                print(f'\tcc {commit.id if commit else None} {commit_id}')
+            proxy = self.wrap_new_level2_record(record)
 
             if num > self.keeps:
                 proxy.unref()
@@ -279,7 +285,8 @@ class SnapshotsMgr(ResourceMgr):
         cid = snapshot.collection
         if isinstance(cid, Collections):
             cid = cid.id
-        proxy = self.proxy_class(snapshot, cleanup=self.cleanupcb)
+        # proxy = self.proxy_class(snapshot, cleanup=self.cleanupcb)
+        proxy = self.wrap_new_level2_record(snapshot)
         tail = self.tails.get(cid, None)
         if tail:
             assert proxy.id > tail.id
