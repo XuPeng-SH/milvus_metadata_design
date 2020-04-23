@@ -3,7 +3,7 @@ SQLALCHEMY_DATABASE_URI='sqlite:////tmp/meta_lab/meta.sqlite?check_same_thread=F
 db.init_db(uri=SQLALCHEMY_DATABASE_URI)
 
 from collections import defaultdict, OrderedDict
-from models import Segments, SegmentCommits, Collections, CollectionSnapshots
+from models import Segments, SegmentCommits, Collections, CollectionSnapshots, SegmentFiles
 
 class Proxy:
     def __init__(self, node, cleanup=None):
@@ -63,9 +63,98 @@ class DBProxy(Proxy):
         self.model = node.__class__
 
     def do_cleanup(self):
-        print(f'Doing CLEANUP {self.node.id}')
-        db.Session.delete(self.node)
-        db.Session.commit()
+        print(f'Doing CLEANUP {self.model.__name__} {self.node.id}')
+        # db.Session.delete(self.node)
+        # db.Session.commit()
+
+
+class HirachyDBProxy(DBProxy):
+    def __init__(self, node, parent, cleanup=None):
+        super().__init__(node, cleanup=cleanup)
+        self.parent = parent
+        self.parent.ref()
+
+    def do_cleanup(self):
+        super().do_cleanup()
+        self.parent.unref()
+
+
+class ResourceMgr:
+    level_one_model = None
+    level_two_model = None
+    link_key = ''
+    proxy_class = DBProxy
+    def __init__(self):
+        self.resources = defaultdict(OrderedDict)
+
+    def cleanupcb(self, target):
+        level_one_key = getattr(target, self.link_key)
+        print(f'Removing l1={level_one_key} l2={target.id}')
+        self.resources[level_one_key].pop(target.id, None)
+
+    def load(self, level_one_id):
+        lid = level_one_id
+        if isinstance(level_one_id, self.level_one_model):
+            lid = level_one_id.id
+
+        records = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
+            self.link_key)==lid).all()
+
+        for record in records:
+            proxy = self.proxy_class(record, cleanup=self.cleanupcb)
+            self.resources[lid][record.id] = proxy
+
+        # for k, v in self.resources.items():
+        #     print(f'{k} --')
+        #     for kk, vv in v.items():
+        #         print(f'\t{kk}')
+
+    def get(self, level_one_id, level_two_id=None):
+        assert level_two_id is not None
+        lid = level_one_id
+        if isinstance(level_one_id, self.level_one_model):
+            lid = level_one_id.id
+
+        level_one_resource = self.resources.get(lid, None)
+        if not level_one_resource:
+            self.load(lid)
+            level_one_resource = self.resources.get(lid, None)
+            if not level_one_resource:
+                return None
+
+        ss = level_one_resource.get(level_two_id, None)
+        # ss and print(f'PRE Get SS {ss.id} ref={ss.refcnt}')
+        ss and ss.ref()
+        return ss
+
+    def release(self, resource):
+        resource and resource.unref()
+
+
+class SegmentFilesMgr(ResourceMgr):
+    level_one_model = Collections
+    level_two_model = SegmentFiles
+    link_key = 'collection_id'
+
+    def __init__(self, segment_commit_mgr):
+        super().__init__()
+        self.segment_commit_mgr = segment_commit_mgr
+
+
+class SegmentsMgr(ResourceMgr):
+    level_one_model = Collections
+    level_two_model = Segments
+    link_key = 'collection_id'
+
+
+class SegmentsCommitsMgr(ResourceMgr):
+    level_one_model = Collections
+    level_two_model = SegmentCommits
+    link_key = 'collection_id'
+
+    def __init__(self, segment_mgr):
+        super().__init__()
+        self.segment_mgr = segment_mgr
 
 
 class SnapshotsMgr:
@@ -74,7 +163,7 @@ class SnapshotsMgr:
         self.heads = {}
         self.tails = {}
         self.keeps = 5
-        self.stale_sss = {}
+        self.stale_sss = defaultdict(OrderedDict)
 
     def load_snapshots(self, collection):
         cid = collection
@@ -131,9 +220,9 @@ class SnapshotsMgr:
             # return self.tails[cid]
 
         ss = collection_sss.get(snapshot_id, None)
-        # print(f'PRE Get SS {ss.id} ref={ss.refcnt}')
-        ss.ref()
-        # print(f'POST Get SS {ss.id} ref={ss.refcnt}')
+        ss and print(f'PRE Get SS {ss.id} ref={ss.refcnt}')
+        ss and ss.ref()
+        ss and print(f'POST Get SS {ss.id} ref={ss.refcnt}')
         return ss
 
     def release_snapshot(self, snapshot):
@@ -141,10 +230,10 @@ class SnapshotsMgr:
 
     def cleanupcb(self, node):
         print(f'CLEANUP: Removing {node.id} from stale snapshots list')
-        self.stale_sss.pop(node.id, None)
+        self.stale_sss[node.collection.id].pop(node.id, None)
 
     def mark_as_stale(self, ss):
-        self.stale_sss[ss.id] = ss
+        self.stale_sss[ss.collection.id][ss.id] = ss
         ss.register_cb(self.cleanupcb)
         ss.unref()
 
@@ -181,30 +270,54 @@ class SnapshotsMgr:
         if len(self.all_snapshots[cid]) > self.keeps:
             self.drop(cid)
 
-class SegmentCommitsMgr:
-    def __init__(self):
-        self.all_commits = {}
+    def active_snapshots(self, collection):
+        cid = collection
+        if isinstance(cid, Collections):
+            cid = cid.id
+        return sorted(self.all_snapshots[cid].keys()), self.stale_sss[cid].keys()
 
-    def load_commits(self, segment):
-        sid = segment
-        if isinstance(segment, Segments):
-            sid = segment.id
-
-        commits = db.Session.query(SegmentCommits).filter(SegmentCommits.segment_id==sid).all()
-        for commit in commits:
-            self.all_commits[commit.id] = commit
 
 if __name__ == '__main__':
+    import sys
     collection = db.Session.query(Collections).first()
+    seg_mgr = SegmentsMgr()
+    seg_mgr.load(collection)
+    segment = seg_mgr.get(collection, 2)
+    print(f'Segment cid={segment.collection.id} sid={segment.id}')
+    seg_mgr.release(segment)
+
+    seg_commit_mgr = SegmentsCommitsMgr(seg_mgr)
+    seg_commit_mgr.load(collection)
+    segment_commit = seg_commit_mgr.get(collection, segment.commits.first().id)
+    seg_commit_mgr.release(segment_commit)
+    # print(f'Segment cid={segment.collection.id} sid={segment.id}')
+
+    seg_files_mgr = SegmentFilesMgr(seg_commit_mgr)
+    seg_files_mgr.load(collection)
+
+
+    sys.exit(0)
+
     ss_mgr = SnapshotsMgr()
     ss_mgr.load_snapshots(collection)
-    ss = ss_mgr.get_snapshot(collection)
+    s7 = ss_mgr.get_snapshot(collection, 7)
+    s8 = ss_mgr.get_snapshot(collection, 8)
 
     new_ss = collection.create_snapshot()
     db.Session.add(new_ss)
     db.Session.commit()
     ss_mgr.append(new_ss)
 
-    ss_mgr.release_snapshot(ss)
+    new_ss = collection.create_snapshot()
+    db.Session.add(new_ss)
+    db.Session.commit()
+    ss_mgr.append(new_ss)
+
+    import time
+    time.sleep(0.1)
+    print(f'Actives: {ss_mgr.active_snapshots(collection)}')
+
+    ss_mgr.release_snapshot(s7)
+    ss_mgr.release_snapshot(s8)
 
     ss_mgr.close_snapshots(collection)

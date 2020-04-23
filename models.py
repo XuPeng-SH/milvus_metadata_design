@@ -144,12 +144,12 @@ class Segments(db.Model, BaseMixin):
 
     def create_file(self, ftype=None, lsn=None, size=None, version=None, attributes=None):
         f = SegmentFiles(ftype=ftype, lsn=lsn, size=size, version=version, attributes=attributes,
-                segment=self)
+                segment=self, collection_id=self.collection.id)
         return f
 
     def commit_files(self, *files, **kwargs):
         target = kwargs.pop('target', None)
-        target = target if target else SegmentCommits(segment=self, **kwargs)
+        target = target if target else SegmentCommits(segment=self, collection_id=self.collection_id, **kwargs)
         target.append_mappings(*files)
         target.apply()
         return target
@@ -162,12 +162,19 @@ class SegmentCommits(db.Model, BaseMixin):
     status = Column(SmallInteger, default=0)
     version = Column(JSON, default={})
 
+    collection_id = Column(BigInteger)
     segment_id = Column(BigInteger, nullable=False)
     mappings = Column(JSON, default={})
 
     segment = relationship(
             'Segments',
             primaryjoin='and_(foreign(SegmentCommits.segment_id) == Segments.id)',
+            backref=backref('commits', uselist=True, lazy='dynamic')
+    )
+
+    collection = relationship(
+            'Collections',
+            primaryjoin='and_(foreign(SegmentCommits.collection_id) == Collections.id)',
             backref=backref('commits', uselist=True, lazy='dynamic')
     )
 
@@ -206,6 +213,7 @@ class SegmentFiles(db.Model, BaseMixin):
     version = Column(JSON, default={})
     attributes = Column(JSON, default={})
 
+    collection_id = Column(BigInteger, nullable=False)
     segment_id = Column(BigInteger, nullable=False)
     ftype = Column(Integer)
     entity_cnt = Column(BigInteger, default=0)
