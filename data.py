@@ -50,9 +50,9 @@ class Proxy:
 
     def cleanup(self):
         # self.cleanupcb and self.cleanupcb(self.node)
+        self.do_cleanup()
         for cb in self.cleanupcb:
             cb(self.node)
-        self.do_cleanup()
 
     def do_cleanup(self):
         pass
@@ -65,8 +65,8 @@ class DBProxy(Proxy):
 
     def do_cleanup(self):
         print(f'Doing CLEANUP {self.model.__name__} {self.node.id}')
-        # db.Session.delete(self.node)
-        # db.Session.commit()
+        db.Session.delete(self.node)
+        db.Session.commit()
 
 
 class HirachyDBProxy(DBProxy):
@@ -124,9 +124,9 @@ class ResourceMgr:
                 return None
 
         ss = level_one_resource.get(level_two_id, None)
-        ss and print(f'PRE  Get SS {ss.id} ref={ss.refcnt}')
+        # ss and print(f'PRE  Get SS {ss.id} ref={ss.refcnt}')
         ss and ss.ref()
-        ss and print(f'POST Get SS {ss.id} ref={ss.refcnt}')
+        # ss and print(f'POST Get SS {ss.id} ref={ss.refcnt}')
         return ss
 
     def release(self, resource):
@@ -164,11 +164,17 @@ class SegmentsCommitsMgr(ResourceMgr):
             self.link_key)==lid).all()
 
         def cb(first, second):
+            print(f'Unref {first.node.__class__.__name__} {first.id}')
             first.unref()
 
         for record in records:
-            segment = self.segment_mgr.get(record.collection_id, record.segment_id)
             proxy = self.proxy_class(record, cleanup=self.cleanupcb)
+            print(f'c {record.id}')
+            for file_id in proxy.mappings:
+                seg_file = self.segment_files_mgr.get(record.collection_id, file_id)
+                proxy.register_cb(partial(cb, seg_file))
+                print(f'\tf {seg_file.id}')
+            segment = self.segment_mgr.get(record.collection_id, record.segment_id)
             proxy.register_cb(partial(cb, segment))
             self.resources[lid][record.id] = proxy
 
@@ -307,7 +313,7 @@ if __name__ == '__main__':
 
     seg_commit_mgr = SegmentsCommitsMgr(seg_mgr, seg_files_mgr)
     seg_commit_mgr.load(collection)
-    segment_commit = seg_commit_mgr.get(collection, 1)
+    segment_commit = seg_commit_mgr.get(collection, 6)
     seg_commit_mgr.release(segment_commit)
     # print(f'Segment cid={segment.collection.id} sid={segment.id}')
 
