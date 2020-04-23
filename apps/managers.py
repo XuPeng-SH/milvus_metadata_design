@@ -1,6 +1,3 @@
-# from init_db import db
-# SQLALCHEMY_DATABASE_URI='sqlite:////tmp/meta_lab/meta.sqlite?check_same_thread=False'
-# db.init_db(uri=SQLALCHEMY_DATABASE_URI)
 import sys
 import os
 if __name__ == '__main__':
@@ -276,7 +273,7 @@ class CollectionsMgr(Level1ResourceMgr):
         super().__init__()
         self.load_all()
 
-    def manage(self, new_collection_id):
+    def append(self, new_collection_id):
         nid = new_collection_id
         if not isinstance(nid, str):
             nid = new_collection_id.id
@@ -369,15 +366,6 @@ class SnapshotsMgr(Level2ResourceMgr):
 
         print(f'Len of SS: {len(self.resources[level_one_id])}')
 
-    # def close_snapshots(self, collection):
-    #     cid = collection
-    #     if isinstance(collection, Collections):
-    #         cid = collection.id
-
-    #     self.resources.pop(cid)
-    #     self.heads.pop(cid, None)
-    #     self.tails.pop(cid, None)
-
     def get_without_level_two_id(self, level_one_id):
         level_two_id = self.tails[level_one_id].id
         return True, level_two_id
@@ -442,60 +430,4 @@ class SnapshotsMgr(Level2ResourceMgr):
         cid = collection
         if isinstance(cid, Collections):
             cid = cid.id
-        return sorted(self.resources[cid].keys()), self.stale_sss[cid].keys()
-
-
-if __name__ == '__main__':
-    import sys
-    collection = db.Session.query(Collections).first()
-    seg_mgr = SegmentsMgr()
-    seg_mgr.load(collection)
-    # segment = seg_mgr.get(collection, 2)
-    # print(f'Segment cid={segment.collection.id} sid={segment.id}')
-    # seg_mgr.release(segment)
-
-    seg_files_mgr = SegmentFilesMgr()
-    seg_files_mgr.load(collection)
-
-    seg_commit_mgr = SegmentsCommitsMgr(seg_mgr, seg_files_mgr)
-    seg_commit_mgr.load(collection)
-    # segment_commit = seg_commit_mgr.get(collection, 6)
-    # seg_commit_mgr.release(segment_commit)
-    # print(f'Segment cid={segment.collection.id} sid={segment.id}')
-
-    # sys.exit(0)
-
-    collection_mgr = CollectionsMgr()
-
-    ss_mgr = SnapshotsMgr(collection_mgr, seg_commit_mgr)
-    ss_mgr.load(collection)
-    s7 = ss_mgr.get(collection, 7)
-    s8 = ss_mgr.get(collection, 8)
-
-    new_ss = collection.create_snapshot()
-    db.Session.add(new_ss)
-    db.Session.commit()
-    ss_mgr.append(new_ss)
-
-    new_ss = collection.create_snapshot()
-    db.Session.add(new_ss)
-    db.Session.commit()
-    ss_mgr.append(new_ss)
-
-    import time
-    time.sleep(0.1)
-    print(f'Actives: {ss_mgr.active_snapshots(collection)}')
-
-    for _, seg in seg_commit_mgr.resources[collection.id].items():
-        print(f'Commits {seg.id} {seg.refcnt}')
-    ss_mgr.release(s7)
-    ss_mgr.release(s8)
-
-    # for _, seg in seg_mgr.resources[collection.id].items():
-    #     print(f'Segments {seg.id} {seg.refcnt}')
-
-    for _, seg in seg_commit_mgr.resources[collection.id].items():
-        print(f'Commits {seg.id} {seg.refcnt}')
-
-    for k, v in collection_mgr.resources.items():
-        print(f'Collection {k} {v.refcnt}')
+        return sorted(self.resources[cid].keys()), list(self.stale_sss[cid].keys())

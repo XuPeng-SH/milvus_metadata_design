@@ -17,15 +17,14 @@ seg_files_mgr = SegmentFilesMgr()
 segs_mgr = SegmentsMgr()
 seg_commits_mgr = SegmentsCommitsMgr(segs_mgr, seg_files_mgr)
 collection_mgr = CollectionsMgr()
-ss_mgr = SnapshotsMgr(collection_mgr, seg_commits_mgr, keeps=10)
+ss_mgr = SnapshotsMgr(collection_mgr, seg_commits_mgr, keeps=1)
 
 # Create a new Collection
 c1 = Collections()
-db.Session.add(c1)
-db.Session.commit()
+Commit(c1)
 
 # Submit to collection_mgr
-collection_mgr.manage(c1)
+collection_mgr.append(c1)
 print(f'{ss_mgr.active_snapshots(c1)}')
 
 # Create a snapshot
@@ -36,6 +35,9 @@ Commit(s1)
 ss_mgr.append(s1)
 print(f'{ss_mgr.active_snapshots(c1)}')
 
+# Get latest snapshot
+latest = ss_mgr.get(c1.id)
+
 # # Create a snapshot
 s2 = create_snapshot(c1, 3)
 Commit(s2)
@@ -44,11 +46,10 @@ Commit(s2)
 ss_mgr.append(s2)
 print(f'{ss_mgr.active_snapshots(c1)}')
 
-# Drop s1
-ss_mgr.drop(c1)
+segs_mgr.release(latest)
 print(f'{ss_mgr.active_snapshots(c1)}')
 
-# Drop s2. c1 also will be deleted
-ss_mgr.drop(c1)
-print(f'{ss_mgr.active_snapshots(c1)}')
+# # Drop s2. c1 also will be deleted
+# ss_mgr.drop(c1)
+# print(f'{ss_mgr.active_snapshots(c1)}')
 # print(list(ss_mgr.collections_map.values())[0].id)
