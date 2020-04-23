@@ -65,7 +65,8 @@ class CollectionFields(db.Model, BaseMixin):
     __tablename__ = 'CollectionFields'
 
     def add_index(self, name, ftype, params={}):
-        idx = CollectionFieldIndice(field=self, name=name, ftype=ftype, params=params)
+        idx = CollectionFieldIndice(field=self, name=name, ftype=ftype, params=params,
+                collection=self.collection)
         return idx
 
 
@@ -78,6 +79,14 @@ class CollectionFieldIndice(db.Model, BaseMixin):
     field_id = Column(BigInteger)
     version = Column(JSON, default={})
     params = Column(JSON, default={})
+    collection_id = Column(BigInteger)
+
+    collection = relationship(
+            'Collections',
+            primaryjoin='and_(foreign(CollectionFieldIndice.collection_id) == Collections.id)',
+            backref=backref('indice', uselist=True, lazy='dynamic')
+    )
+
 
     field = relationship(
             'CollectionFields',
