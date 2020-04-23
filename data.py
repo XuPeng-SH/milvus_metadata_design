@@ -170,14 +170,7 @@ class SegmentsCommitsMgr(ResourceMgr):
         self.segment_mgr = segment_mgr
         self.segment_files_mgr = segment_files_mgr
 
-    def load(self, level_one_id):
-        lid = level_one_id
-        if isinstance(level_one_id, self.level_one_model):
-            lid = level_one_id.id
-
-        records = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
-            self.link_key)==lid).all()
-
+    def process_new_level2_records(self, level_one_id, records):
         def cb(first, second):
             print(f'Unref {first.node.__class__.__name__} {first.id}')
             first.unref()
@@ -191,7 +184,7 @@ class SegmentsCommitsMgr(ResourceMgr):
                 print(f'\tf {seg_file.id}')
             segment = self.segment_mgr.get(record.collection_id, record.segment_id)
             proxy.register_cb(partial(cb, segment))
-            self.resources[lid][record.id] = proxy
+            self.resources[level_one_id][record.id] = proxy
 
 
 class SnapshotsMgr(ResourceMgr):
@@ -207,20 +200,14 @@ class SnapshotsMgr(ResourceMgr):
         self.stale_sss = defaultdict(OrderedDict)
         self.commits_mgr = commits_mgr
 
-    def load(self, level_one_id):
-        lid = level_one_id
-        if isinstance(level_one_id, self.level_one_model):
-            lid = level_one_id.id
+    def get_level2_records(self, level_one_id, **kwargs):
+        records = super().get_level2_records(level_one_id, **kwargs)
+        return sorted(records, key=lambda record: record.id, reverse=True)
 
+    def process_new_level2_records(self, level_one_id, records):
         def cb(first, second):
             print(f'Unref {first.node.__class__.__name__} {first.id}')
             first.unref()
-
-        # records = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
-        #     self.link_key)==lid).all()
-
-        records = db.Session.query(CollectionSnapshots).filter(CollectionSnapshots.collection_id==lid
-                ).order_by(CollectionSnapshots.id.desc()).all()
 
         next_node = None
         num = 0
@@ -241,14 +228,14 @@ class SnapshotsMgr(ResourceMgr):
             if next_node is not None:
                 proxy.set_next(next_node)
             else:
-                self.tails[lid] = proxy
-            self.resources[lid][record.id] = proxy
+                self.tails[level_one_id] = proxy
+            self.resources[level_one_id][record.id] = proxy
             next_node = proxy
 
         if next_node is not None:
-            self.heads[lid] = next_node
+            self.heads[level_one_id] = next_node
 
-        print(f'Len of SS: {len(self.resources[lid])}')
+        print(f'Len of SS: {len(self.resources[level_one_id])}')
 
     # def close_snapshots(self, collection):
     #     cid = collection
