@@ -94,9 +94,19 @@ class Level1ResourceMgr:
             self.pk)==level_one_id).first()
         return record
 
+    def get_all_records(self):
+        records = db.Session.query(self.level_one_model).all()
+        return records
+
     def wrap_record(self, record):
         wrapped = self.proxy_class(record, cleanup=self.cleanupcb)
         return wrapped
+
+    def load_all(self):
+        records = self.get_all_records()
+        for record in records:
+            wrapped = self.wrap_record(record)
+            self.resources[wrapped.id] = wrapped
 
     def load(self, level_one_id):
         if self.resources.get(level_one_id, None):
@@ -239,6 +249,9 @@ class SegmentsCommitsMgr(Level2ResourceMgr):
 
 class CollectionsMgr(Level1ResourceMgr):
     level_one_model = Collections
+    def __init__(self):
+        super().__init__()
+        self.load_all()
 
 def UnrefFirstCB(first, second):
     print(f'Unref {first.node.__class__.__name__} {first.id}')
@@ -251,6 +264,7 @@ class SnapshotsMgr(Level2ResourceMgr):
 
     def __init__(self, collection_mgr, commits_mgr, keeps=1):
         super().__init__()
+        self.collections_map = {}
         self.heads = {}
         self.tails = {}
         self.keeps = keeps
@@ -258,6 +272,12 @@ class SnapshotsMgr(Level2ResourceMgr):
         self.collection_mgr = collection_mgr
         self.commits_mgr = commits_mgr
         self.level2_resources_empty_cbs = defaultdict(list)
+        self.load_all()
+
+    def load_all(self):
+        collection_ids = self.collection_mgr.resources.keys()
+        for cid in collection_ids:
+            self.load(cid)
 
     def get_level2_records(self, level_one_id, **kwargs):
         records = super().get_level2_records(level_one_id, **kwargs)
@@ -267,7 +287,7 @@ class SnapshotsMgr(Level2ResourceMgr):
 
         proxy = self.proxy_class(record, cleanup=self.cleanupcb)
 
-        print(f'ss {record.id}')
+        # print(f'ss {record.id}')
         for commit_id in proxy.mappings:
             commit = self.commits_mgr.get(record.collection.id, commit_id)
             proxy.register_cb(partial(UnrefFirstCB, commit))
@@ -285,17 +305,18 @@ class SnapshotsMgr(Level2ResourceMgr):
         self.level2_resources_empty_cbs[level_one_id].append(cb)
 
     def update_level2_records(self, level_one_id, level_two_id, record):
-        level_one_resources = self.resources.get(level_one_id, None)
-        if not level_one_resources:
-            collection = self.collection_mgr.get(level_one_id)
-            self.register_level1_empty_cb(level_one_id, partial(UnrefFirstCB, collection, None))
-            # record.register_cb(partial(UnrefFirstCB, collection))
-
         self.resources[level_one_id][record.id] = record
 
     def process_new_level2_records(self, level_one_id, records):
         next_node = None
         num = 0
+
+        level_one_resources = self.resources.get(level_one_id, None)
+        if not level_one_resources:
+            collection = self.collection_mgr.get(level_one_id)
+            self.collections_map[level_one_id] = collection
+            self.register_level1_empty_cb(level_one_id, partial(UnrefFirstCB, collection, None))
+
         for record in records:
             num += 1
             proxy = self.wrap_new_level2_record(record)
@@ -333,6 +354,11 @@ class SnapshotsMgr(Level2ResourceMgr):
     def stale_cb(self, node):
         print(f'CLEANUP: Removing {node.id} from stale snapshots list')
         self.stale_sss[node.collection.id].pop(node.id, None)
+        if len(self.stale_sss[node.collection.id]) == 0 and len(self.resources[node.collection.id]) == 0:
+            self.stale_sss.pop(node.collection.id, None)
+            self.resources.pop(node.collection.id, None)
+            self.collections_map.pop(node.collection.id, None)
+            self.on_level2_resources_empty(node.collection.id)
 
     def mark_as_stale(self, ss):
         self.stale_sss[ss.collection.id][ss.id] = ss
@@ -349,6 +375,9 @@ class SnapshotsMgr(Level2ResourceMgr):
         self.resources[cid].pop(head.id, None)
         next_node = head.next
         if not next_node:
+            tail = self.tails.pop(cid, None)
+            assert head == tail
+            self.mark_as_stale(head)
             return
         next_node.prev = None
         self.heads[cid] = next_node
