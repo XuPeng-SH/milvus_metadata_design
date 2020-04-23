@@ -4,9 +4,9 @@ import factory
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import BaseProvider
-from models import (Collections, CollectionFields, CollectionFieldIndice,
+from database.models import db
+from database.models import (Collections, CollectionFields, CollectionFieldIndice,
         Segments, SegmentFiles, CollectionSnapshots, SegmentCommits)
-from models import db
 
 
 class FakerProvider(BaseProvider):

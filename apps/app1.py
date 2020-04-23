@@ -1,19 +1,24 @@
 import sys
+import os
+if __name__ == '__main__':
+    sys.path.append(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))))
+
 import random
 import time
 from collections import defaultdict
 import threading
-from init_db import db
+from database import db
 
-SQLALCHEMY_DATABASE_URI='sqlite:////tmp/meta_lab/meta.sqlite?check_same_thread=False'
-db.init_db(uri=SQLALCHEMY_DATABASE_URI)
+# SQLALCHEMY_DATABASE_URI='sqlite:////tmp/meta_lab/meta.sqlite?check_same_thread=False'
+# db.init_db(uri=SQLALCHEMY_DATABASE_URI)
 
-import models
+import database.models
 
 db.drop_all()
 db.create_all()
 
-from factories import (CollectionsFactory, CollectionFieldsFactory, CollectionFieldIndiceFactory,
+from database.factories import (CollectionsFactory, CollectionFieldsFactory, CollectionFieldIndiceFactory,
         CollectionSnapshotsFactory, SegmentsFactory, SegmentFilesFactory, CollectionFieldIndice,
         SegmentFiles, SegmentCommits,
         CollectionSnapshots, Segments, Collections, CollectionFields)

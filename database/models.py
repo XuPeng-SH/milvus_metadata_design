@@ -6,7 +6,7 @@ from sqlalchemy import (SmallInteger, Integer, Boolean, Text,
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.attributes import flag_modified
 
-from init_db import db
+from database import db
 
 logger = logging.getLogger(__name__)
 

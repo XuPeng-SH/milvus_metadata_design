@@ -52,3 +52,7 @@ class DB:
 
     def create_all(self):
         self.Model.metadata.create_all(self.engine)
+
+db = DB()
+SQLALCHEMY_DATABASE_URI='sqlite:////tmp/meta_lab/meta.sqlite?check_same_thread=False'
+db.init_db(uri=SQLALCHEMY_DATABASE_URI)

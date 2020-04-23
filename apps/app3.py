@@ -1,10 +1,16 @@
-from init_db import db
-SQLALCHEMY_DATABASE_URI='sqlite:////tmp/meta_lab/meta.sqlite?check_same_thread=False'
-db.init_db(uri=SQLALCHEMY_DATABASE_URI)
+# from init_db import db
+# SQLALCHEMY_DATABASE_URI='sqlite:////tmp/meta_lab/meta.sqlite?check_same_thread=False'
+# db.init_db(uri=SQLALCHEMY_DATABASE_URI)
+import sys
+import os
+if __name__ == '__main__':
+    sys.path.append(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))))
 
 from collections import defaultdict, OrderedDict
 from functools import partial
-from models import Segments, SegmentCommits, Collections, CollectionSnapshots, SegmentFiles
+from database import db
+from database.models import Segments, SegmentCommits, Collections, CollectionSnapshots, SegmentFiles
 
 class Proxy:
     def __init__(self, node, cleanup=None):
@@ -85,6 +91,7 @@ class Level1ResourceMgr:
     pk = 'id'
     def __init__(self):
         self.resources = OrderedDict()
+        self.load_listners = []
 
     def cleanupcb(self, target):
         self.resources.pop(target.id, None)
@@ -108,12 +115,20 @@ class Level1ResourceMgr:
             wrapped = self.wrap_record(record)
             self.resources[wrapped.id] = wrapped
 
+    def register_load_listners(self, *listners):
+        self.load_listners.extend(listners)
+
+    def notify_load_listners(self, wrapped):
+        for listner in self.load_listners:
+            listner(wrapped)
+
     def load(self, level_one_id):
         if self.resources.get(level_one_id, None):
             return self.resources[level_one_id]
         record = self.get_record(level_one_id)
         wrapped = self.wrap_record(record)
         self.resources[level_one_id] = wrapped
+        self.notify_load_listners(wrapped)
         return wrapped
 
     def get(self, level_one_id):
@@ -155,7 +170,7 @@ class Level2ResourceMgr:
 
     def load(self, level_one_id):
         lid = level_one_id
-        if isinstance(level_one_id, self.level_one_model):
+        if isinstance(level_one_id, self.proxy_class):
             lid = level_one_id.id
 
         records = self.get_level2_records(lid)
@@ -253,6 +268,13 @@ class CollectionsMgr(Level1ResourceMgr):
         super().__init__()
         self.load_all()
 
+    def manage(self, new_collection_id):
+        nid = new_collection_id
+        if not isinstance(nid, str):
+            nid = new_collection_id.id
+        self.load(nid)
+
+
 def UnrefFirstCB(first, second):
     print(f'Unref {first.node.__class__.__name__} {first.id}')
     first.unref()
@@ -273,6 +295,7 @@ class SnapshotsMgr(Level2ResourceMgr):
         self.commits_mgr = commits_mgr
         self.level2_resources_empty_cbs = defaultdict(list)
         self.load_all()
+        self.collection_mgr.register_load_listners(self.load)
 
     def load_all(self):
         collection_ids = self.collection_mgr.resources.keys()
