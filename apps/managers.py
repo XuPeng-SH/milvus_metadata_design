@@ -4,10 +4,14 @@ if __name__ == '__main__':
     sys.path.append(os.path.dirname(os.path.dirname(
         os.path.abspath(__file__))))
 
+import logging
 from collections import defaultdict, OrderedDict
 from functools import partial
 from database import db
 from database.models import Segments, SegmentCommits, Collections, CollectionSnapshots, SegmentFiles
+
+logger = logging.getLogger(__name__)
+
 
 class Proxy:
     def __init__(self, node, cleanup=None):
@@ -67,7 +71,7 @@ class DBProxy(Proxy):
         self.model = node.__class__
 
     def do_cleanup(self):
-        print(f'Doing CLEANUP {self.model.__name__} {self.node.id}')
+        logger.debug(f'Proxy Cleanup {self.model.__name__} {self.node.id}')
         db.Session.delete(self.node)
         db.Session.commit()
 
@@ -81,6 +85,12 @@ class HirachyDBProxy(DBProxy):
     def do_cleanup(self):
         super().do_cleanup()
         self.parent.unref()
+
+
+def UnrefFirstCB(first, second):
+    print(f'Unref {first.node.__class__.__name__} {first.id}')
+    first.unref()
+
 
 class Level1ResourceMgr:
     level_one_model = None
@@ -150,7 +160,7 @@ class Level2ResourceMgr:
 
     def cleanupcb(self, target):
         level_one_key = getattr(target, self.link_key)
-        print(f'Removing l1={level_one_key} l2={target.id}')
+        logger.debug(f'ResourceMgr Removing l1={level_one_key} l2={target.id}')
         self.resources[level_one_key].pop(target.id, None)
 
     def get_level2_records(self, level_one_id, **kwargs):
@@ -252,19 +262,15 @@ class SegmentsCommitsMgr(Level2ResourceMgr):
         self.segment_files_mgr = segment_files_mgr
 
     def process_new_level2_records(self, level_one_id, records):
-        def cb(first, second):
-            print(f'Unref {first.node.__class__.__name__} {first.id}')
-            first.unref()
-
         for record in records:
             proxy = self.proxy_class(record, cleanup=self.cleanupcb)
-            print(f'c {record.id}')
+            # print(f'c {record.id}')
             for file_id in proxy.mappings:
                 seg_file = self.segment_files_mgr.get(record.collection_id, file_id)
-                proxy.register_cb(partial(cb, seg_file))
-                print(f'\tf {seg_file.id}')
+                proxy.register_cb(partial(UnrefFirstCB, seg_file))
+                # print(f'\tf {seg_file.id}')
             segment = self.segment_mgr.get(record.collection_id, record.segment_id)
-            proxy.register_cb(partial(cb, segment))
+            proxy.register_cb(partial(UnrefFirstCB, segment))
             self.update_level2_records(level_one_id, record.id, proxy)
 
 class CollectionsMgr(Level1ResourceMgr):
@@ -279,10 +285,6 @@ class CollectionsMgr(Level1ResourceMgr):
             nid = new_collection_id.id
         self.load(nid)
 
-
-def UnrefFirstCB(first, second):
-    print(f'Unref {first.node.__class__.__name__} {first.id}')
-    first.unref()
 
 class SnapshotsMgr(Level2ResourceMgr):
     level_one_model = Collections
@@ -319,7 +321,7 @@ class SnapshotsMgr(Level2ResourceMgr):
         for commit_id in proxy.mappings:
             commit = self.commits_mgr.get(record.collection.id, commit_id)
             proxy.register_cb(partial(UnrefFirstCB, commit))
-            print(f'\tcid {record.collection.id} cc {commit.id if commit else None} {commit_id} {proxy.mappings}')
+            # print(f'\tcid {record.collection.id} cc {commit.id if commit else None} {commit_id} {proxy.mappings}')
 
         return proxy
 
@@ -364,14 +366,14 @@ class SnapshotsMgr(Level2ResourceMgr):
         if next_node is not None:
             self.heads[level_one_id] = next_node
 
-        print(f'Len of SS: {len(self.resources[level_one_id])}')
+        # print(f'Len of SS: {len(self.resources[level_one_id])}')
 
     def get_without_level_two_id(self, level_one_id):
         level_two_id = self.tails[level_one_id].id
         return True, level_two_id
 
     def stale_cb(self, node):
-        print(f'CLEANUP: Removing {node.id} from stale snapshots list')
+        logger.debug(f'StaleCB Removing {node.id}')
         self.stale_sss[node.collection.id].pop(node.id, None)
         if len(self.stale_sss[node.collection.id]) == 0 and len(self.resources[node.collection.id]) == 0:
             self.stale_sss.pop(node.collection.id, None)
