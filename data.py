@@ -93,13 +93,19 @@ class ResourceMgr:
         print(f'Removing l1={level_one_key} l2={target.id}')
         self.resources[level_one_key].pop(target.id, None)
 
+    def get_level_two_records(self, level_one_id, **kwargs):
+        records = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
+            self.link_key)==level_one_id).all()
+        return records
+
     def load(self, level_one_id):
         lid = level_one_id
         if isinstance(level_one_id, self.level_one_model):
             lid = level_one_id.id
 
-        records = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
-            self.link_key)==lid).all()
+        # records = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
+        #     self.link_key)==lid).all()
+        records = self.get_level_two_records(lid)
 
         for record in records:
             proxy = self.proxy_class(record, cleanup=self.cleanupcb)
