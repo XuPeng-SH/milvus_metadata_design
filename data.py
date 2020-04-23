@@ -256,29 +256,6 @@ class SnapshotsMgr(ResourceMgr):
         level_two_id = self.tails[level_one_id].id
         return True, level_two_id
 
-    # def get(self, collection, snapshot_id=None):
-    #     cid = collection
-    #     if isinstance(cid, Collections):
-    #         cid = cid.id
-    #     collection_sss = self.all_snapshots.get(cid, None)
-    #     if not collection_sss:
-    #         self.load_snapshots(cid)
-    #         collection_sss = self.all_snapshots.get(cid, None)
-    #         if not collection_sss:
-    #             return None
-    #     if not snapshot_id:
-    #         snapshot_id = self.tails[cid].id
-    #         # return self.tails[cid]
-
-    #     ss = collection_sss.get(snapshot_id, None)
-    #     # ss and print(f'PRE Get SS {ss.id} ref={ss.refcnt}')
-    #     ss and ss.ref()
-    #     # ss and print(f'POST Get SS {ss.id} ref={ss.refcnt}')
-    #     return ss
-
-    # def release_snapshot(self, snapshot):
-    #     snapshot and snapshot.unref()
-
     def stale_cb(self, node):
         print(f'CLEANUP: Removing {node.id} from stale snapshots list')
         self.stale_sss[node.collection.id].pop(node.id, None)
@@ -367,13 +344,13 @@ if __name__ == '__main__':
     time.sleep(0.1)
     print(f'Actives: {ss_mgr.active_snapshots(collection)}')
 
+    for _, seg in seg_commit_mgr.resources[collection.id].items():
+        print(f'Commits {seg.id} {seg.refcnt}')
     ss_mgr.release(s7)
     ss_mgr.release(s8)
 
-    for _, seg in seg_mgr.resources[collection.id].items():
-        print(f'Segments {seg.id} {seg.refcnt}')
+    # for _, seg in seg_mgr.resources[collection.id].items():
+    #     print(f'Segments {seg.id} {seg.refcnt}')
 
     for _, seg in seg_commit_mgr.resources[collection.id].items():
         print(f'Commits {seg.id} {seg.refcnt}')
-
-    # ss_mgr.close_snapshots(collection)
