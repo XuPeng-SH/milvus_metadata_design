@@ -7,8 +7,12 @@ if __name__ == '__main__':
 from apps.managers import (CollectionsMgr, SnapshotsMgr, SegmentsMgr, SegmentFilesMgr, SegmentsCommitsMgr, db,
         Collections)
 
+import logging
 from database.factories import create_snapshot
 from database.utils import Commit
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s | %(levelname)s | %(message)s (%(filename)s:%(lineno)d)')
 
 # Init Mgr
 db.drop_all()
@@ -25,7 +29,7 @@ Commit(c1)
 
 # Submit to collection_mgr
 collection_mgr.append(c1)
-print(f'{ss_mgr.active_snapshots(c1)}')
+logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 
 # Create a snapshot
 s1 = create_snapshot(c1, 3)
@@ -33,7 +37,7 @@ Commit(s1)
 
 # Append to snapshot manager
 ss_mgr.append(s1)
-print(f'{ss_mgr.active_snapshots(c1)}')
+logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 
 # Get latest snapshot
 latest = ss_mgr.get(c1.id)
@@ -44,10 +48,10 @@ Commit(s2)
 
 # # Append to snapshot manager
 ss_mgr.append(s2)
-print(f'{ss_mgr.active_snapshots(c1)}')
+logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 
 segs_mgr.release(latest)
-print(f'{ss_mgr.active_snapshots(c1)}')
+logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 
 # # Drop s2. c1 also will be deleted
 # ss_mgr.drop(c1)
