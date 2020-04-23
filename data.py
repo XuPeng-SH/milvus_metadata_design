@@ -200,11 +200,11 @@ if __name__ == '__main__':
     ss_mgr.load_snapshots(collection)
     ss = ss_mgr.get_snapshot(collection)
 
-    new_ss = collection.create_ss()
+    new_ss = collection.create_snapshot()
     db.Session.add(new_ss)
     db.Session.commit()
     ss_mgr.append(new_ss)
 
-    # ss_mgr.release_snapshot(ss)
+    ss_mgr.release_snapshot(ss)
 
     ss_mgr.close_snapshots(collection)

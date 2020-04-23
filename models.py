@@ -38,10 +38,6 @@ class Collections(db.Model, BaseMixin):
         return s
 
     def create_snapshot(self):
-        s = Snapshots(collection=self)
-        return s
-
-    def create_ss(self):
         s = CollectionSnapshots(collection=self)
         return s
 
@@ -197,7 +193,7 @@ class SegmentCommits(db.Model, BaseMixin):
     def commit_snapshot(self, target=None, **kwargs):
         target = kwargs.pop('target', None)
         apply = kwargs.pop('apply', False)
-        target = target if target else self.segment.collection.create_ss()
+        target = target if target else self.segment.collection.create_snapshot()
         target.append_mappings(self)
         apply and target.apply()
         return target
