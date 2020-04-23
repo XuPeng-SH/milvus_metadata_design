@@ -110,8 +110,11 @@ class ResourceMgr:
         #     for kk, vv in v.items():
         #         print(f'\t{kk}')
 
+    def get_without_level_two_id(self, level_one_id):
+        assert False, 'GetWithoutLevelTwoIDError'
+        return False, None
+
     def get(self, level_one_id, level_two_id=None):
-        assert level_two_id is not None
         lid = level_one_id
         if isinstance(level_one_id, self.level_one_model):
             lid = level_one_id.id
@@ -122,6 +125,11 @@ class ResourceMgr:
             level_one_resource = self.resources.get(lid, None)
             if not level_one_resource:
                 return None
+
+        if level_two_id is None:
+            ret, level_two_id = self.get_without_level_two_id(lid)
+            if not ret:
+                return
 
         ss = level_one_resource.get(level_two_id, None)
         # ss and print(f'PRE  Get SS {ss.id} ref={ss.refcnt}')
@@ -179,27 +187,45 @@ class SegmentsCommitsMgr(ResourceMgr):
             self.resources[lid][record.id] = proxy
 
 
-class SnapshotsMgr:
-    def __init__(self):
-        self.all_snapshots = defaultdict(OrderedDict)
+class SnapshotsMgr(ResourceMgr):
+    level_one_model = Collections
+    level_two_model = CollectionSnapshots
+    link_key = 'collection_id'
+
+    def __init__(self, commits_mgr):
+        super().__init__()
         self.heads = {}
         self.tails = {}
         self.keeps = 5
         self.stale_sss = defaultdict(OrderedDict)
+        self.commits_mgr = commits_mgr
 
-    def load_snapshots(self, collection):
-        cid = collection
-        if isinstance(collection, Collections):
-            cid = collection.id
+    def load(self, level_one_id):
+        lid = level_one_id
+        if isinstance(level_one_id, self.level_one_model):
+            lid = level_one_id.id
 
-        snapshots = db.Session.query(CollectionSnapshots).filter(CollectionSnapshots.collection_id==cid
+        def cb(first, second):
+            print(f'Unref {first.node.__class__.__name__} {first.id}')
+            first.unref()
+
+        # records = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
+        #     self.link_key)==lid).all()
+
+        records = db.Session.query(CollectionSnapshots).filter(CollectionSnapshots.collection_id==lid
                 ).order_by(CollectionSnapshots.id.desc()).all()
 
         next_node = None
         num = 0
-        for ss in snapshots:
-            proxy = DBProxy(ss)
+        for record in records:
             num += 1
+            proxy = self.proxy_class(record, cleanup=self.cleanupcb)
+            print(f'ss {record.id}')
+            for commit_id in proxy.mappings:
+                commit = self.commits_mgr.get(record.collection.id, commit_id)
+                proxy.register_cb(partial(cb, commit))
+                print(f'\tcc {commit.id if commit else None} {commit_id}')
+
             if num > self.keeps:
                 proxy.unref()
                 continue
@@ -208,55 +234,58 @@ class SnapshotsMgr:
             if next_node is not None:
                 proxy.set_next(next_node)
             else:
-                self.tails[cid] = proxy
-            self.all_snapshots[cid][ss.id] = proxy
+                self.tails[lid] = proxy
+            self.resources[lid][record.id] = proxy
             next_node = proxy
 
         if next_node is not None:
-            self.heads[cid] = next_node
+            self.heads[lid] = next_node
 
-        print(f'Len of SS: {len(self.all_snapshots[cid])}')
+        print(f'Len of SS: {len(self.resources[lid])}')
 
-    def close_snapshots(self, collection):
-        cid = collection
-        if isinstance(collection, Collections):
-            cid = collection.id
+    # def close_snapshots(self, collection):
+    #     cid = collection
+    #     if isinstance(collection, Collections):
+    #         cid = collection.id
 
-        self.all_snapshots.pop(cid)
-        self.heads.pop(cid, None)
-        self.tails.pop(cid, None)
+    #     self.resources.pop(cid)
+    #     self.heads.pop(cid, None)
+    #     self.tails.pop(cid, None)
 
-    def get_snapshot(self, collection, snapshot_id=None):
-        # import pdb;pdb.set_trace()
-        cid = collection
-        if isinstance(cid, Collections):
-            cid = cid.id
-        collection_sss = self.all_snapshots.get(cid, None)
-        if not collection_sss:
-            self.load_snapshots(cid)
-            collection_sss = self.all_snapshots.get(cid, None)
-            if not collection_sss:
-                return None
-        if not snapshot_id:
-            snapshot_id = self.tails[cid].id
-            # return self.tails[cid]
+    def get_without_level_two_id(self, level_one_id):
+        level_two_id = self.tails[level_one_id].id
+        return True, level_two_id
 
-        ss = collection_sss.get(snapshot_id, None)
-        # ss and print(f'PRE Get SS {ss.id} ref={ss.refcnt}')
-        ss and ss.ref()
-        # ss and print(f'POST Get SS {ss.id} ref={ss.refcnt}')
-        return ss
+    # def get(self, collection, snapshot_id=None):
+    #     cid = collection
+    #     if isinstance(cid, Collections):
+    #         cid = cid.id
+    #     collection_sss = self.all_snapshots.get(cid, None)
+    #     if not collection_sss:
+    #         self.load_snapshots(cid)
+    #         collection_sss = self.all_snapshots.get(cid, None)
+    #         if not collection_sss:
+    #             return None
+    #     if not snapshot_id:
+    #         snapshot_id = self.tails[cid].id
+    #         # return self.tails[cid]
 
-    def release_snapshot(self, snapshot):
-        snapshot and snapshot.unref()
+    #     ss = collection_sss.get(snapshot_id, None)
+    #     # ss and print(f'PRE Get SS {ss.id} ref={ss.refcnt}')
+    #     ss and ss.ref()
+    #     # ss and print(f'POST Get SS {ss.id} ref={ss.refcnt}')
+    #     return ss
 
-    def cleanupcb(self, node):
+    # def release_snapshot(self, snapshot):
+    #     snapshot and snapshot.unref()
+
+    def stale_cb(self, node):
         print(f'CLEANUP: Removing {node.id} from stale snapshots list')
         self.stale_sss[node.collection.id].pop(node.id, None)
 
     def mark_as_stale(self, ss):
         self.stale_sss[ss.collection.id][ss.id] = ss
-        ss.register_cb(self.cleanupcb)
+        ss.register_cb(self.stale_cb)
         ss.unref()
 
     def drop(self, collection):
@@ -266,7 +295,7 @@ class SnapshotsMgr:
         head = self.heads.pop(cid, None)
         if not head:
             return
-        self.all_snapshots[cid].pop(head.id, None)
+        self.resources[cid].pop(head.id, None)
         next_node = head.next
         if not next_node:
             return
@@ -279,7 +308,7 @@ class SnapshotsMgr:
         cid = snapshot.collection
         if isinstance(cid, Collections):
             cid = cid.id
-        proxy = DBProxy(snapshot)
+        proxy = self.proxy_class(snapshot, cleanup=self.cleanupcb)
         tail = self.tails.get(cid, None)
         if tail:
             assert proxy.id > tail.id
@@ -287,16 +316,16 @@ class SnapshotsMgr:
             tail.set_next(proxy)
 
         self.tails[cid] = proxy
-        self.all_snapshots[cid][proxy.id] = proxy
+        self.resources[cid][proxy.id] = proxy
 
-        if len(self.all_snapshots[cid]) > self.keeps:
+        if len(self.resources[cid]) > self.keeps:
             self.drop(cid)
 
     def active_snapshots(self, collection):
         cid = collection
         if isinstance(cid, Collections):
             cid = cid.id
-        return sorted(self.all_snapshots[cid].keys()), self.stale_sss[cid].keys()
+        return sorted(self.resources[cid].keys()), self.stale_sss[cid].keys()
 
 
 if __name__ == '__main__':
@@ -313,22 +342,16 @@ if __name__ == '__main__':
 
     seg_commit_mgr = SegmentsCommitsMgr(seg_mgr, seg_files_mgr)
     seg_commit_mgr.load(collection)
-    segment_commit = seg_commit_mgr.get(collection, 6)
-    seg_commit_mgr.release(segment_commit)
+    # segment_commit = seg_commit_mgr.get(collection, 6)
+    # seg_commit_mgr.release(segment_commit)
     # print(f'Segment cid={segment.collection.id} sid={segment.id}')
 
-    for _, seg in seg_mgr.resources[collection.id].items():
-        print(f'Segments {seg.id} {seg.refcnt}')
+    # sys.exit(0)
 
-    for _, seg in seg_commit_mgr.resources[collection.id].items():
-        print(f'Commits {seg.id} {seg.refcnt}')
-
-    sys.exit(0)
-
-    ss_mgr = SnapshotsMgr()
-    ss_mgr.load_snapshots(collection)
-    s7 = ss_mgr.get_snapshot(collection, 7)
-    s8 = ss_mgr.get_snapshot(collection, 8)
+    ss_mgr = SnapshotsMgr(seg_commit_mgr)
+    ss_mgr.load(collection)
+    s7 = ss_mgr.get(collection, 7)
+    s8 = ss_mgr.get(collection, 8)
 
     new_ss = collection.create_snapshot()
     db.Session.add(new_ss)
@@ -344,7 +367,13 @@ if __name__ == '__main__':
     time.sleep(0.1)
     print(f'Actives: {ss_mgr.active_snapshots(collection)}')
 
-    ss_mgr.release_snapshot(s7)
-    ss_mgr.release_snapshot(s8)
+    ss_mgr.release(s7)
+    ss_mgr.release(s8)
 
-    ss_mgr.close_snapshots(collection)
+    for _, seg in seg_mgr.resources[collection.id].items():
+        print(f'Segments {seg.id} {seg.refcnt}')
+
+    for _, seg in seg_commit_mgr.resources[collection.id].items():
+        print(f'Commits {seg.id} {seg.refcnt}')
+
+    # ss_mgr.close_snapshots(collection)
