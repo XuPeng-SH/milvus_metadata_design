@@ -79,8 +79,45 @@ class HirachyDBProxy(DBProxy):
         super().do_cleanup()
         self.parent.unref()
 
+class Level1ResourceMgr:
+    level_one_model = None
+    proxy_class = DBProxy
+    pk = 'id'
+    def __init__(self):
+        self.resources = OrderedDict()
 
-class ResourceMgr:
+    def cleanupcb(self, target):
+        self.resources.pop(target.id, None)
+
+    def get_record(self, level_one_id):
+        record = db.Session.query(self.level_one_model).filter(getattr(self.level_one_model,
+            self.pk)==level_one_id).first()
+        return record
+
+    def wrap_record(self, record):
+        wrapped = self.proxy_class(record, cleanup=self.cleanupcb)
+        return wrapped
+
+    def load(self, level_one_id):
+        if self.resources.get(level_one_id, None):
+            return self.resources[level_one_id]
+        record = self.get_record(level_one_id)
+        wrapped = self.wrap_record(record)
+        self.resources[level_one_id] = wrapped
+        return wrapped
+
+    def get(self, level_one_id):
+        record = self.resources.get(level_one_id, None)
+        if not record:
+            record = self.load(level_one_id)
+        record and record.ref()
+        return record
+
+    def release(self, record):
+        record and record.unref()
+
+
+class Level2ResourceMgr:
     level_one_model = None
     level_two_model = None
     link_key = ''
@@ -98,10 +135,13 @@ class ResourceMgr:
             self.link_key)==level_one_id).all()
         return records
 
+    def update_level2_records(self, level_one_id, level_two_id, record):
+        self.resources[level_one_id][record.id] = record
+
     def process_new_level2_records(self, level_one_id, records):
         for record in records:
             proxy = self.proxy_class(record, cleanup=self.cleanupcb)
-            self.resources[level_one_id][record.id] = proxy
+            self.update_level2_records(level_one_id, record.id, proxy)
 
     def load(self, level_one_id):
         lid = level_one_id
@@ -121,7 +161,7 @@ class ResourceMgr:
         assert False, 'GetWithoutLevelTwoIDError'
         return False, None
 
-    def get(self, level_one_id, level_two_id=None):
+    def get_level1_resource(self, level_one_id):
         lid = level_one_id
         if isinstance(level_one_id, self.level_one_model):
             lid = level_one_id.id
@@ -133,6 +173,17 @@ class ResourceMgr:
             if not level_one_resource:
                 return None
 
+        return lid, level_one_resource
+
+    def list(self, level_one_id, weak=True):
+        lid, level_one_resource = self.get_level1_resource(level_one_id)
+        for _, v in level_one_resource:
+            weak or v.ref()
+
+        return level_one_resource
+
+    def get(self, level_one_id, level_two_id=None):
+        lid, level_one_resource = self.get_level1_resource(level_one_id)
         if level_two_id is None:
             ret, level_two_id = self.get_without_level_two_id(lid)
             if not ret:
@@ -148,19 +199,19 @@ class ResourceMgr:
         resource and resource.unref()
 
 
-class SegmentFilesMgr(ResourceMgr):
+class SegmentFilesMgr(Level2ResourceMgr):
     level_one_model = Collections
     level_two_model = SegmentFiles
     link_key = 'collection_id'
 
 
-class SegmentsMgr(ResourceMgr):
+class SegmentsMgr(Level2ResourceMgr):
     level_one_model = Collections
     level_two_model = Segments
     link_key = 'collection_id'
 
 
-class SegmentsCommitsMgr(ResourceMgr):
+class SegmentsCommitsMgr(Level2ResourceMgr):
     level_one_model = Collections
     level_two_model = SegmentCommits
     link_key = 'collection_id'
@@ -184,40 +235,63 @@ class SegmentsCommitsMgr(ResourceMgr):
                 print(f'\tf {seg_file.id}')
             segment = self.segment_mgr.get(record.collection_id, record.segment_id)
             proxy.register_cb(partial(cb, segment))
-            self.resources[level_one_id][record.id] = proxy
+            self.update_level2_records(level_one_id, record.id, proxy)
 
+class CollectionsMgr(Level1ResourceMgr):
+    level_one_model = Collections
 
-class SnapshotsMgr(ResourceMgr):
+def UnrefFirstCB(first, second):
+    print(f'Unref {first.node.__class__.__name__} {first.id}')
+    first.unref()
+
+class SnapshotsMgr(Level2ResourceMgr):
     level_one_model = Collections
     level_two_model = CollectionSnapshots
     link_key = 'collection_id'
 
-    def __init__(self, commits_mgr):
+    def __init__(self, collection_mgr, commits_mgr, keeps=1):
         super().__init__()
         self.heads = {}
         self.tails = {}
-        self.keeps = 5
+        self.keeps = keeps
         self.stale_sss = defaultdict(OrderedDict)
+        self.collection_mgr = collection_mgr
         self.commits_mgr = commits_mgr
+        self.level2_resources_empty_cbs = defaultdict(list)
 
     def get_level2_records(self, level_one_id, **kwargs):
         records = super().get_level2_records(level_one_id, **kwargs)
         return sorted(records, key=lambda record: record.id, reverse=True)
 
     def wrap_new_level2_record(self, record, **kwargs):
-        def cb(first, second):
-            print(f'Unref {first.node.__class__.__name__} {first.id}')
-            first.unref()
 
         proxy = self.proxy_class(record, cleanup=self.cleanupcb)
 
         print(f'ss {record.id}')
         for commit_id in proxy.mappings:
             commit = self.commits_mgr.get(record.collection.id, commit_id)
-            proxy.register_cb(partial(cb, commit))
+            proxy.register_cb(partial(UnrefFirstCB, commit))
             print(f'\tcc {commit.id if commit else None} {commit_id}')
 
         return proxy
+
+    def on_level2_resources_empty(self, level1_key):
+        cbs = self.level2_resources_empty_cbs.get(level1_key, [])
+        for cb in cbs:
+            cb()
+        self.level2_resources_empty_cbs.pop(level1_key, None)
+
+    def register_level1_empty_cb(self, level_one_id, cb):
+        self.level2_resources_empty_cbs[level_one_id].append(cb)
+
+    def update_level2_records(self, level_one_id, level_two_id, record):
+        level_one_resources = self.resources.get(level_one_id, None)
+        if not level_one_resources:
+            collection = self.collection_mgr.get(level_one_id)
+            self.register_level1_empty_cb(level_one_id, partial(UnrefFirstCB, collection, None))
+            # record.register_cb(partial(UnrefFirstCB, collection))
+
+        self.resources[level_one_id][record.id] = record
 
     def process_new_level2_records(self, level_one_id, records):
         next_node = None
@@ -235,7 +309,7 @@ class SnapshotsMgr(ResourceMgr):
                 proxy.set_next(next_node)
             else:
                 self.tails[level_one_id] = proxy
-            self.resources[level_one_id][record.id] = proxy
+            self.update_level2_records(level_one_id, record.id, proxy)
             next_node = proxy
 
         if next_node is not None:
@@ -326,7 +400,9 @@ if __name__ == '__main__':
 
     # sys.exit(0)
 
-    ss_mgr = SnapshotsMgr(seg_commit_mgr)
+    collection_mgr = CollectionsMgr()
+
+    ss_mgr = SnapshotsMgr(collection_mgr, seg_commit_mgr)
     ss_mgr.load(collection)
     s7 = ss_mgr.get(collection, 7)
     s8 = ss_mgr.get(collection, 8)
@@ -355,3 +431,6 @@ if __name__ == '__main__':
 
     for _, seg in seg_commit_mgr.resources[collection.id].items():
         print(f'Commits {seg.id} {seg.refcnt}')
+
+    for k, v in collection_mgr.resources.items():
+        print(f'Collection {k} {v.refcnt}')
