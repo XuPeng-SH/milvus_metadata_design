@@ -23,7 +23,7 @@ seg_commits_mgr = SegmentsCommitsMgr(segs_mgr, seg_files_mgr)
 fields_mgr = CollectionFieldsMgr()
 indice_mgr = CollectionFieldIndiceMgr()
 collection_mgr = CollectionsMgr(fields_mgr, indice_mgr)
-ss_mgr = SnapshotsMgr(collection_mgr, seg_commits_mgr, keeps=1)
+ss_mgr = SnapshotsMgr(collection_mgr, seg_commits_mgr, keeps=2)
 
 VECTOR_FIELD = 1
 INT_FIELD = 2
@@ -38,6 +38,7 @@ vf = c1.create_field(name='vector', ftype=VECTOR_FIELD, params={'dimension': 512
 vfi = vf.add_index(name='sq8', ftype=IVFSQ8, params={'metric_type': 'L2'})
 idf = c1.create_field(name='id', ftype=STRING_FIELD)
 Commit(c1, vf, vfi, idf)
+# import pdb;pdb.set_trace()
 logger.debug(f'Fields: {[ (f.name, f.params) for f in c1.fields.all()]}')
 
 # Submit to collection_mgr
@@ -66,11 +67,15 @@ logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 segs_mgr.release(latest)
 logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 
-logger.debug(f'Fields {fields_mgr.resources[c1.id]}')
-logger.debug(f'Indice {indice_mgr.resources[c1.id]}')
+# logger.debug(f'Fields {fields_mgr.resources[c1.id]}')
+# logger.debug(f'Indice {indice_mgr.resources[c1.id]}')
+ss_mgr.drop(c1)
 ss_mgr.drop(c1)
 logger.debug(f'Fields {fields_mgr.resources[c1.id]}')
 logger.debug(f'Indice {indice_mgr.resources[c1.id]}')
+logger.debug(f'Collections {collection_mgr.resources}')
+logger.debug(f'Segments {segs_mgr.resources}')
+logger.debug(f'SegmentFiles {seg_files_mgr.resources}')
 
 # # Drop s2. c1 also will be deleted
 # ss_mgr.drop(c1)

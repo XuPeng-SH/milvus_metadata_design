@@ -163,6 +163,8 @@ class Level2ResourceMgr:
         level_one_key = getattr(target, self.link_key)
         logger.debug(f'ResourceMgr Removing l1={level_one_key} l2={target.id}')
         self.resources[level_one_key].pop(target.id, None)
+        if len(self.resources[level_one_key]) == 0:
+            self.resources.pop(level_one_key)
 
     def get_level2_records(self, level_one_id, **kwargs):
         query = db.Session.query(self.level_two_model).filter(getattr(self.level_two_model,
