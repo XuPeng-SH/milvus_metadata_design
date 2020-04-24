@@ -78,8 +78,9 @@ Commit(s2)
 ss_mgr.append(s2)
 logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 
-segs_mgr.release(latest)
-logger.debug(f'{ss_mgr.active_snapshots(c1)}')
+ss_mgr.release(latest)
+# segs_mgr.release(latest)
+# logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 
 # logger.debug(f'Fields {fields_mgr.resources[c1.id]}')
 ss_mgr.drop(c1)

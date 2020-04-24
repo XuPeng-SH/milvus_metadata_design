@@ -67,17 +67,15 @@ class Woker(threading.Thread):
         self.stale_snapshot = set()
 
     def handle_event(self, event):
-        print(f'Handling event {event}')
+        # print(f'Handling event {event}')
         self.stale_snapshot.add(event)
 
-        print(f'{event.stale_commit_ids}')
-        # print(f'NEW {event.new_commits}')
-        # Commit(to_delete=[event])
+        # print(f'{event.stale_commit_ids}')
 
     def run(self):
         while True:
             event = self.q.get()
-            print(f'event  {event}')
+            # print(f'event  {event}')
             if not event:
                 break
             self.handle_event(event)
@@ -188,15 +186,15 @@ IVFFLAT = 2
 worker = Woker()
 worker.start()
 
-collection = Collections()
+collection = Collections(name='example')
 vf = collection.create_field(name='vector', ftype=VECTOR_FIELD, params={'dimension': 512})
 vfi = vf.add_index(name='sq8', ftype=IVFSQ8, params={'metric_type': 'L2'})
 idf = collection.create_field(name='id', ftype=STRING_FIELD)
 Commit(collection, vf, vfi, idf)
-print(f'fields: {[ (f.name, f.params) for f in collection.fields.all()]}')
+# print(f'fields: {[ (f.name, f.params) for f in collection.fields.all()]}')
 
 prev = None
-for _ in range(10):
+for _ in range(1000):
     start = time.time()
     snapshot = create_snapshot(collection, 2, prev=prev)
     Commit(snapshot)
@@ -216,7 +214,7 @@ prev and worker.submit(context)
 time.sleep(0.1)
 snapshots = collection.snapshots.all()
 for ss in snapshots:
-    print(f'{ss} {[f.id for f in ss.commits.all()]}')
+    # print(f'{ss} {[f.id for f in ss.commits.all()]}')
     p = SnapshotsProxy(ss)
     prev = p.prev
     print(f'Snapshots {ss.id} prev={prev.id if prev else None}')

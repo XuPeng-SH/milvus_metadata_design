@@ -2,6 +2,7 @@ import time
 from collections import defaultdict
 import factory
 import random
+from collections.abc import Iterable
 from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import BaseProvider
@@ -109,15 +110,21 @@ class SegmentFilesFactory(SQLAlchemyModelFactory):
 BINARY_FILE = 1
 STRING_FILE = 2
 IVFSQ8_FILE = 3
-FILE_TYPES = [BINARY_FILE, STRING_FILE, IVFSQ8_FILE]
+DEL_FILE = 4
+FILE_TYPES = [BINARY_FILE, STRING_FILE, IVFSQ8_FILE, DEL_FILE]
 
 def create_snapshot(collection, new_files, segment=None, prev=None):
     resources = []
     segment = segment if segment else collection.create_segment()
     resources.append(segment)
-    for i in range(new_files):
-        f = segment.create_file(ftype=random.choice(FILE_TYPES), lsn=get_lsn())
-        resources.append(f)
+    if isinstance(new_files, int):
+        for i in range(new_files):
+            f = segment.create_file(ftype=random.choice(FILE_TYPES), lsn=get_lsn())
+            resources.append(f)
+    elif isinstance(new_files, Iterable) and not isinstance(new_files, str):
+        for new_f in new_files:
+            assert isinstance(new_f, SegmentFiles)
+            resources.append(new_f)
 
     Commit(*resources)
 
