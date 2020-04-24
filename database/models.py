@@ -28,7 +28,7 @@ class Collections(db.Model, BaseMixin):
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
-    name = Column(String(64))
+    name = Column(String(64), nullable=False)
     version = Column(JSON, default={})
 
     __tablename__ = 'Collections'

@@ -5,26 +5,32 @@ if __name__ == '__main__':
         os.path.abspath(__file__))))
 
 from apps.managers import (CollectionsMgr, SnapshotsMgr, SegmentsMgr, SegmentFilesMgr, SegmentsCommitsMgr, db,
-        Collections)
+        Collections, CollectionFieldsMgr, CollectionFieldIndiceMgr)
 
 import logging
+import faker
 from database.factories import create_snapshot
 from database.utils import Commit
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s | %(levelname)s | %(message)s (%(filename)s:%(lineno)d)')
 
+FAKER = faker.Faker()
+
 # Init Mgr
 db.drop_all()
 db.create_all()
+
 seg_files_mgr = SegmentFilesMgr()
 segs_mgr = SegmentsMgr()
 seg_commits_mgr = SegmentsCommitsMgr(segs_mgr, seg_files_mgr)
-collection_mgr = CollectionsMgr()
+fields_mgr = CollectionFieldsMgr()
+indice_mgr = CollectionFieldIndiceMgr()
+collection_mgr = CollectionsMgr(fields_mgr, indice_mgr)
 ss_mgr = SnapshotsMgr(collection_mgr, seg_commits_mgr, keeps=1)
 
 # Create a new Collection
-c1 = Collections()
+c1 = Collections(name=FAKER.word())
 Commit(c1)
 
 # Submit to collection_mgr
