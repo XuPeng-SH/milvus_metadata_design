@@ -5,7 +5,7 @@ if __name__ == '__main__':
         os.path.abspath(__file__))))
 
 from apps.managers import (CollectionsMgr, SnapshotsMgr, SegmentsMgr, SegmentFilesMgr, SegmentsCommitsMgr, db,
-        Collections, CollectionFieldsMgr, CollectionFieldIndiceMgr)
+        Collections, CollectionFieldsMgr, FieldElementsMgr)
 
 import logging
 from database.factories import create_snapshot
@@ -21,8 +21,8 @@ seg_files_mgr = SegmentFilesMgr()
 segs_mgr = SegmentsMgr()
 seg_commits_mgr = SegmentsCommitsMgr(segs_mgr, seg_files_mgr)
 fields_mgr = CollectionFieldsMgr()
-indice_mgr = CollectionFieldIndiceMgr()
-collection_mgr = CollectionsMgr(fields_mgr, indice_mgr)
+field_elements_mgr = FieldElementsMgr()
+collection_mgr = CollectionsMgr(fields_mgr, field_elements_mgr)
 ss_mgr = SnapshotsMgr(collection_mgr, seg_commits_mgr, keeps=2)
 
 VECTOR_FIELD = 1
@@ -68,11 +68,10 @@ segs_mgr.release(latest)
 logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 
 # logger.debug(f'Fields {fields_mgr.resources[c1.id]}')
-# logger.debug(f'Indice {indice_mgr.resources[c1.id]}')
 ss_mgr.drop(c1)
 ss_mgr.drop(c1)
 logger.debug(f'Fields {fields_mgr.resources[c1.id]}')
-logger.debug(f'Indice {indice_mgr.resources[c1.id]}')
+logger.debug(f'Elements {field_elements_mgr.resources[c1.id]}')
 logger.debug(f'Collections {collection_mgr.resources}')
 logger.debug(f'Segments {segs_mgr.resources}')
 logger.debug(f'SegmentFiles {seg_files_mgr.resources}')

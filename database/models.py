@@ -65,12 +65,12 @@ class CollectionFields(db.Model, BaseMixin):
     __tablename__ = 'CollectionFields'
 
     def add_index(self, name, ftype, params={}):
-        idx = CollectionFieldIndice(field=self, name=name, ftype=ftype, params=params,
+        idx = FieldElements(field=self, name=name, ftype=ftype, params=params,
                 collection=self.collection)
         return idx
 
 
-class CollectionFieldIndice(db.Model, BaseMixin):
+class FieldElements(db.Model, BaseMixin):
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
@@ -83,18 +83,18 @@ class CollectionFieldIndice(db.Model, BaseMixin):
 
     collection = relationship(
             'Collections',
-            primaryjoin='and_(foreign(CollectionFieldIndice.collection_id) == Collections.id)',
-            backref=backref('indice', uselist=True, lazy='dynamic')
+            primaryjoin='and_(foreign(FieldElements.collection_id) == Collections.id)',
+            backref=backref('field_elements', uselist=True, lazy='dynamic')
     )
 
 
     field = relationship(
             'CollectionFields',
-            primaryjoin='and_(foreign(CollectionFieldIndice.field_id) == CollectionFields.id)',
-            backref=backref('indice', uselist=True, lazy='dynamic')
+            primaryjoin='and_(foreign(FieldElements.field_id) == CollectionFields.id)',
+            backref=backref('elements', uselist=True, lazy='dynamic')
     )
 
-    __tablename__ = 'CollectionFieldIndice'
+    __tablename__ = 'FieldElements'
 
 
 class CollectionSnapshots(db.Model, BaseMixin):

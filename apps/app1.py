@@ -15,8 +15,8 @@ import database.models
 db.drop_all()
 db.create_all()
 
-from database.factories import (CollectionsFactory, CollectionFieldsFactory, CollectionFieldIndiceFactory,
-        CollectionSnapshotsFactory, SegmentsFactory, SegmentFilesFactory, CollectionFieldIndice,
+from database.factories import (CollectionsFactory, CollectionFieldsFactory, FieldElementsFactory,
+        CollectionSnapshotsFactory, SegmentsFactory, SegmentFilesFactory, FieldElements,
         SegmentFiles, SegmentCommits,
         CollectionSnapshots, Segments, Collections, CollectionFields)
 

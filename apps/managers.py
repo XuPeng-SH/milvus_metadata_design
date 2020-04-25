@@ -9,7 +9,7 @@ from collections import defaultdict, OrderedDict
 from functools import partial
 from database import db
 from database.models import (Segments, SegmentCommits, Collections, CollectionSnapshots, SegmentFiles,
-        CollectionFields, CollectionFieldIndice)
+        CollectionFields, FieldElements)
 
 logger = logging.getLogger(__name__)
 
@@ -287,22 +287,22 @@ class CollectionFieldsMgr(Level2ResourceMgr):
         return [field for field in fields]
 
 
-class CollectionFieldIndiceMgr(Level2ResourceMgr):
+class FieldElementsMgr(Level2ResourceMgr):
     level_one_model = Collections
-    level_two_model = CollectionFieldIndice
+    level_two_model = FieldElements
     link_key = 'collection_id'
 
     def ids(self, collection_id):
-        indice = self.resources.get(collection_id, [])
-        return [index for index in indice]
+        elements = self.resources.get(collection_id, [])
+        return [element for element in elements]
 
 
 class CollectionsMgr(Level1ResourceMgr):
     level_one_model = Collections
-    def __init__(self, fields_mgr, indice_mgr):
+    def __init__(self, fields_mgr, field_elements_mgr):
         super().__init__()
         self.fields_mgr = fields_mgr
-        self.indice_mgr = indice_mgr
+        self.field_elements_mgr = field_elements_mgr
         self.load_all()
 
     def load_resources(self, collection):
@@ -311,12 +311,12 @@ class CollectionsMgr(Level1ResourceMgr):
         for field_id in fields:
             field = self.fields_mgr.get(collection.id, field_id)
             collection.register_cb(partial(UnrefFirstCB, field))
-        # self.indice_mgr.get(record.id)
-        self.indice_mgr.load(collection.id)
-        indice = self.indice_mgr.ids(collection.id)
-        for idx in indice:
-            index = self.indice_mgr.get(collection.id, idx)
-            collection.register_cb(partial(UnrefFirstCB, index))
+        # self.field_elements_mgr.get(record.id)
+        self.field_elements_mgr.load(collection.id)
+        elements = self.field_elements_mgr.ids(collection.id)
+        for idx in elements:
+            element = self.field_elements_mgr.get(collection.id, idx)
+            collection.register_cb(partial(UnrefFirstCB, element))
 
     def load_all(self):
         records = self.get_all_records()

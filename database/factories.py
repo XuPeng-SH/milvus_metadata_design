@@ -6,7 +6,7 @@ from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import BaseProvider
 from database.models import db
-from database.models import (Collections, CollectionFields, CollectionFieldIndice,
+from database.models import (Collections, CollectionFields, FieldElements,
         Segments, SegmentFiles, CollectionSnapshots, SegmentCommits)
 from database.utils import Commit
 from utils import get_lsn
@@ -40,9 +40,9 @@ class CollectionFieldsFactory(SQLAlchemyModelFactory):
     collection = factory.SubFactory(CollectionsFactory)
 
 
-class CollectionFieldIndiceFactory(SQLAlchemyModelFactory):
+class FieldElementsFactory(SQLAlchemyModelFactory):
     class Meta:
-        model = CollectionFieldIndice
+        model = FieldElements
         sqlalchemy_session = db.session_factory
         sqlalchemy_session_persistence = 'commit'
 
