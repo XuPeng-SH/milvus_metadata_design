@@ -7,7 +7,7 @@ from faker import Faker
 from faker.providers import BaseProvider
 from database.models import db
 from database.models import (Collections, Fields, FieldElements, FieldCommits,
-        Segments, SegmentFiles, CollectionSnapshots, SegmentCommits)
+        Segments, SegmentFiles, CollectionCommits, SegmentCommits)
 from database.utils import Commit
 from utils import get_lsn
 
@@ -60,9 +60,9 @@ class FieldCommitsFactory(SQLAlchemyModelFactory):
     field = factory.SubFactory(FieldsFactory)
 
 
-class CollectionSnapshotsFactory(SQLAlchemyModelFactory):
+class CollectionCommitsFactory(SQLAlchemyModelFactory):
     class Meta:
-        model = CollectionSnapshots
+        model = CollectionCommits
         sqlalchemy_session = db.session_factory
         sqlalchemy_session_persistence = 'commit'
 
@@ -104,7 +104,7 @@ class SegmentFilesFactory(SQLAlchemyModelFactory):
 #         sqlalchemy_session_persistence = 'commit'
 
 #     file = factory.SubFactory(SegmentFilesFactory)
-#     snapshot = factory.SubFactory(CollectionSnapshotsFactory)
+#     snapshot = factory.SubFactory(CollectionCommitsFactory)
 
 BINARY_FILE = 1
 STRING_FILE = 2

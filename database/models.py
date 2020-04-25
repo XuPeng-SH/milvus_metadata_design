@@ -38,7 +38,7 @@ class Collections(db.Model, BaseMixin):
         return s
 
     def create_snapshot(self):
-        s = CollectionSnapshots(collection=self)
+        s = CollectionCommits(collection=self)
         return s
 
     def create_field(self, *args, **kwargs):
@@ -129,7 +129,7 @@ class FieldElements(db.Model, BaseMixin):
     __tablename__ = 'FieldElements'
 
 
-class CollectionSnapshots(db.Model, BaseMixin):
+class CollectionCommits(db.Model, BaseMixin):
     bound = set()
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
@@ -142,11 +142,11 @@ class CollectionSnapshots(db.Model, BaseMixin):
 
     collection = relationship(
             'Collections',
-            primaryjoin='and_(foreign(CollectionSnapshots.collection_id) == Collections.id)',
+            primaryjoin='and_(foreign(CollectionCommits.collection_id) == Collections.id)',
             backref=backref('snapshots', uselist=True, lazy='dynamic')
     )
 
-    __tablename__ = 'CollectionSnapshots'
+    __tablename__ = 'CollectionCommits'
 
     @property
     def commits(self):

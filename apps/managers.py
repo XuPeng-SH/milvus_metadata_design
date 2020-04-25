@@ -8,7 +8,7 @@ import logging
 from collections import defaultdict, OrderedDict
 from functools import partial
 from database import db
-from database.models import (Segments, SegmentCommits, Collections, CollectionSnapshots, SegmentFiles,
+from database.models import (Segments, SegmentCommits, Collections, CollectionCommits, SegmentFiles,
         Fields, FieldElements)
 
 logger = logging.getLogger(__name__)
@@ -335,7 +335,7 @@ class CollectionsMgr(Level1ResourceMgr):
 
 class SnapshotsMgr(Level2ResourceMgr):
     level_one_model = Collections
-    level_two_model = CollectionSnapshots
+    level_two_model = CollectionCommits
     link_key = 'collection_id'
 
     def __init__(self, collection_mgr, commits_mgr, keeps=1):

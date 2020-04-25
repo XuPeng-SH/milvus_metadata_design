@@ -16,9 +16,9 @@ db.drop_all()
 db.create_all()
 
 from database.factories import (CollectionsFactory, FieldsFactory, FieldElementsFactory,
-        CollectionSnapshotsFactory, SegmentsFactory, SegmentFilesFactory, FieldElements,
+        CollectionCommitsFactory, SegmentsFactory, SegmentFilesFactory, FieldElements,
         SegmentFiles, SegmentCommits,
-        CollectionSnapshots, Segments, Collections, Fields)
+        CollectionCommits, Segments, Collections, Fields)
 
 from utils import get_lsn
 from database.utils import Commit
@@ -37,19 +37,19 @@ class SnapshotsProxy:
         if self._prev is not None:
             return self._prev
 
-        self._prev = db.Session.query(CollectionSnapshots).filter(
-                CollectionSnapshots.id < self.node.id).order_by(CollectionSnapshots.id.desc()).first()
+        self._prev = db.Session.query(CollectionCommits).filter(
+                CollectionCommits.id < self.node.id).order_by(CollectionCommits.id.desc()).first()
         if self._prev is None:
             self._prev = Head()
             return None
 
         return self._prev
 
-class SnapshotsList:
+class Commits:
     def __init__(self, from_db=True):
         self.nodes = []
         if from_db:
-            self.nodes = db.Session.query(CollectionSnapshots).order_by(CollectionSnapshots.id
+            self.nodes = db.Session.query(CollectionCommits).order_by(CollectionCommits.id
                     ).all()
 
     @property
@@ -221,7 +221,7 @@ for ss in snapshots:
     prev = p.prev
     print(f'Snapshots {ss.id} prev={prev.id if prev else None}')
 
-smgr = SnapshotsList()
+smgr = Commits()
 print(f'Current {smgr.current.id}')
 
 worker.stop()
