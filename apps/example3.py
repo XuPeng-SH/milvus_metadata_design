@@ -26,6 +26,11 @@ field_commit = FieldCommits(collection=c1, field=field,
         mappings=list(map(lambda element: element.id, field_elements)))
 Commit(field_commit)
 
+seg = c1.segments.first()
+seg_file = seg.files.first()
+print(f'{seg_file} {seg_file.id} {seg_file.field} {seg_file.field_element}')
+
+
 # # Init Mgr
 # db.drop_all()
 # db.create_all()

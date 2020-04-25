@@ -262,6 +262,9 @@ class SegmentFiles(db.Model, BaseMixin):
     version = Column(JSON, default={})
     attributes = Column(JSON, default={})
 
+    field_id = Column(BigInteger)
+    field_element_id = Column(BigInteger, default=None)
+
     collection_id = Column(BigInteger, nullable=False)
     segment_id = Column(BigInteger, nullable=False)
     ftype = Column(Integer)
@@ -272,6 +275,18 @@ class SegmentFiles(db.Model, BaseMixin):
     segment = relationship(
             'Segments',
             primaryjoin='and_(foreign(SegmentFiles.segment_id) == Segments.id)',
+            backref=backref('files', uselist=True, lazy='dynamic')
+    )
+
+    field = relationship(
+            'Fields',
+            primaryjoin='and_(foreign(SegmentFiles.field_id) == Fields.id)',
+            backref=backref('files', uselist=True, lazy='dynamic')
+    )
+
+    field_element = relationship(
+            'FieldElements',
+            primaryjoin='and_(foreign(SegmentFiles.field_id) == FieldElements.id)',
             backref=backref('files', uselist=True, lazy='dynamic')
     )
 
