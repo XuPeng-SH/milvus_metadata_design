@@ -42,11 +42,11 @@ class Collections(db.Model, BaseMixin):
         return s
 
     def create_field(self, *args, **kwargs):
-        s = CollectionFields(*args, collection=self, **kwargs)
+        s = Fields(*args, collection=self, **kwargs)
         return s
 
 
-class CollectionFields(db.Model, BaseMixin):
+class Fields(db.Model, BaseMixin):
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
@@ -58,11 +58,11 @@ class CollectionFields(db.Model, BaseMixin):
 
     collection = relationship(
             'Collections',
-            primaryjoin='and_(foreign(CollectionFields.collection_id) == Collections.id)',
+            primaryjoin='and_(foreign(Fields.collection_id) == Collections.id)',
             backref=backref('fields', uselist=True, lazy='dynamic')
     )
 
-    __tablename__ = 'CollectionFields'
+    __tablename__ = 'Fields'
 
     def add_index(self, name, ftype, params={}):
         idx = FieldElements(field=self, name=name, ftype=ftype, params=params,
@@ -89,8 +89,8 @@ class FieldElements(db.Model, BaseMixin):
 
 
     field = relationship(
-            'CollectionFields',
-            primaryjoin='and_(foreign(FieldElements.field_id) == CollectionFields.id)',
+            'Fields',
+            primaryjoin='and_(foreign(FieldElements.field_id) == Fields.id)',
             backref=backref('elements', uselist=True, lazy='dynamic')
     )
 

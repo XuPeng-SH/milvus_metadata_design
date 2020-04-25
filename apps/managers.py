@@ -9,7 +9,7 @@ from collections import defaultdict, OrderedDict
 from functools import partial
 from database import db
 from database.models import (Segments, SegmentCommits, Collections, CollectionSnapshots, SegmentFiles,
-        CollectionFields, FieldElements)
+        Fields, FieldElements)
 
 logger = logging.getLogger(__name__)
 
@@ -277,9 +277,9 @@ class SegmentsCommitsMgr(Level2ResourceMgr):
             self.update_level2_records(level_one_id, record.id, proxy)
 
 
-class CollectionFieldsMgr(Level2ResourceMgr):
+class FieldsMgr(Level2ResourceMgr):
     level_one_model = Collections
-    level_two_model = CollectionFields
+    level_two_model = Fields
     link_key = 'collection_id'
 
     def ids(self, collection_id):

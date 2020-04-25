@@ -6,7 +6,7 @@ from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import BaseProvider
 from database.models import db
-from database.models import (Collections, CollectionFields, FieldElements,
+from database.models import (Collections, Fields, FieldElements,
         Segments, SegmentFiles, CollectionSnapshots, SegmentCommits)
 from database.utils import Commit
 from utils import get_lsn
@@ -29,9 +29,9 @@ class CollectionsFactory(SQLAlchemyModelFactory):
     name = factory.Faker('word')
 
 
-class CollectionFieldsFactory(SQLAlchemyModelFactory):
+class FieldsFactory(SQLAlchemyModelFactory):
     class Meta:
-        model = CollectionFields
+        model = Fields
         sqlalchemy_session = db.session_factory
         sqlalchemy_session_persistence = 'commit'
 
@@ -48,7 +48,7 @@ class FieldElementsFactory(SQLAlchemyModelFactory):
 
     name = factory.Faker('word')
     ftype = factory.Faker('random_element', elements=(0,1,2,3,5))
-    field = factory.SubFactory(CollectionFieldsFactory)
+    field = factory.SubFactory(FieldsFactory)
 
 
 class CollectionSnapshotsFactory(SQLAlchemyModelFactory):

@@ -15,10 +15,10 @@ import database.models
 db.drop_all()
 db.create_all()
 
-from database.factories import (CollectionsFactory, CollectionFieldsFactory, FieldElementsFactory,
+from database.factories import (CollectionsFactory, FieldsFactory, FieldElementsFactory,
         CollectionSnapshotsFactory, SegmentsFactory, SegmentFilesFactory, FieldElements,
         SegmentFiles, SegmentCommits,
-        CollectionSnapshots, Segments, Collections, CollectionFields)
+        CollectionSnapshots, Segments, Collections, Fields)
 
 from utils import get_lsn
 from database.utils import Commit

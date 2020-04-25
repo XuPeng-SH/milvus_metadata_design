@@ -5,7 +5,7 @@ if __name__ == '__main__':
         os.path.abspath(__file__))))
 
 from apps.managers import (CollectionsMgr, SnapshotsMgr, SegmentsMgr, SegmentFilesMgr, SegmentsCommitsMgr, db,
-        Collections, CollectionFieldsMgr, FieldElementsMgr)
+        Collections, FieldsMgr, FieldElementsMgr)
 
 import logging
 from database.factories import create_snapshot
@@ -20,7 +20,7 @@ db.create_all()
 seg_files_mgr = SegmentFilesMgr()
 segs_mgr = SegmentsMgr()
 seg_commits_mgr = SegmentsCommitsMgr(segs_mgr, seg_files_mgr)
-fields_mgr = CollectionFieldsMgr()
+fields_mgr = FieldsMgr()
 field_elements_mgr = FieldElementsMgr()
 collection_mgr = CollectionsMgr(fields_mgr, field_elements_mgr)
 ss_mgr = SnapshotsMgr(collection_mgr, seg_commits_mgr, keeps=2)
