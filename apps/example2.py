@@ -69,7 +69,7 @@ logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 
 # logger.debug(f'Fields {fields_mgr.resources[c1.id]}')
 ss_mgr.drop(c1)
-ss_mgr.drop(c1)
+# ss_mgr.drop(c1)
 logger.debug(f'Fields {fields_mgr.resources[c1.id]}')
 logger.debug(f'Elements {field_elements_mgr.resources[c1.id]}')
 logger.debug(f'Collections {collection_mgr.resources}')

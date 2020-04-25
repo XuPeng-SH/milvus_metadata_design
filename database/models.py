@@ -76,7 +76,17 @@ class FieldCommits(db.Model, BaseMixin):
     status = Column(SmallInteger, default=0)
     version = Column(JSON, default={})
 
+    collection_id = Column(BigInteger)
+    mappings = Column(JSON, default={})
+
     field_id = Column(BigInteger)
+
+    collection = relationship(
+            'Collections',
+            primaryjoin='and_(foreign(FieldCommits.collection_id) == Collections.id)',
+            backref=backref('field_commits', uselist=True, lazy='dynamic')
+    )
+
 
     field = relationship(
             'Fields',
@@ -85,6 +95,11 @@ class FieldCommits(db.Model, BaseMixin):
     )
 
     __tablename__ = 'FieldCommits'
+
+    @property
+    def elements(self):
+        return db.Session.query(FieldElements).filter(FieldElements.field==self
+                ).filter(FieldElements.id.in_(self.mappings))
 
 
 class FieldElements(db.Model, BaseMixin):
