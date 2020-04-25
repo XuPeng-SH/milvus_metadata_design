@@ -74,6 +74,7 @@ class FieldCommits(db.Model, BaseMixin):
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
+    version = Column(JSON, default={})
 
     field_id = Column(BigInteger)
 
