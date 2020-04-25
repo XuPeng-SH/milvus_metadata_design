@@ -203,6 +203,8 @@ class SegmentCommits(db.Model, BaseMixin):
     status = Column(SmallInteger, default=0)
     version = Column(JSON, default={})
 
+    field_commit_id = Column(BigInteger)
+
     collection_id = Column(BigInteger)
     segment_id = Column(BigInteger, nullable=False)
     mappings = Column(JSON, default={})
@@ -211,6 +213,12 @@ class SegmentCommits(db.Model, BaseMixin):
             'Segments',
             primaryjoin='and_(foreign(SegmentCommits.segment_id) == Segments.id)',
             backref=backref('commits', uselist=True, lazy='dynamic')
+    )
+
+    field_commit = relationship(
+            'FieldCommits',
+            primaryjoin='and_(foreign(SegmentCommits.field_commit_id) == FieldCommits.id)',
+            backref=backref('segment_commits', uselist=True, lazy='dynamic')
     )
 
     collection = relationship(
