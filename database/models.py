@@ -24,10 +24,15 @@ class BaseMixin:
         return self
 
 
-class Collections(db.Model, BaseMixin):
+class BaseModel(db.Model, BaseMixin):
+    __abstract__ = True
+
     id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
     created_on = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(SmallInteger, default=0)
+
+
+class Collections(BaseModel):
     name = Column(String(64), nullable=False)
     version = Column(JSON, default={})
 
@@ -46,10 +51,7 @@ class Collections(db.Model, BaseMixin):
         return s
 
 
-class Fields(db.Model, BaseMixin):
-    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
-    created_on = Column(DateTime, default=datetime.datetime.utcnow)
-    status = Column(SmallInteger, default=0)
+class Fields(BaseModel):
     name = Column(String(64))
     num = Column(SmallInteger)
     ftype = Column(Integer)
@@ -70,10 +72,7 @@ class Fields(db.Model, BaseMixin):
         return idx
 
 
-class FieldCommits(db.Model, BaseMixin):
-    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
-    created_on = Column(DateTime, default=datetime.datetime.utcnow)
-    status = Column(SmallInteger, default=0)
+class FieldCommits(BaseModel):
     version = Column(JSON, default={})
 
     collection_id = Column(BigInteger)
@@ -102,10 +101,7 @@ class FieldCommits(db.Model, BaseMixin):
                 ).filter(FieldElements.id.in_(self.mappings))
 
 
-class FieldElements(db.Model, BaseMixin):
-    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
-    created_on = Column(DateTime, default=datetime.datetime.utcnow)
-    status = Column(SmallInteger, default=0)
+class FieldElements(BaseModel):
     name = Column(String(64))
     ftype = Column(Integer)
     field_id = Column(BigInteger)
@@ -129,11 +125,8 @@ class FieldElements(db.Model, BaseMixin):
     __tablename__ = 'FieldElements'
 
 
-class CollectionCommits(db.Model, BaseMixin):
+class CollectionCommits(BaseModel):
     bound = set()
-    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
-    created_on = Column(DateTime, default=datetime.datetime.utcnow)
-    status = Column(SmallInteger, default=0)
     version = Column(JSON, default={})
     params = Column(JSON, default={})
     mappings = Column(JSON, default={})
@@ -167,10 +160,7 @@ class CollectionCommits(db.Model, BaseMixin):
         self.bound.clear()
 
 
-class Segments(db.Model, BaseMixin):
-    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
-    created_on = Column(DateTime, default=datetime.datetime.utcnow)
-    status = Column(SmallInteger, default=0)
+class Segments(BaseModel):
     version = Column(JSON, default={})
 
     collection_id = Column(BigInteger)
@@ -196,11 +186,8 @@ class Segments(db.Model, BaseMixin):
         return target
 
 
-class SegmentCommits(db.Model, BaseMixin):
+class SegmentCommits(BaseModel):
     bound = set()
-    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
-    created_on = Column(DateTime, default=datetime.datetime.utcnow)
-    status = Column(SmallInteger, default=0)
     version = Column(JSON, default={})
 
     field_commit_id = Column(BigInteger)
@@ -255,10 +242,7 @@ class SegmentCommits(db.Model, BaseMixin):
         return target
 
 
-class SegmentFiles(db.Model, BaseMixin):
-    id = Column(BigInteger().with_variant(Integer, 'sqlite'), primary_key=True, autoincrement=True)
-    created_on = Column(DateTime, default=datetime.datetime.utcnow)
-    status = Column(SmallInteger, default=0)
+class SegmentFiles(BaseModel):
     version = Column(JSON, default={})
     attributes = Column(JSON, default={})
 
