@@ -188,7 +188,7 @@ worker.start()
 
 collection = Collections(name='example')
 vf = collection.create_field(name='vector', ftype=VECTOR_FIELD, params={'dimension': 512})
-vfi = vf.add_index(name='sq8', ftype=IVFSQ8, params={'metric_type': 'L2'})
+vfi = vf.add_element(name='sq8', ftype=IVFSQ8, params={'metric_type': 'L2'})
 idf = collection.create_field(name='id', ftype=STRING_FIELD)
 Commit(collection, vf, vfi, idf)
 # print(f'fields: {[ (f.name, f.params) for f in collection.fields.all()]}')

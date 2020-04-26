@@ -44,7 +44,7 @@ ss_mgr = SnapshotsMgr(collection_mgr, seg_commits_mgr, keeps=2)
 # Create a new Collection
 c1 = Collections(name=FAKER.word())
 vf = c1.create_field(name='vector', ftype=VECTOR_FIELD, params={'dimension': 512})
-vfi = vf.add_index(name='sq8', ftype=IVFSQ8, params={'metric_type': 'L2'})
+vfi = vf.add_element(name='sq8', ftype=IVFSQ8, params={'metric_type': 'L2'})
 idf = c1.create_field(name='id', ftype=STRING_FIELD)
 Commit(c1, vf, vfi, idf)
 logger.debug(f'Fields: {[ (f.name, f.params) for f in c1.fields.all()]}')

@@ -66,7 +66,7 @@ class Fields(BaseModel):
 
     __tablename__ = 'Fields'
 
-    def add_index(self, name, ftype, params={}):
+    def add_element(self, name, ftype, params={}):
         idx = FieldElements(field=self, name=name, ftype=ftype, params=params,
                 collection=self.collection)
         return idx
