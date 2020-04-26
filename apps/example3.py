@@ -26,6 +26,8 @@ logger.setLevel(logging.DEBUG)
 # c2 = Collections(name=FAKER.word())
 # vf = c1.create_field(name='vector', ftype=VECTOR_FIELD, params={'dimension': 512})
 # vfi = vf.add_element(name='sq8', ftype=IVFSQ8, params={'metric_type': 'L2'})
+# vfc = FieldCommits(collection=c2, field=vf, mappings=)
+
 # idf = c1.create_field(name='id', ftype=STRING_FIELD)
 # Commit(c1, vf, vfi, idf)
 # logger.debug(f'Fields: {[ (f.name, f.params) for f in c1.fields.all()]}')

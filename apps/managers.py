@@ -296,6 +296,15 @@ class FieldElementsMgr(Level2ResourceMgr):
         elements = self.resources.get(collection_id, [])
         return [element for element in elements]
 
+    def get_level2_records(self, level_one_id, **kwargs):
+        subq = db.Session.query(Fields).filter(Fields.collection_id==level_one_id).subquery()
+        query = db.Session.query(self.level_two_model).filter(self.level_two_model.field_id==subq.c.id)
+        level2_id = kwargs.pop('level2_id', None)
+        if level2_id is not None:
+            query = query.filter(getattr(self.level_two_model, self.pk)==level2_id)
+        records = query.all()
+        return records
+
 
 class CollectionsMgr(Level1ResourceMgr):
     level_one_model = Collections

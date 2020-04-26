@@ -67,8 +67,7 @@ class Fields(BaseModel):
     __tablename__ = 'Fields'
 
     def add_element(self, name, ftype, params={}):
-        idx = FieldElements(field=self, name=name, ftype=ftype, params=params,
-                collection=self.collection)
+        idx = FieldElements(field=self, name=name, ftype=ftype, params=params)
         return idx
 
 
@@ -107,13 +106,13 @@ class FieldElements(BaseModel):
     field_id = Column(BigInteger)
     version = Column(JSON, default={})
     params = Column(JSON, default={})
-    collection_id = Column(BigInteger)
+    # collection_id = Column(BigInteger)
 
-    collection = relationship(
-            'Collections',
-            primaryjoin='and_(foreign(FieldElements.collection_id) == Collections.id)',
-            backref=backref('field_elements', uselist=True, lazy='dynamic')
-    )
+    # collection = relationship(
+    #         'Collections',
+    #         primaryjoin='and_(foreign(FieldElements.collection_id) == Collections.id)',
+    #         backref=backref('field_elements', uselist=True, lazy='dynamic')
+    # )
 
 
     field = relationship(
