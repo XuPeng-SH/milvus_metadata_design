@@ -4,12 +4,12 @@ if __name__ == '__main__':
     sys.path.append(os.path.dirname(os.path.dirname(
         os.path.abspath(__file__))))
 
-from apps.managers import (CollectionsMgr, SnapshotsMgr, SegmentsMgr, SegmentFilesMgr, SegmentsCommitsMgr, db,
+from apps.managers import (CollectionsMgr, PartitionCommitsMgr, SegmentsMgr, SegmentFilesMgr, SegmentsCommitsMgr, db,
         Collections, CollectionFieldsMgr, CollectionFieldIndiceMgr)
 
 import logging
 import faker
-from database.factories import create_snapshot
+from database.factories import create_collection_commit
 from database.utils import Commit
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ seg_commits_mgr = SegmentsCommitsMgr(segs_mgr, seg_files_mgr)
 fields_mgr = CollectionFieldsMgr()
 indice_mgr = CollectionFieldIndiceMgr()
 collection_mgr = CollectionsMgr(fields_mgr, indice_mgr)
-ss_mgr = SnapshotsMgr(collection_mgr, seg_commits_mgr, keeps=1)
+ss_mgr = PartitionCommitsMgr(collection_mgr, seg_commits_mgr, keeps=1)
 
 # Create a new Collection
 c1 = Collections(name=FAKER.word())
@@ -38,7 +38,7 @@ collection_mgr.append(c1)
 logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 
 # Create a snapshot
-s1 = create_snapshot(c1, 3)
+s1 = create_collection_commit(c1, 3)
 Commit(s1)
 
 # Append to snapshot manager
@@ -49,7 +49,7 @@ logger.debug(f'{ss_mgr.active_snapshots(c1)}')
 latest = ss_mgr.get(c1.id)
 
 # # Create a snapshot
-s2 = create_snapshot(c1, 3)
+s2 = create_collection_commit(c1, 3)
 Commit(s2)
 
 # # Append to snapshot manager

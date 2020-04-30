@@ -4,7 +4,7 @@ if __name__ == '__main__':
     sys.path.append(os.path.dirname(os.path.dirname(
         os.path.abspath(__file__))))
 
-from apps.managers import (CollectionsMgr, SnapshotsMgr, SegmentsMgr, SegmentFilesMgr, SegmentsCommitsMgr, db,
+from apps.managers import (CollectionsMgr, PartitionCommitsMgr, SegmentsMgr, SegmentFilesMgr, SegmentsCommitsMgr, db,
         Collections, FieldsMgr, FieldElementsMgr)
 
 
@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(
 
 from apps.example2 import *
 
-from database.models import FieldCommits
+from database.models import FieldCommits, SchemaCommits
 # from database.utils import Commit
 
 logger = logging.getLogger(__name__)
@@ -23,24 +23,15 @@ logger.setLevel(logging.DEBUG)
 # db.drop_all()
 # db.create_all()
 
-# c2 = Collections(name=FAKER.word())
-# vf = c1.create_field(name='vector', ftype=VECTOR_FIELD, params={'dimension': 512})
-# vfi = vf.add_element(name='sq8', ftype=IVFSQ8, params={'metric_type': 'L2'})
-# vfc = FieldCommits(collection=c2, field=vf, mappings=)
+vf_sq8 = vf.add_element(name='sq8', ftype=IVFSQ8_INDEX, params={'metric_type': 'IP'})
+Commit(vf_sq8)
 
-# idf = c1.create_field(name='id', ftype=STRING_FIELD)
-# Commit(c1, vf, vfi, idf)
-# logger.debug(f'Fields: {[ (f.name, f.params) for f in c1.fields.all()]}')
+vf_new_field_commit = FieldCommits(field=vf, mappings=[vf_sq8.id] + vf_commit.mappings, collection=c1)
+Commit(vf_new_field_commit)
 
+new_schema = SchemaCommits(collection=c1, mappings=[vf_new_field_commit.id] +
+    schema1.mappings)
+Commit(new_schema)
 
-
-field = c1.fields.first()
-field_elements = field.elements.all()
-
-field_commit = FieldCommits(collection=c1, field=field,
-        mappings=list(map(lambda element: element.id, field_elements)))
-Commit(field_commit)
-
-seg = c1.segments.first()
-seg_file = seg.files.first()
-print(f'{seg_file} {seg_file.id} {seg_file.field} {seg_file.field_element}')
+new_ss = create_collection_commit(c1)
+Commit(new_ss)

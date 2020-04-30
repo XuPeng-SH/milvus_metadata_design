@@ -24,7 +24,7 @@ logger.info(f'Adding new del file to segment {existing_segment.id}')
 del_f = existing_segment.create_file(ftype=DEL_FILE, lsn=get_lsn(), size=10000, version={'server': '0.9.0'})
 
 pdb.set_trace()
-new_ss = create_snapshot(c1, segment=existing_segment, new_files=[del_f])
+new_ss = create_collection_commit(c1, segment=existing_segment, new_files=[del_f])
 Commit(new_ss)
 ss_mgr.append(new_ss)
 

@@ -7,8 +7,8 @@ from factory.alchemy import SQLAlchemyModelFactory
 from faker import Faker
 from faker.providers import BaseProvider
 from database.models import db
-from database.models import (Collections, Fields, FieldElements, FieldCommits,
-        Segments, SegmentFiles, CollectionCommits, SegmentCommits)
+from database.models import (Collections, Fields, FieldElements, FieldCommits, CollectionCommits,
+        Segments, SegmentFiles, PartitionCommits, SegmentCommits, SchemaCommits, LogSequenceNumbers)
 from database.utils import Commit
 from utils import get_lsn
 
@@ -61,9 +61,18 @@ class FieldCommitsFactory(SQLAlchemyModelFactory):
     field = factory.SubFactory(FieldsFactory)
 
 
+class SchemaCommitsFactory(SQLAlchemyModelFactory):
+    class Meta:
+        model = SchemaCommits
+        sqlalchemy_session = db.session_factory
+        sqlalchemy_session_persistence = 'commit'
+
+    collection = factory.SubFactory(CollectionsFactory)
+
+
 class CollectionCommitsFactory(SQLAlchemyModelFactory):
     class Meta:
-        model = CollectionCommits
+        model = PartitionCommits
         sqlalchemy_session = db.session_factory
         sqlalchemy_session_persistence = 'commit'
 
@@ -98,43 +107,60 @@ class SegmentFilesFactory(SQLAlchemyModelFactory):
     ftype = factory.Faker('random_element', elements=(0,1,2,3,5))
 
 
-# class SnapshotFileMappingFactory(SQLAlchemyModelFactory):
-#     class Meta:
-#         model = SnapshotFileMapping
-#         sqlalchemy_session = db.session_factory
-#         sqlalchemy_session_persistence = 'commit'
-
-#     file = factory.SubFactory(SegmentFilesFactory)
-#     snapshot = factory.SubFactory(CollectionCommitsFactory)
-
 BINARY_FILE = 1
 STRING_FILE = 2
 IVFSQ8_FILE = 3
 DEL_FILE = 4
 FILE_TYPES = [BINARY_FILE, STRING_FILE, IVFSQ8_FILE, DEL_FILE]
 
-def create_snapshot(collection, new_files, segment=None, prev=None):
+def create_collection_commit(data_manager, collection, lsn, schema=None, new_files=None, segment=None):
+    post_cb = []
+    if not schema:
+        schema = data_manager.get_schema(collection.id)
+        post_cb.append(lambda : data_manager.release_schema(schema))
+    prev = data_manager.get_snapshot(collection.id)
+    post_cb.append(lambda : data_manager.release_snapshot(prev))
+    partition_commit_ids = prev.mappings
+    prev_pc = data_manager.partition_commits_mgr.get(collection.id, partition_commit_ids[-1])
     resources = []
-    segment = segment if segment else collection.create_segment()
-    resources.append(segment)
-    if isinstance(new_files, int):
-        for i in range(new_files):
-            f = segment.create_file(ftype=random.choice(FILE_TYPES), lsn=get_lsn())
-            resources.append(f)
-    elif isinstance(new_files, Iterable) and not isinstance(new_files, str):
-        for new_f in new_files:
-            assert isinstance(new_f, SegmentFiles)
-            resources.append(new_f)
+    partition = prev_pc.partition
+    segment = segment if segment else partition.create_segment()
+    Commit(segment)
+
+    field_commits = schema.field_commits.all()
+
+    if not new_files:
+        new_files = []
+        for field_commit in field_commits:
+            field_elements = field_commit.elements.all()
+            for field_element in field_elements:
+                seg_file = SegmentFiles(ftype=random.choice(FILE_TYPES), segment=segment, field_element=field_element,
+                        partition=partition)
+                new_files.append(seg_file)
+
+    for new_f in new_files:
+        resources.append(new_f)
 
     Commit(*resources)
 
-    segment_commit = segment.commit_files(*resources[1:])
+    segment_commit = segment.commit_files(*resources, schema=schema)
 
+    # import pdb;pdb.set_trace()
     Commit(segment_commit)
-    snapshot = segment_commit.commit_snapshot()
+    partition_commit = segment_commit.commit_snapshot()
 
-    if prev:
-        snapshot.append_mappings(*prev.mappings)
-    snapshot.apply()
+    partition_commit.append_mappings(*prev_pc.mappings)
+    partition_commit.apply()
+    Commit(partition_commit)
 
-    return snapshot
+    lsn_entry = LogSequenceNumbers(lsn=lsn)
+    c_c = CollectionCommits(collection=collection, mappings=[partition_commit.id])
+    Commit(c_c, lsn_entry)
+    data_manager.partition_commits_mgr.release(prev_pc)
+
+    data_manager.collection_commit_mgr.append(c_c)
+    for cb in post_cb:
+        cb()
+    Commit(partition_commit)
+
+    return partition_commit

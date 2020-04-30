@@ -18,7 +18,7 @@ db.create_all()
 from database.factories import (CollectionsFactory, FieldsFactory, FieldElementsFactory,
         CollectionCommitsFactory, SegmentsFactory, SegmentFilesFactory, FieldElements,
         SegmentFiles, SegmentCommits,
-        CollectionCommits, Segments, Collections, Fields)
+        PartitionCommits, Segments, Collections, Fields)
 
 from utils import get_lsn
 from database.utils import Commit
@@ -37,8 +37,8 @@ class SnapshotsProxy:
         if self._prev is not None:
             return self._prev
 
-        self._prev = db.Session.query(CollectionCommits).filter(
-                CollectionCommits.id < self.node.id).order_by(CollectionCommits.id.desc()).first()
+        self._prev = db.Session.query(PartitionCommits).filter(
+                PartitionCommits.id < self.node.id).order_by(PartitionCommits.id.desc()).first()
         if self._prev is None:
             self._prev = Head()
             return None
@@ -49,7 +49,7 @@ class Commits:
     def __init__(self, from_db=True):
         self.nodes = []
         if from_db:
-            self.nodes = db.Session.query(CollectionCommits).order_by(CollectionCommits.id
+            self.nodes = db.Session.query(PartitionCommits).order_by(PartitionCommits.id
                     ).all()
 
     @property
@@ -57,7 +57,7 @@ class Commits:
         return self.nodes[-1]
 
 
-from database.factories import create_snapshot
+from database.factories import create_collection_commit
 
 import queue
 class Woker(threading.Thread):
@@ -187,16 +187,16 @@ worker = Woker()
 worker.start()
 
 collection = Collections(name='example')
-vf = collection.create_field(name='vector', ftype=VECTOR_FIELD, params={'dimension': 512})
+vf = Fields(name='vector', ftype=VECTOR_FIELD, params={'dimension': 512})
 vfi = vf.add_element(name='sq8', ftype=IVFSQ8, params={'metric_type': 'L2'})
-idf = collection.create_field(name='id', ftype=STRING_FIELD)
+idf = Fields(name='id', ftype=STRING_FIELD)
 Commit(collection, vf, vfi, idf)
 # print(f'fields: {[ (f.name, f.params) for f in collection.fields.all()]}')
 
 prev = None
 for _ in range(1000):
     start = time.time()
-    snapshot = create_snapshot(collection, 2, prev=prev)
+    snapshot = create_collection_commit(collection, 2, prev=prev)
     Commit(snapshot)
     context = WorkerContext(snapshot, prev)
     prev and worker.submit(context)
@@ -206,7 +206,7 @@ for _ in range(1000):
     prev = snapshot
 
 commit = prev.commits.first()
-ss = create_snapshot(collection, 3, segment=commit.segment, prev=prev)
+ss = create_collection_commit(collection, 3, segment=commit.segment, prev=prev)
 Commit(ss)
 context = WorkerContext(ss, prev)
 prev and worker.submit(context)
