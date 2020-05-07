@@ -227,3 +227,8 @@ Status CreateCollectionFile(SegmentSchema& file_schema);
     ```python
     data_manager.release(prev_collection_commit)
     ```
+>**上层逻辑影响**
+
+应该调用元数据 MergeFiles 接口
+- DBImpl::MergeFiles
+- DBImpl::CompactFile
