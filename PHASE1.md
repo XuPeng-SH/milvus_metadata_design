@@ -13,23 +13,23 @@ Status CreateCollection(CollectionSchema& collection_schema);
 >**参数 CollectionSchema**
 ```json
 {
-    "name": collection_1,
+    "name": "collection_1",
     "fields": [
         {
             "name": "vector",
-            "ftype": VECTOR_FIELD,
+            "ftype": "VECTOR_FIELD",
             "params": {"dimension": 512},
             "elements": [
                 {
                     "name": "pq",
-                    "ftype": PQ_INDEX,
+                    "ftype": "PQ_INDEX",
                     "params": {"metric_type": "IP"}
                 }
             ]
         },
         {
             "name": "id",
-            "ftype": STRING_FIELD
+            "ftype": "STRING_FIELD"
         }
     ]
 }
@@ -52,7 +52,7 @@ Status CreateCollection(CollectionSchema& collection_schema);
 		field_type = field_schema['ftype']
 		field_params = field_schema['params']
 		field = DBCreateFields(name=field_name, num=field_id,
-							   params=field_params, collection_id=collection_id)
+                               params=field_params, collection_id=collection_id)
 		DBCommit(field)
 		all_records.append(field)
 		field_elements = []
@@ -64,19 +64,19 @@ Status CreateCollection(CollectionSchema& collection_schema);
 			element_type = element_schema['ftype']
 			element_params = element_schema['params']
 			element = DBCreateFieldElements(name=element_name, ftype=element_type,
-											params=element_params, field_id=field.id)
+                                            params=element_params, field_id=field.id)
 			field_elements.append(element)
 			all_records.append(element)
 
 		DBCommit(**field_elements)
 		field_commit = DBCreateFieldCommits(collection_id=collection_id,
-										    mappings=[ele.id for ele in field_elements],
-										    field_id=field.id)
+                                            mappings=[ele.id for ele in field_elements],
+                                            field_id=field.id)
 		DBCommit(field_commit)
 		field_commits.append(field_commit)
 		all_records.append(field_commit)
 	schema_commit = DBCreateSchemaCommits(collection_id=collection_id,
-										  mappings=[ele.id for ele in field_commits]
+                                          mappings=[ele.id for ele in field_commits]
 	DBCommit(schema_commit)
 	all_records.append(schema_commit)
 	```
@@ -85,7 +85,7 @@ Status CreateCollection(CollectionSchema& collection_schema);
 	partition = DBCreatePartitions(collection_id=collection_id, name='_default')
 	DBCommit(partition)
 	partition_commit = DBCreatePartitionCommits(collection_id=collection_id,
-												 mappings=[], partition_id=partition.id)
+                                                mappings=[], partition_id=partition.id)
 	DBCommit(partition_commit)
 	all_records.append(partition)
 	all_records.append(partition_commit)
@@ -93,8 +93,8 @@ Status CreateCollection(CollectionSchema& collection_schema);
 - 创建 CollectionCommit 并最后提交
 	```python
 	collection_commits = DBCreateCollectionCommits(collection_id=collection_id,
-												   schema_commit_id=schema_commit.id,
-												   mappings=[partition_commit.id])
+                                                   schema_commit_id=schema_commit.id,
+                                                   mappings=[partition_commit.id])
 	for record in all_records:
 		record.status = ACTIVE
 	all_records.append(collection_commits)
@@ -133,21 +133,21 @@ Status HasCollection(const std::string& name, bool& has_or_not);
 >**内部实现**
 - 通过数据管理器根据 collection 名字查询指定 collection 是否存在
 	```python
-	has_or_not = data_manager.has_collection(collection_name)
+    has_or_not = data_manager.has_collection(collection_name)
 	```
 ### **DropCollection**
 >**函数原型**
 ```cpp
-	Status DropCollection(const std::string& name);
+Status DropCollection(const std::string& name);
 ```
 >**内部实现**
 - 获取 CollectionCommits 管理器，并调用 drop
 	```python
-	collection_commits_mgr.drop(name)
+    collection_commits_mgr.drop(name)
 	```
 >**上层逻辑影响**
 - DBImpl::DropCollection
-   只需要调用元数据接口 DropCollection
+  只需要调用元数据接口 DropCollection
 
 ### **DeleteCollectionFiles**
 >**函数原型**
