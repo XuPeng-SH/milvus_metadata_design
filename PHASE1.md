@@ -157,3 +157,73 @@ Status DeleteCollectionFiles(const std::string& name);
 >**Deprecated**
 
 这个接口是之前元数据GC的一部分，之后元数据的GC由数据管理器接管
+
+### **CreateCollectionFile**
+>**函数原型**
+```cpp
+Status CreateCollectionFile(SegmentSchema& file_schema);
+```
+>**内部实现**
+- 调用数据管理器获取最新的 Schema
+	```python
+    partition_id = file_schema.partition_id
+    collection_id = file_schema.collection_id
+    prev_collection_commit = data_manager.get_collection_commit(name)
+    schema = prev_collection_commit.schema
+    element_schema = prev_collection_commit.field_element_schema(field_name, element_name)
+    ```
+- 是否创建新的 Segment
+    ```python
+    all_records = []
+    segment_id = file_schema.segment_id
+    new_segment = False
+    if not segment_id:
+        segment = DBCreateSegment(partition_id=partition_id)
+        DBCommit(segment)
+        all_records.append(segment)
+        segment_id = segment.id
+        new_segment = True
+
+    ```
+- 创建 SegmentFile, SegmentCommit, PartitionCommit, CollectionCommit
+    ```python
+    segment_file = DBCreateSegmentFile(field_element_id=element_schema.id, partition_id=partition_id,
+                                       segment_id=segment_id, **kwargs)
+    DBCommit(segment_file)
+    all_records.append(segment_file)
+
+    mappings = [segment_file.id]
+    prev_segment_commit_id = None
+    if not new_segment:
+        prev_segment_commit = prev_collection_commit.segment_commit(segment_id)
+        mappings.extend(prev_segment_commit.mappings)
+        prev_segment_commit_id = prev_segment_commit.id
+    segment_commit = DBCreateSegmentCommits(partition_id=partition_id, segment_id=segment_id,
+                                             schema_id=schema.id, mappings=mappings)
+    DBCommit(segment_commit)
+    all_records.append(segment_commit)
+    prev_partition_commit = prev_collection_commit.partition_commit(partition_id)
+    mappings = prev_partition_commit.mappings
+    if prev_segment_commit_id is not None:
+        mappings.remove(prev_segment_commit_id)
+    mappings.append(segment_commit.id)
+    partition_commit = DBCreatePartitionCommits(partition_id=partition_id, collection_id=collection_id,
+                                                mappings=mappings)
+    DBCommit(partition_commit)
+    all_records.append(partition_commit)
+
+    mappings = prev_collection_commit.mappings
+    mappings.remove(prev_partition_commit.id)
+    mappings.append(partition_commit.id)
+    collection_commit = DBCreateCollectionCommits(collection_id=collection_id, mappings=mappings)
+    for record in all_record:
+        record.status = ACTIVE
+    all_records.append(collection_commit)
+    DBCommit(*all_records)
+    data_manager.submit(collection_commit)
+    ```
+
+- 释放之前锁定资源
+    ```python
+    data_manager.release(prev_collection_commit)
+    ```
