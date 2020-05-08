@@ -232,3 +232,12 @@ Status CreateCollectionFile(SegmentSchema& file_schema);
 应该调用元数据 MergeFiles 接口
 - DBImpl::MergeFiles
 - DBImpl::CompactFile
+
+### **UpdateCollectionFile**
+>**函数原型**
+```cpp
+Status UpdateCollectionFile(SegmentSchema& file_schema);
+```
+>**Deprecated**
+
+之后元数据有版本，没有必要修改
