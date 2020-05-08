@@ -318,3 +318,35 @@ Status DropCollectionIndex(const std::string& name);
     ```python
     data_manager.release(prev_collection_commit)
     ```
+### **CreatePartition**
+>**函数原型**
+```cpp
+Status CreatePartition(const std::string& collection_name, const std::string& partition_name,
+    const std::string& tag, uint64_t lsn);
+```
+>**内部实现**
+- 获取最新 CollectionCommit
+    ```python
+    prev_collection_commit = data_manager.get_collection_commit(name)
+    collection = prev_collection_commit.collection
+    ```
+- 创建 Partition, PartitionCommit
+    ```python
+	partition = DBCreatePartitions(collection_id=collection.id, name=partition_name)
+	DBCommit(partition)
+	partition_commit = DBCreatePartitionCommits(collection_id=collection.id,
+                                                mappings=[], partition_id=partition.id)
+	DBCommit(partition_commit)
+	all_records.append(partition)
+	all_records.append(partition_commit)
+    mappings = prev_collection_commit.mappings
+    mappings.append(partition_commit.id)
+    collection_commit = DBCreateCollectionCommits(collection_id=collection.id,
+                                                  mappings=mappings)
+    for record in all_record:
+        record.status = ACTIVE
+
+    all_records.append(collection_commit)
+    DBCommit(*all_records)
+    data_manager.submit(collection_commit)
+    ```
