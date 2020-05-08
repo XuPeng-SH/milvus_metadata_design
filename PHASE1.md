@@ -350,3 +350,7 @@ Status CreatePartition(const std::string& collection_name, const std::string& pa
     DBCommit(*all_records)
     data_manager.submit(collection_commit)
     ```
+- 释放之前锁定资源
+    ```python
+    data_manager.release(prev_collection_commit)
+    ```
