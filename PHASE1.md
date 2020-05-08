@@ -346,8 +346,41 @@ Status CreatePartition(const std::string& collection_name, const std::string& pa
     for record in all_record:
         record.status = ACTIVE
 
+    lsn_entry = DBCreateLsn(lsn=lsn)
+
     all_records.append(collection_commit)
+    all_records.append(lsn_entry)
     DBCommit(*all_records)
+    data_manager.submit(collection_commit)
+    ```
+- 释放之前锁定资源
+    ```python
+    data_manager.release(prev_collection_commit)
+    ```
+### **DropPartition**
+>**函数原型**
+```cpp
+Status DropPartition(const std::string& collection_name, const std::string& partition_name)
+```
+>**内部实现**
+- 获取最新 CollectionCommit
+    ```python
+    prev_collection_commit = data_manager.get_collection_commit(collection_name)
+    collection = prev_collection_commit.collection
+    ```
+- 创建新的 CollectionCommit
+    ```python
+    prev_partition_commit = prev_collection_commit.partition_commit(partition_name)
+	partition_commit = DBCreatePartitionCommits(collection_id=collection.id,
+                                                mappings=[],
+                                                partition_id=prev_partition_commit.partition_id)
+	DBCommit(partition_commit)
+    mappings = set(prev_collection_commit.mappings)
+    mappings.remove(prev_partition_commit.id)
+    collection_commit = DBCreateCollectionCommits(collection_id=collection.id,
+                                                  mappings=list(mappings))
+    partition_commit.status = ACTIVE
+    DBCommit(collection_commit, partition_commit)
     data_manager.submit(collection_commit)
     ```
 - 释放之前锁定资源
