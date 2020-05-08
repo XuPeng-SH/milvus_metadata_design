@@ -233,11 +233,14 @@ Status CreateCollectionFile(SegmentSchema& file_schema);
 - DBImpl::MergeFiles
 - DBImpl::CompactFile
 
-### **UpdateCollectionFile** **UpdateCollectionFiles**
+### **UpdateXXX**
 >**函数原型**
 ```cpp
 Status UpdateCollectionFile(SegmentSchema& file_schema);
 Status UpdateCollectionFiles(SegmentsSchema& files_schema);
+Status UpdateCollectionIndex(const std::string& collection_id, const CollectionIndex& index);
+Status UpdateCollectionFilesRowCount(SegmentsSchema& files);
+Status UpdateCollectionFilesToIndex(const std::string& collection_id);
 ```
 >**Deprecated**
 
