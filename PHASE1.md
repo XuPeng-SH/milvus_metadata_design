@@ -233,10 +233,11 @@ Status CreateCollectionFile(SegmentSchema& file_schema);
 - DBImpl::MergeFiles
 - DBImpl::CompactFile
 
-### **UpdateCollectionFile**
+### **UpdateCollectionFile** **UpdateCollectionFiles**
 >**函数原型**
 ```cpp
 Status UpdateCollectionFile(SegmentSchema& file_schema);
+Status UpdateCollectionFiles(SegmentsSchema& files_schema);
 ```
 >**Deprecated**
 
