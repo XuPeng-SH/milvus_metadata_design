@@ -44,3 +44,17 @@ std::string CollectionCommit::ToString() const {
     ss << "]>";
     return ss.str();
 }
+
+Partition::Partition(ID_TYPE id, const std::string& name, ID_TYPE collection_id,
+        State status, TS_TYPE created_on) :
+    BaseT(id, status, created_on),
+    NameMixin(name),
+    CollectionIdMixin(collection_id)
+{
+}
+
+std::string Partition::ToString() const {
+    std::stringstream ss;
+    ss << "<" << BaseT::ToString() << ", Name=" << name_ << ", CollectionId=" << collection_id_ << ">";
+    return ss.str();
+}

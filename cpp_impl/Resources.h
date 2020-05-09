@@ -95,4 +95,18 @@ public:
 
 using CollectionCommitPtr = std::shared_ptr<CollectionCommit>;
 
+class Partition : public DBBaseResource<Partition>,
+                  public NameMixin,
+                  public CollectionIdMixin
+{
+public:
+    using BaseT = DBBaseResource<Partition>;
+
+    Partition(ID_TYPE id, const std::string& name, ID_TYPE collection_id, State status = PENDING,
+            TS_TYPE created_on = GetMicroSecTimeStamp());
+
+    std::string ToString() const override;
+};
+
+
 #include "Resources.inl"
