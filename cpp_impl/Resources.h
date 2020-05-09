@@ -40,6 +40,7 @@ class MappingsMixin {
 public:
     MappingsMixin(const MappingT& mappings) : mappings_(mappings) {}
     const MappingT& GetMappings() const { return mappings_; }
+    MappingT& GetMappings() { return mappings_; }
 
 protected:
     MappingT mappings_;

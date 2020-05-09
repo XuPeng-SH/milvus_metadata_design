@@ -175,3 +175,39 @@ CollectionCommitsHolder::HardDelete(ID_TYPE id) {
     bool ok = store.RemoveCollectionCommit(id);
     return ok;
 }
+
+PartitionsHolder::ResourcePtr
+PartitionsHolder::Load(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    auto c = store.GetPartition(id);
+    if (c) {
+        AddNoLock(c);
+        return c;
+    }
+    return nullptr;
+}
+
+bool
+PartitionsHolder::HardDelete(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    bool ok = store.RemovePartition(id);
+    return ok;
+}
+
+PartitionCommitsHolder::ResourcePtr
+PartitionCommitsHolder::Load(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    auto c = store.GetPartitionCommit(id);
+    if (c) {
+        AddNoLock(c);
+        return c;
+    }
+    return nullptr;
+}
+
+bool
+PartitionCommitsHolder::HardDelete(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    bool ok = store.RemovePartitionCommit(id);
+    return ok;
+}

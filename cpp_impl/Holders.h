@@ -48,7 +48,6 @@ protected:
     IdMapT id_map_;
 };
 
-
 class CollectionsHolder : public ResourceHolder<Collection, CollectionsHolder> {
 public:
     using BaseT = ResourceHolder<Collection, CollectionsHolder>;
@@ -69,11 +68,29 @@ private:
     NameMapT name_map_;
 };
 
-using CollectionsHolderPtr = std::shared_ptr<CollectionsHolder>;
-
 class CollectionCommitsHolder : public ResourceHolder<CollectionCommit, CollectionCommitsHolder> {
 public:
     using BaseT = ResourceHolder<CollectionCommit, CollectionCommitsHolder>;
+    using ResourcePtr = typename BaseT::ResourcePtr;
+
+private:
+    ResourcePtr Load(ID_TYPE id) override;
+    bool HardDelete(ID_TYPE id) override;
+};
+
+class PartitionsHolder : public ResourceHolder<Partition, PartitionsHolder> {
+public:
+    using BaseT = ResourceHolder<Partition, PartitionsHolder>;
+    using ResourcePtr = typename BaseT::ResourcePtr;
+
+private:
+    ResourcePtr Load(ID_TYPE id) override;
+    bool HardDelete(ID_TYPE id) override;
+};
+
+class PartitionCommitsHolder : public ResourceHolder<PartitionCommit, PartitionCommitsHolder> {
+public:
+    using BaseT = ResourceHolder<PartitionCommit, PartitionCommitsHolder>;
     using ResourcePtr = typename BaseT::ResourcePtr;
 
 private:
