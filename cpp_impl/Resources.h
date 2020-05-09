@@ -37,6 +37,26 @@ protected:
 };
 
 
+class MappingsMixin {
+public:
+    MappingsMixin(const MappingT& mappings) : mappings_(mappings) {}
+    const MappingT& GetMappings() const { return mappings_; }
+
+protected:
+    MappingT mappings_;
+};
+
+
+class CollectionIdMixin {
+public:
+    CollectionIdMixin(ID_TYPE id) : collection_id_(id) {}
+    ID_TYPE GetCollectionId() const { return collection_id_; };
+
+protected:
+    ID_TYPE collection_id_;
+};
+
+
 class Collection : public DBBaseResource<Collection> {
 public:
     using BaseT = DBBaseResource<Collection>;
@@ -113,20 +133,16 @@ private:
 
 using CollectionsHolderPtr = std::shared_ptr<CollectionsHolder>;
 
-class CollectionCommit : public DBBaseResource<CollectionCommit> {
+class CollectionCommit : public DBBaseResource<CollectionCommit>,
+                         public MappingsMixin,
+                         public CollectionIdMixin
+{
 public:
     using BaseT = DBBaseResource<CollectionCommit>;
     CollectionCommit(ID_TYPE id, ID_TYPE collection_id, const MappingT& mappings = {}, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 
-    const MappingT& GetMappings() const { return mappings_; }
-    ID_TYPE GetCollectionId() const { return collection_id_; };
-
     std::string ToString() const override;
-
-private:
-    MappingT mappings_;
-    ID_TYPE collection_id_;
 };
 
 using CollectionCommitPtr = std::shared_ptr<CollectionCommit>;

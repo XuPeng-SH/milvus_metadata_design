@@ -201,7 +201,7 @@ CollectionCommitsHolder::HardDelete(ID_TYPE id) {
 
 CollectionCommit::CollectionCommit(ID_TYPE id, ID_TYPE collection_id,
         const MappingT& mappings, State status, TS_TYPE created_on) :
-    BaseT(id, status, created_on), collection_id_(collection_id), mappings_(mappings) {
+    BaseT(id, status, created_on), MappingsMixin(mappings), CollectionIdMixin(collection_id) {
 }
 
 std::string CollectionCommit::ToString() const {
