@@ -21,6 +21,10 @@ using Collections = std::vector<Collection>;
 
 using CollectionScopedT = ScopedResource<Collection>;
 using CollectionCommitScopedT = ScopedResource<CollectionCommit>;
+using PartitionScopedT = ScopedResource<Partition>;
+using PartitionCommitScopedT = ScopedResource<PartitionCommit>;
+using PartitionsT = std::map<ID_TYPE, PartitionScopedT>;
+using PartitionCommitsT = std::map<ID_TYPE, PartitionCommitScopedT>;
 
 class Snapshot : public ReferenceProxy {
 public:
@@ -44,12 +48,19 @@ private:
 
     CollectionScopedT collection_;
     CollectionCommitScopedT collection_commit_;
+    PartitionsT partitions_;
+    PartitionCommitsT partition_commits_;
 };
 
 void Snapshot::UnRefAll() {
     collection_commit_->UnRef();
     collection_->UnRef();
-    /* auto c = collection_->Get(); */
+    for (auto& partition : partitions_) {
+        partition.second->UnRef();
+    }
+    for (auto& partition_commit : partition_commits_) {
+        partition_commit.second->UnRef();
+    }
     /* std::cout << "XXXXXXXXXXXXXXXXX Collection " << c->GetID() << " RefCnt=" << c->RefCnt()  << std::endl; */
 }
 
@@ -57,17 +68,16 @@ Snapshot::Snapshot(ID_TYPE id) {
     collection_commit_ = CollectionCommitsHolder::GetInstance().GetResource(id, false);
     assert(collection_commit_);
     collection_ = CollectionsHolder::GetInstance().GetResource(collection_commit_->GetCollectionId(), false);
-    collection_commit_->Ref();
-    collection_->Ref();
-    /* std::cout << "c_c refcnt=" <<  collection_commit_->Get()->RefCnt() << std::endl; */
-    /* auto& mappings =  collection_commit_->GetMappings(); */
-    /* auto& partition_commits_holder = PartitionCommitsHolder::GetInstance(); */
-    /* auto& partitions_holder = PartitionsHolder::GetInstance(); */
-    /* for (auto& id : mappings) { */
-    /*     partition_commit = partition_commits_holder.GetResource(id); */
-    /*     partition = partitions_holder.GetResource(partition_commit->GetPartitionID()); */
-    /*     partition_commits_[partition_commit->GetPartitionID()] = partition_commit; */
-    /*     partitions_[partition_commit->GetPartitionID()] = partition; */
+    auto& mappings =  collection_commit_->GetMappings();
+    auto& partition_commits_holder = PartitionCommitsHolder::GetInstance();
+    auto& partitions_holder = PartitionsHolder::GetInstance();
+    for (auto& id : mappings) {
+        auto partition_commit = partition_commits_holder.GetResource(id, false);
+        auto partition = partitions_holder.GetResource(partition_commit->GetPartitionId(), false);
+        partition_commit->Ref();
+        partition_commits_[partition_commit->GetPartitionId()] = partition_commit;
+        partition->Ref();
+        partitions_[partition_commit->GetPartitionId()] = partition;
     /*     auto& s_c_mappings = partition_commit->GetMappings(); */
     /*     for (auto& s_c_id : s_c_mappings) { */
     /*         segment_commit = segment_commits_holder.GetResource(s_c_id); */
@@ -80,7 +90,7 @@ Snapshot::Snapshot(ID_TYPE id) {
     /*             segment_files_[segment_commit->GetSegmentID()][s_f_id] = segment_file; */
     /*         } */
     /*     } */
-    /* } */
+    }
     /* schema_commit = SchemaCommitsHolder::GetInstance().GetResource(collection_commit_->GetSchemaCommitId()); */
     /* auto& f_c_mappings =  schema_commit->GetMappings(); */
     /* for (auto& f_c_id : f_c_mappings) { */
@@ -94,6 +104,8 @@ Snapshot::Snapshot(ID_TYPE id) {
     /*         field_elements_[field_commit->GetFieldID()][f_e_id] = field_element; */
     /*     } */
     /* } */
+    collection_commit_->Ref();
+    collection_->Ref();
 };
 
 
