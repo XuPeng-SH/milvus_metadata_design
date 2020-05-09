@@ -1,5 +1,6 @@
 #pragma once
 #include "Resources.h"
+#include "Holders.h"
 #include <map>
 #include <memory>
 #include <deque>
