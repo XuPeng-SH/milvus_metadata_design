@@ -45,7 +45,6 @@ protected:
     MappingT mappings_;
 };
 
-
 class CollectionIdMixin {
 public:
     CollectionIdMixin(ID_TYPE id) : collection_id_(id) {}
@@ -55,6 +54,14 @@ protected:
     ID_TYPE collection_id_;
 };
 
+class PartitionIdMixin {
+public:
+    PartitionIdMixin(ID_TYPE id) : partition_id_(id) {}
+    ID_TYPE GetPartitionId() const { return partition_id_; };
+
+protected:
+    ID_TYPE partition_id_;
+};
 
 class NameMixin {
 public:
@@ -108,5 +115,22 @@ public:
     std::string ToString() const override;
 };
 
+using PartitionPtr = std::shared_ptr<Partition>;
+
+class PartitionCommit : public DBBaseResource<PartitionCommit>,
+                        public MappingsMixin,
+                        public PartitionIdMixin,
+                        public CollectionIdMixin
+{
+public:
+    using BaseT = DBBaseResource<PartitionCommit>;
+    PartitionCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE partition_id,
+            const MappingT& mappings = {}, State status = PENDING,
+            TS_TYPE created_on = GetMicroSecTimeStamp());
+
+    std::string ToString() const override;
+};
+
+using PartitionCommitPtr = std::shared_ptr<PartitionCommit>;
 
 #include "Resources.inl"

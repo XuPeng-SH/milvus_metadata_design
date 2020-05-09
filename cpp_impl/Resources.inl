@@ -58,3 +58,25 @@ std::string Partition::ToString() const {
     ss << "<" << BaseT::ToString() << ", Name=" << name_ << ", CollectionId=" << collection_id_ << ">";
     return ss.str();
 }
+
+PartitionCommit::PartitionCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE partition_id,
+        const MappingT& mappings, State status, TS_TYPE created_on) :
+    BaseT(id, status, created_on),
+    MappingsMixin(mappings),
+    PartitionIdMixin(partition_id),
+    CollectionIdMixin(collection_id) {
+}
+
+std::string PartitionCommit::ToString() const {
+    std::stringstream ss;
+    ss << "<" << BaseT::ToString() << ", Mappings=" << "[";
+    bool first = true;
+    std::string prefix;
+    for (auto& id : mappings_) {
+        if (!first) prefix = ", ";
+        else first = false;
+        ss << prefix << id;
+    }
+    ss << "]>";
+    return ss.str();
+}
