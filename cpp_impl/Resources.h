@@ -57,19 +57,26 @@ protected:
 };
 
 
-class Collection : public DBBaseResource<Collection> {
+class NameMixin {
+public:
+    NameMixin(const std::string& name) : name_(name) {}
+    const std::string& GetName() const { return name_; };
+
+protected:
+    std::string name_;
+};
+
+
+class Collection : public DBBaseResource<Collection>,
+                   public NameMixin
+{
 public:
     using BaseT = DBBaseResource<Collection>;
 
     Collection(ID_TYPE id, const std::string& name, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 
-    const std::string& GetName() const {return name_;}
-
     std::string ToString() const override;
-
-private:
-    std::string name_;
 };
 
 using CollectionPtr = std::shared_ptr<Collection>;

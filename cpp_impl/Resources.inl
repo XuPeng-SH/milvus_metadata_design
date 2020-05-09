@@ -17,7 +17,7 @@ std::string DBBaseResource<Derived>::ToString() const {
 
 Collection::Collection(ID_TYPE id, const std::string& name, State status, TS_TYPE created_on) :
     BaseT(id, status, created_on),
-    name_(name) {
+    NameMixin(name) {
 }
 
 std::string Collection::ToString() const {
