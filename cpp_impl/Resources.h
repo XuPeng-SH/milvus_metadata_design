@@ -83,6 +83,15 @@ protected:
     ID_TYPE collection_id_;
 };
 
+class SchemaIdMixin {
+public:
+    SchemaIdMixin(ID_TYPE id) : schema_id_(id) {}
+    ID_TYPE GetSchemaId() const { return schema_id_; };
+
+protected:
+    ID_TYPE schema_id_;
+};
+
 class PartitionIdMixin {
 public:
     PartitionIdMixin(ID_TYPE id) : partition_id_(id) {}
@@ -90,6 +99,15 @@ public:
 
 protected:
     ID_TYPE partition_id_;
+};
+
+class SegmentIdMixin {
+public:
+    SegmentIdMixin(ID_TYPE id) : segment_id_(id) {}
+    ID_TYPE GetSegmentId() const { return segment_id_; };
+
+protected:
+    ID_TYPE segment_id_;
 };
 
 class NameMixin {
@@ -158,5 +176,37 @@ public:
 };
 
 using PartitionCommitPtr = std::shared_ptr<PartitionCommit>;
+
+class Segment : public DBBaseResource<IdMixin,
+                                      PartitionIdMixin,
+                                      StatusMixin,
+                                      CreatedOnMixin>
+{
+public:
+    using BaseT = DBBaseResource<IdMixin, PartitionIdMixin, StatusMixin, CreatedOnMixin>;
+
+    Segment(ID_TYPE id, ID_TYPE partition_id, State status = PENDING,
+            TS_TYPE created_on = GetMicroSecTimeStamp());
+};
+
+using SegmentPtr = std::shared_ptr<Segment>;
+
+class SegmentCommit : public DBBaseResource<IdMixin,
+                                            SchemaIdMixin,
+                                            PartitionIdMixin,
+                                            SegmentIdMixin,
+                                            MappingsMixin,
+                                            StatusMixin,
+                                            CreatedOnMixin>
+{
+public:
+    using BaseT = DBBaseResource<IdMixin, SchemaIdMixin, PartitionIdMixin, SegmentIdMixin,
+          MappingsMixin, StatusMixin, CreatedOnMixin>;
+    SegmentCommit(ID_TYPE id, ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE segment_id,
+            const MappingT& mappings = {}, State status = PENDING,
+            TS_TYPE created_on = GetMicroSecTimeStamp());
+};
+
+using SegmentCommitPtr = std::shared_ptr<SegmentCommit>;
 
 #include "Resources.inl"
