@@ -33,9 +33,9 @@ public:
     virtual ~DBBaseResource() {}
 };
 
-class MappingsMixin {
+class MappingsField {
 public:
-    MappingsMixin(const MappingT& mappings = {}) : mappings_(mappings) {
+    MappingsField(const MappingT& mappings = {}) : mappings_(mappings) {
     }
     const MappingT& GetMappings() const { return mappings_; }
     MappingT& GetMappings() { return mappings_; }
@@ -44,9 +44,9 @@ protected:
     MappingT mappings_;
 };
 
-class StatusMixin {
+class StatusField {
 public:
-    StatusMixin(State status = PENDING) : status_(status) {}
+    StatusField(State status = PENDING) : status_(status) {}
     State GetStatus() const {return status_;}
 
     bool IsActive() const {return status_ == ACTIVE;}
@@ -56,54 +56,54 @@ protected:
     State status_;
 };
 
-class CreatedOnMixin {
+class CreatedOnField {
 public:
-    CreatedOnMixin(TS_TYPE created_on = GetMicroSecTimeStamp()) : created_on_(created_on) {}
+    CreatedOnField(TS_TYPE created_on = GetMicroSecTimeStamp()) : created_on_(created_on) {}
     TS_TYPE GetCreatedTime() const {return created_on_;}
 
 protected:
     TS_TYPE created_on_;
 };
 
-class IdMixin {
+class IdField {
 public:
-    IdMixin(ID_TYPE id) : id_(id) {}
+    IdField(ID_TYPE id) : id_(id) {}
     ID_TYPE GetID() const { return id_; };
 
 protected:
     ID_TYPE id_;
 };
 
-class CollectionIdMixin {
+class CollectionIdField {
 public:
-    CollectionIdMixin(ID_TYPE id) : collection_id_(id) {}
+    CollectionIdField(ID_TYPE id) : collection_id_(id) {}
     ID_TYPE GetCollectionId() const { return collection_id_; };
 
 protected:
     ID_TYPE collection_id_;
 };
 
-class SchemaIdMixin {
+class SchemaIdField {
 public:
-    SchemaIdMixin(ID_TYPE id) : schema_id_(id) {}
+    SchemaIdField(ID_TYPE id) : schema_id_(id) {}
     ID_TYPE GetSchemaId() const { return schema_id_; };
 
 protected:
     ID_TYPE schema_id_;
 };
 
-class PartitionIdMixin {
+class PartitionIdField {
 public:
-    PartitionIdMixin(ID_TYPE id) : partition_id_(id) {}
+    PartitionIdField(ID_TYPE id) : partition_id_(id) {}
     ID_TYPE GetPartitionId() const { return partition_id_; };
 
 protected:
     ID_TYPE partition_id_;
 };
 
-class SegmentIdMixin {
+class SegmentIdField {
 public:
-    SegmentIdMixin(ID_TYPE id) : segment_id_(id) {}
+    SegmentIdField(ID_TYPE id) : segment_id_(id) {}
     ID_TYPE GetSegmentId() const { return segment_id_; };
 
 protected:
@@ -119,10 +119,10 @@ protected:
     std::string name_;
 };
 
-class Collection : public DBBaseResource<IdMixin, NameMixin, StatusMixin, CreatedOnMixin>
+class Collection : public DBBaseResource<IdField, NameMixin, StatusField, CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdMixin, NameMixin, StatusMixin, CreatedOnMixin>;
+    using BaseT = DBBaseResource<IdField, NameMixin, StatusField, CreatedOnField>;
 
     Collection(ID_TYPE id, const std::string& name, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
@@ -132,28 +132,28 @@ public:
 using CollectionPtr = std::shared_ptr<Collection>;
 
 
-class CollectionCommit : public DBBaseResource<IdMixin,
-                                               CollectionIdMixin,
-                                               MappingsMixin,
-                                               StatusMixin,
-                                               CreatedOnMixin>
+class CollectionCommit : public DBBaseResource<IdField,
+                                               CollectionIdField,
+                                               MappingsField,
+                                               StatusField,
+                                               CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdMixin, CollectionIdMixin, MappingsMixin, StatusMixin, CreatedOnMixin>;
+    using BaseT = DBBaseResource<IdField, CollectionIdField, MappingsField, StatusField, CreatedOnField>;
     CollectionCommit(ID_TYPE id, ID_TYPE collection_id, const MappingT& mappings = {},
             State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
 using CollectionCommitPtr = std::shared_ptr<CollectionCommit>;
 
-class Partition : public DBBaseResource<IdMixin,
+class Partition : public DBBaseResource<IdField,
                                         NameMixin,
-                                        CollectionIdMixin,
-                                        StatusMixin,
-                                        CreatedOnMixin>
+                                        CollectionIdField,
+                                        StatusField,
+                                        CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdMixin, NameMixin, CollectionIdMixin, StatusMixin, CreatedOnMixin>;
+    using BaseT = DBBaseResource<IdField, NameMixin, CollectionIdField, StatusField, CreatedOnField>;
 
     Partition(ID_TYPE id, const std::string& name, ID_TYPE collection_id, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
@@ -161,15 +161,15 @@ public:
 
 using PartitionPtr = std::shared_ptr<Partition>;
 
-class PartitionCommit : public DBBaseResource<IdMixin,
-                                              CollectionIdMixin,
-                                              PartitionIdMixin,
-                                              MappingsMixin,
-                                              StatusMixin,
-                                              CreatedOnMixin>
+class PartitionCommit : public DBBaseResource<IdField,
+                                              CollectionIdField,
+                                              PartitionIdField,
+                                              MappingsField,
+                                              StatusField,
+                                              CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdMixin, CollectionIdMixin, PartitionIdMixin, MappingsMixin, StatusMixin, CreatedOnMixin>;
+    using BaseT = DBBaseResource<IdField, CollectionIdField, PartitionIdField, MappingsField, StatusField, CreatedOnField>;
     PartitionCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE partition_id,
             const MappingT& mappings = {}, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
@@ -177,13 +177,13 @@ public:
 
 using PartitionCommitPtr = std::shared_ptr<PartitionCommit>;
 
-class Segment : public DBBaseResource<IdMixin,
-                                      PartitionIdMixin,
-                                      StatusMixin,
-                                      CreatedOnMixin>
+class Segment : public DBBaseResource<IdField,
+                                      PartitionIdField,
+                                      StatusField,
+                                      CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdMixin, PartitionIdMixin, StatusMixin, CreatedOnMixin>;
+    using BaseT = DBBaseResource<IdField, PartitionIdField, StatusField, CreatedOnField>;
 
     Segment(ID_TYPE id, ID_TYPE partition_id, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
@@ -191,17 +191,17 @@ public:
 
 using SegmentPtr = std::shared_ptr<Segment>;
 
-class SegmentCommit : public DBBaseResource<IdMixin,
-                                            SchemaIdMixin,
-                                            PartitionIdMixin,
-                                            SegmentIdMixin,
-                                            MappingsMixin,
-                                            StatusMixin,
-                                            CreatedOnMixin>
+class SegmentCommit : public DBBaseResource<IdField,
+                                            SchemaIdField,
+                                            PartitionIdField,
+                                            SegmentIdField,
+                                            MappingsField,
+                                            StatusField,
+                                            CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdMixin, SchemaIdMixin, PartitionIdMixin, SegmentIdMixin,
-          MappingsMixin, StatusMixin, CreatedOnMixin>;
+    using BaseT = DBBaseResource<IdField, SchemaIdField, PartitionIdField, SegmentIdField,
+          MappingsField, StatusField, CreatedOnField>;
     SegmentCommit(ID_TYPE id, ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE segment_id,
             const MappingT& mappings = {}, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
