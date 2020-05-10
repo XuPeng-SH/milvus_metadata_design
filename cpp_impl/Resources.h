@@ -21,12 +21,11 @@ protected:
     std::vector<std::string> fields_;
 };
 
-template <typename Derived, typename ...Mixins>
+template <typename ...Mixins>
 class DBBaseResource : public ReferenceProxy,
                        public FieldMixin,
                        public Mixins... {
 public:
-    using Ptr = std::shared_ptr<Derived>;
     DBBaseResource(const Mixins&... mixins);
 
     virtual std::string ToString() const;
@@ -102,62 +101,49 @@ protected:
     std::string name_;
 };
 
-
-class Collection : public DBBaseResource<Collection,
-                                         IdMixin,
-                                         NameMixin,
-                                         StatusMixin,
-                                         CreatedOnMixin>
+class Collection : public DBBaseResource<IdMixin, NameMixin, StatusMixin, CreatedOnMixin>
 {
 public:
-    using BaseT = DBBaseResource<Collection, IdMixin, NameMixin, StatusMixin, CreatedOnMixin>;
+    using BaseT = DBBaseResource<IdMixin, NameMixin, StatusMixin, CreatedOnMixin>;
 
     Collection(ID_TYPE id, const std::string& name, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 
-    std::string ToString() const override;
 };
 
 using CollectionPtr = std::shared_ptr<Collection>;
 
 
-class CollectionCommit : public DBBaseResource<CollectionCommit,
-                                               IdMixin,
+class CollectionCommit : public DBBaseResource<IdMixin,
                                                CollectionIdMixin,
                                                MappingsMixin,
                                                StatusMixin,
                                                CreatedOnMixin>
 {
 public:
-    using BaseT = DBBaseResource<CollectionCommit, IdMixin, CollectionIdMixin, MappingsMixin, StatusMixin, CreatedOnMixin>;
-    CollectionCommit(ID_TYPE id, ID_TYPE collection_id, const MappingT& mappings = {}, State status = PENDING,
-            TS_TYPE created_on = GetMicroSecTimeStamp());
-
-    std::string ToString() const override;
+    using BaseT = DBBaseResource<IdMixin, CollectionIdMixin, MappingsMixin, StatusMixin, CreatedOnMixin>;
+    CollectionCommit(ID_TYPE id, ID_TYPE collection_id, const MappingT& mappings = {},
+            State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
 using CollectionCommitPtr = std::shared_ptr<CollectionCommit>;
 
-class Partition : public DBBaseResource<Partition,
-                                        IdMixin,
+class Partition : public DBBaseResource<IdMixin,
                                         NameMixin,
                                         CollectionIdMixin,
                                         StatusMixin,
                                         CreatedOnMixin>
 {
 public:
-    using BaseT = DBBaseResource<Partition, IdMixin, NameMixin, CollectionIdMixin, StatusMixin, CreatedOnMixin>;
+    using BaseT = DBBaseResource<IdMixin, NameMixin, CollectionIdMixin, StatusMixin, CreatedOnMixin>;
 
     Partition(ID_TYPE id, const std::string& name, ID_TYPE collection_id, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
-
-    std::string ToString() const override;
 };
 
 using PartitionPtr = std::shared_ptr<Partition>;
 
-class PartitionCommit : public DBBaseResource<PartitionCommit,
-                                              IdMixin,
+class PartitionCommit : public DBBaseResource<IdMixin,
                                               CollectionIdMixin,
                                               PartitionIdMixin,
                                               MappingsMixin,
@@ -165,12 +151,10 @@ class PartitionCommit : public DBBaseResource<PartitionCommit,
                                               CreatedOnMixin>
 {
 public:
-    using BaseT = DBBaseResource<PartitionCommit, IdMixin, CollectionIdMixin, PartitionIdMixin, MappingsMixin, StatusMixin, CreatedOnMixin>;
+    using BaseT = DBBaseResource<IdMixin, CollectionIdMixin, PartitionIdMixin, MappingsMixin, StatusMixin, CreatedOnMixin>;
     PartitionCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE partition_id,
             const MappingT& mappings = {}, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
-
-    std::string ToString() const override;
 };
 
 using PartitionCommitPtr = std::shared_ptr<PartitionCommit>;

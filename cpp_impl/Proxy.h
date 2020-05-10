@@ -6,7 +6,8 @@ class ScopedResource {
 public:
     using ThisT = ScopedResource<ResourceT>;
     using Ptr = std::shared_ptr<ThisT>;
-    using ResourcePtr = typename ResourceT::Ptr;
+    using ResourcePtr = std::shared_ptr<ResourceT>;
+    /* using ResourcePtr = typename ResourceT::Ptr; */
     ScopedResource();
     ScopedResource(ResourcePtr res, bool scoped = true);
 

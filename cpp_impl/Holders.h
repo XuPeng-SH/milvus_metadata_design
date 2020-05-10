@@ -15,7 +15,8 @@
 template <typename ResourceT, typename Derived>
 class ResourceHolder {
 public:
-    using ResourcePtr = typename ResourceT::Ptr;
+    using ResourcePtr = std::shared_ptr<ResourceT>;
+    /* using ResourcePtr = typename ResourceT::Ptr; */
     using ScopedT = ScopedResource<ResourceT>;
     using ScopedPtr = std::shared_ptr<ScopedT>;
     using IdMapT = std::map<ID_TYPE, ResourcePtr>;
