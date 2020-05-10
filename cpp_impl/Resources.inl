@@ -8,15 +8,15 @@ void FieldMixin::InstallField(const std::string& field) {
     fields_.push_back(field);
 }
 
-template <typename ...Mixins>
-DBBaseResource<Mixins...>::DBBaseResource(const Mixins&... mixins) : Mixins(mixins)... {
+template <typename ...Fields>
+DBBaseResource<Fields...>::DBBaseResource(const Fields&... fields) : Fields(fields)... {
     /* InstallField("id"); */
     /* InstallField("status"); */
     /* InstallField("created_on"); */
 }
 
-template <typename ...Mixins>
-std::string DBBaseResource<Mixins...>::ToString() const {
+template <typename ...Fields>
+std::string DBBaseResource<Fields...>::ToString() const {
     for (auto& field : fields_) {
         std::cout << "Field->" << field << std::endl;
     }

@@ -21,12 +21,12 @@ protected:
     std::vector<std::string> fields_;
 };
 
-template <typename ...Mixins>
+template <typename ...Fields>
 class DBBaseResource : public ReferenceProxy,
                        public FieldMixin,
-                       public Mixins... {
+                       public Fields... {
 public:
-    DBBaseResource(const Mixins&... mixins);
+    DBBaseResource(const Fields&... fields);
 
     virtual std::string ToString() const;
 
@@ -110,19 +110,19 @@ protected:
     ID_TYPE segment_id_;
 };
 
-class NameMixin {
+class NameField {
 public:
-    NameMixin(const std::string& name) : name_(name) {}
+    NameField(const std::string& name) : name_(name) {}
     const std::string& GetName() const { return name_; };
 
 protected:
     std::string name_;
 };
 
-class Collection : public DBBaseResource<IdField, NameMixin, StatusField, CreatedOnField>
+class Collection : public DBBaseResource<IdField, NameField, StatusField, CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, NameMixin, StatusField, CreatedOnField>;
+    using BaseT = DBBaseResource<IdField, NameField, StatusField, CreatedOnField>;
 
     Collection(ID_TYPE id, const std::string& name, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
@@ -147,13 +147,13 @@ public:
 using CollectionCommitPtr = std::shared_ptr<CollectionCommit>;
 
 class Partition : public DBBaseResource<IdField,
-                                        NameMixin,
+                                        NameField,
                                         CollectionIdField,
                                         StatusField,
                                         CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, NameMixin, CollectionIdField, StatusField, CreatedOnField>;
+    using BaseT = DBBaseResource<IdField, NameField, CollectionIdField, StatusField, CreatedOnField>;
 
     Partition(ID_TYPE id, const std::string& name, ID_TYPE collection_id, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
