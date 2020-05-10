@@ -12,38 +12,67 @@
 #include <thread>
 
 
-template <typename Derived>
-class DBBaseResource : public ReferenceProxy {
+class FieldMixin {
+public:
+
+protected:
+    void InstallField(const std::string& field);
+
+    std::vector<std::string> fields_;
+};
+
+template <typename Derived, typename ...Mixins>
+class DBBaseResource : public ReferenceProxy,
+                       public FieldMixin,
+                       public Mixins... {
 public:
     using Ptr = std::shared_ptr<Derived>;
-    DBBaseResource(ID_TYPE id, State status, TS_TYPE created_on);
-
-    bool IsActive() const {return status_ == ACTIVE;}
-    bool IsDeactive() const {return status_ == DEACTIVE;}
-
-    ID_TYPE GetID() const {return id_;}
-    State GetStatus() const {return status_;}
-    TS_TYPE GetCreatedTime() const {return created_on_;}
+    DBBaseResource(const Mixins&... mixins);
 
     virtual std::string ToString() const;
 
     virtual ~DBBaseResource() {}
-
-protected:
-
-    ID_TYPE id_;
-    State status_;
-    TS_TYPE created_on_;
 };
 
 class MappingsMixin {
 public:
-    MappingsMixin(const MappingT& mappings) : mappings_(mappings) {}
+    MappingsMixin(const MappingT& mappings = {}) : mappings_(mappings) {
+    }
     const MappingT& GetMappings() const { return mappings_; }
     MappingT& GetMappings() { return mappings_; }
 
 protected:
     MappingT mappings_;
+};
+
+class StatusMixin {
+public:
+    StatusMixin(State status = PENDING) : status_(status) {}
+    State GetStatus() const {return status_;}
+
+    bool IsActive() const {return status_ == ACTIVE;}
+    bool IsDeactive() const {return status_ == DEACTIVE;}
+
+protected:
+    State status_;
+};
+
+class CreatedOnMixin {
+public:
+    CreatedOnMixin(TS_TYPE created_on = GetMicroSecTimeStamp()) : created_on_(created_on) {}
+    TS_TYPE GetCreatedTime() const {return created_on_;}
+
+protected:
+    TS_TYPE created_on_;
+};
+
+class IdMixin {
+public:
+    IdMixin(ID_TYPE id) : id_(id) {}
+    ID_TYPE GetID() const { return id_; };
+
+protected:
+    ID_TYPE id_;
 };
 
 class CollectionIdMixin {
@@ -74,11 +103,14 @@ protected:
 };
 
 
-class Collection : public DBBaseResource<Collection>,
-                   public NameMixin
+class Collection : public DBBaseResource<Collection,
+                                         IdMixin,
+                                         NameMixin,
+                                         StatusMixin,
+                                         CreatedOnMixin>
 {
 public:
-    using BaseT = DBBaseResource<Collection>;
+    using BaseT = DBBaseResource<Collection, IdMixin, NameMixin, StatusMixin, CreatedOnMixin>;
 
     Collection(ID_TYPE id, const std::string& name, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
@@ -89,12 +121,15 @@ public:
 using CollectionPtr = std::shared_ptr<Collection>;
 
 
-class CollectionCommit : public DBBaseResource<CollectionCommit>,
-                         public MappingsMixin,
-                         public CollectionIdMixin
+class CollectionCommit : public DBBaseResource<CollectionCommit,
+                                               IdMixin,
+                                               CollectionIdMixin,
+                                               MappingsMixin,
+                                               StatusMixin,
+                                               CreatedOnMixin>
 {
 public:
-    using BaseT = DBBaseResource<CollectionCommit>;
+    using BaseT = DBBaseResource<CollectionCommit, IdMixin, CollectionIdMixin, MappingsMixin, StatusMixin, CreatedOnMixin>;
     CollectionCommit(ID_TYPE id, ID_TYPE collection_id, const MappingT& mappings = {}, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 
@@ -103,12 +138,15 @@ public:
 
 using CollectionCommitPtr = std::shared_ptr<CollectionCommit>;
 
-class Partition : public DBBaseResource<Partition>,
-                  public NameMixin,
-                  public CollectionIdMixin
+class Partition : public DBBaseResource<Partition,
+                                        IdMixin,
+                                        NameMixin,
+                                        CollectionIdMixin,
+                                        StatusMixin,
+                                        CreatedOnMixin>
 {
 public:
-    using BaseT = DBBaseResource<Partition>;
+    using BaseT = DBBaseResource<Partition, IdMixin, NameMixin, CollectionIdMixin, StatusMixin, CreatedOnMixin>;
 
     Partition(ID_TYPE id, const std::string& name, ID_TYPE collection_id, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
@@ -118,13 +156,16 @@ public:
 
 using PartitionPtr = std::shared_ptr<Partition>;
 
-class PartitionCommit : public DBBaseResource<PartitionCommit>,
-                        public MappingsMixin,
-                        public PartitionIdMixin,
-                        public CollectionIdMixin
+class PartitionCommit : public DBBaseResource<PartitionCommit,
+                                              IdMixin,
+                                              CollectionIdMixin,
+                                              PartitionIdMixin,
+                                              MappingsMixin,
+                                              StatusMixin,
+                                              CreatedOnMixin>
 {
 public:
-    using BaseT = DBBaseResource<PartitionCommit>;
+    using BaseT = DBBaseResource<PartitionCommit, IdMixin, CollectionIdMixin, PartitionIdMixin, MappingsMixin, StatusMixin, CreatedOnMixin>;
     PartitionCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE partition_id,
             const MappingT& mappings = {}, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());

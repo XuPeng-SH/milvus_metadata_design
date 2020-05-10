@@ -3,21 +3,30 @@
 #include <sstream>
 #include <iostream>
 
-template <typename Derived>
-DBBaseResource<Derived>::DBBaseResource(ID_TYPE id, State status, TS_TYPE created_on) :
-    id_(id), status_(status), created_on_(created_on) {
+
+void FieldMixin::InstallField(const std::string& field) {
+    fields_.push_back(field);
 }
 
-template <typename Derived>
-std::string DBBaseResource<Derived>::ToString() const {
+template <typename Derived, typename ...Mixins>
+DBBaseResource<Derived, Mixins...>::DBBaseResource(const Mixins&... mixins) : Mixins(mixins)... {
+    /* InstallField("id"); */
+    /* InstallField("status"); */
+    /* InstallField("created_on"); */
+}
+
+template <typename Derived, typename ...Mixins>
+std::string DBBaseResource<Derived, Mixins...>::ToString() const {
+    for (auto& field : fields_) {
+        std::cout << "Field->" << field << std::endl;
+    }
     std::stringstream ss;
-    ss << "ID=" << id_ << ", Status=" << status_ << ", TS=" << created_on_;
+    /* ss << "ID=" << id_ << ", Status=" << status_ << ", TS=" << created_on_; */
     return ss.str();
 }
 
 Collection::Collection(ID_TYPE id, const std::string& name, State status, TS_TYPE created_on) :
-    BaseT(id, status, created_on),
-    NameMixin(name) {
+    BaseT(id, name, status, created_on) {
 }
 
 std::string Collection::ToString() const {
@@ -28,7 +37,7 @@ std::string Collection::ToString() const {
 
 CollectionCommit::CollectionCommit(ID_TYPE id, ID_TYPE collection_id,
         const MappingT& mappings, State status, TS_TYPE created_on) :
-    BaseT(id, status, created_on), MappingsMixin(mappings), CollectionIdMixin(collection_id) {
+    BaseT(id, collection_id, mappings, status, created_on) {
 }
 
 std::string CollectionCommit::ToString() const {
@@ -47,9 +56,7 @@ std::string CollectionCommit::ToString() const {
 
 Partition::Partition(ID_TYPE id, const std::string& name, ID_TYPE collection_id,
         State status, TS_TYPE created_on) :
-    BaseT(id, status, created_on),
-    NameMixin(name),
-    CollectionIdMixin(collection_id)
+    BaseT(id, name, collection_id, status, created_on)
 {
 }
 
@@ -61,10 +68,7 @@ std::string Partition::ToString() const {
 
 PartitionCommit::PartitionCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE partition_id,
         const MappingT& mappings, State status, TS_TYPE created_on) :
-    BaseT(id, status, created_on),
-    MappingsMixin(mappings),
-    PartitionIdMixin(partition_id),
-    CollectionIdMixin(collection_id) {
+    BaseT(id, collection_id, partition_id, mappings, status, created_on) {
 }
 
 std::string PartitionCommit::ToString() const {

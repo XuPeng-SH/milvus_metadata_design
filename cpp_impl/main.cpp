@@ -5,6 +5,7 @@
 #include "Resources.h"
 #include "Snapshots.h"
 #include "Proxy.h"
+#include "Temp.h"
 
 using namespace std;
 
