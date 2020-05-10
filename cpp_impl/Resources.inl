@@ -13,6 +13,7 @@ DBBaseResource<Fields...>::DBBaseResource(const Fields&... fields) : Fields(fiel
     /* InstallField("id"); */
     /* InstallField("status"); */
     /* InstallField("created_on"); */
+    /* std::vector<std::string> attrs = {Fields::ATTR...}; */
 }
 
 template <typename ...Fields>
