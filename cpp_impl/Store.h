@@ -78,7 +78,7 @@ public:
         }
         std::cout << "<<< [Load] CollectionCommit " << id << std::endl;
         auto& c = it->second;
-        auto ret = std::make_shared<CollectionCommit>(c->GetID(), c->GetCollectionId(),
+        auto ret = std::make_shared<CollectionCommit>(c->GetID(), c->GetCollectionId(), c->GetSchemaId(),
                 c->GetMappings(), c->GetStatus(), c->GetCreatedTime());
         return ret;
     }
@@ -235,7 +235,7 @@ private:
 
             schema_commits_[i] = schema;
 
-            auto c_c = std::make_shared<CollectionCommit>(i, i);
+            auto c_c = std::make_shared<CollectionCommit>(i, i, schema->GetID());
             collection_commit_[i] = c_c;
 
             int random_partitions = rand() % 2 + 1;
