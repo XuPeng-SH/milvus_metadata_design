@@ -101,6 +101,15 @@ protected:
     NUM_TYPE num_;
 };
 
+class FtypeField {
+public:
+    FtypeField(FTYPE_TYPE type) : ftype_(type) {}
+    FTYPE_TYPE GetFtype() const { return ftype_; };
+
+protected:
+    FTYPE_TYPE ftype_;
+};
+
 class FieldIdField {
 public:
     FieldIdField(ID_TYPE id) : field_id_(id) {}
@@ -202,6 +211,23 @@ public:
 };
 
 using FieldCommitPtr = std::shared_ptr<FieldCommit>;
+
+class FieldElement : public DBBaseResource<IdField,
+                                           CollectionIdField,
+                                           FieldIdField,
+                                           NameField,
+                                           FtypeField,
+                                           StatusField,
+                                           CreatedOnField>
+{
+public:
+    using BaseT = DBBaseResource<IdField, CollectionIdField, FieldIdField, NameField,
+          FtypeField, StatusField, CreatedOnField>;
+    FieldElement(ID_TYPE id, ID_TYPE collection_id, ID_TYPE field_id, const std::string& name, FTYPE_TYPE ftype,
+            State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
+};
+
+using FieldElementPtr = std::shared_ptr<FieldElement>;
 
 class CollectionCommit : public DBBaseResource<IdField,
                                                CollectionIdField,
