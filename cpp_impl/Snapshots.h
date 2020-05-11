@@ -118,7 +118,6 @@ Snapshot::Snapshot(ID_TYPE id) {
             for (auto& s_f_id : s_f_mappings) {
                 auto segment_file = segment_files_holder.GetResource(s_f_id, false);
                 segment_file->Ref();
-                /* std::cout << "XXXXXXXXXXXXXXXXXX " << segment_file->RefCnt() << std::endl; */
                 segment_files_[s_f_id] = segment_file;
             }
         }
