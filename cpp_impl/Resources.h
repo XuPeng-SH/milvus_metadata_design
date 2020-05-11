@@ -92,6 +92,15 @@ protected:
     ID_TYPE schema_id_;
 };
 
+class FieldElementIdField {
+public:
+    FieldElementIdField(ID_TYPE id) : field_element_id_(id) {}
+    ID_TYPE GetFieldElementId() const { return field_element_id_; };
+
+protected:
+    ID_TYPE field_element_id_;
+};
+
 class PartitionIdField {
 public:
     PartitionIdField(ID_TYPE id) : partition_id_(id) {}
@@ -208,5 +217,22 @@ public:
 };
 
 using SegmentCommitPtr = std::shared_ptr<SegmentCommit>;
+
+class SegmentFile : public DBBaseResource<IdField,
+                                          PartitionIdField,
+                                          SegmentIdField,
+                                          FieldElementIdField,
+                                          StatusField,
+                                          CreatedOnField>
+{
+public:
+    using BaseT = DBBaseResource<IdField, PartitionIdField, SegmentIdField, FieldElementIdField,
+          StatusField, CreatedOnField>;
+
+    SegmentFile(ID_TYPE id, ID_TYPE partition_id, ID_TYPE segment_id, ID_TYPE field_element_id,
+            State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
+};
+
+using SegmentFilePtr = std::shared_ptr<SegmentFile>;
 
 #include "Resources.inl"
