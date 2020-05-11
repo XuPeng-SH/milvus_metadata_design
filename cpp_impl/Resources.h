@@ -92,6 +92,15 @@ protected:
     ID_TYPE schema_id_;
 };
 
+class NumField {
+public:
+    NumField(NUM_TYPE num) : num_(num) {}
+    NUM_TYPE GetNum() const { return num_; };
+
+protected:
+    NUM_TYPE num_;
+};
+
 class FieldIdField {
 public:
     FieldIdField(ID_TYPE id) : field_id_(id) {}
@@ -162,6 +171,21 @@ public:
 };
 
 using SchemaCommitPtr = std::shared_ptr<SchemaCommit>;
+
+class Field : public DBBaseResource<IdField,
+                                    NameField,
+                                    NumField,
+                                    StatusField,
+                                    CreatedOnField>
+{
+public:
+    using BaseT = DBBaseResource<IdField, NameField, NumField, StatusField, CreatedOnField>;
+
+    Field(ID_TYPE id, const std::string& name, NUM_TYPE num, State status = PENDING,
+            TS_TYPE created_on = GetMicroSecTimeStamp());
+};
+
+using FieldPtr = std::shared_ptr<Field>;
 
 class FieldCommit : public DBBaseResource<IdField,
                                           CollectionIdField,
