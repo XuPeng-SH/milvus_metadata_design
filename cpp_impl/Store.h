@@ -48,6 +48,29 @@ public:
         return true;
     }
 
+    SchemaCommitPtr GetSchemaCommit(ID_TYPE id) {
+        auto it = schema_commits_.find(id);
+        if (it == schema_commits_.end()) {
+            return nullptr;
+        }
+        std::cout << "<<< [Load] SchemaCommit " << id << std::endl;
+        auto& c = it->second;
+        auto ret = std::make_shared<SchemaCommit>(c->GetID(), c->GetCollectionId(),
+                c->GetMappings(), c->GetStatus(), c->GetCreatedTime());
+        return ret;
+    }
+
+    bool RemoveSchemaCommit(ID_TYPE id) {
+        auto it = schema_commits_.find(id);
+        if (it == schema_commits_.end()) {
+            return false;
+        }
+
+        schema_commits_.erase(it);
+        std::cout << ">>> [Remove] SchemaCommit " << id << std::endl;
+        return true;
+    }
+
     CollectionCommitPtr GetCollectionCommit(ID_TYPE id) {
         auto it = collection_commit_.find(id);
         if (it == collection_commit_.end()) {
@@ -194,6 +217,7 @@ private:
         int p_i = 0;
         int s_i = 0;
         int s_f_i = 0;
+        int f_i = 0;
         int schema_id = 1;
         int field_element_id = 1;
         for (auto i=1; i<=random; i++) {
@@ -202,6 +226,14 @@ private:
             auto c = std::make_shared<Collection>(i, name.str());
             id_collections_[i] = c;
             name_collections_[name.str()] = c;
+
+            auto schema = std::make_shared<SchemaCommit>(i, i);
+            int random_fields = rand() % 2 + 1;
+            for (auto fi=1; fi<=random_fields; ++fi) {
+                // TODO
+            }
+
+            schema_commits_[i] = schema;
 
             auto c_c = std::make_shared<CollectionCommit>(i, i);
             collection_commit_[i] = c_c;
@@ -244,6 +276,8 @@ private:
 
     std::map<ID_TYPE, CollectionPtr> id_collections_;
     std::map<std::string, CollectionPtr> name_collections_;
+
+    std::map<ID_TYPE, SchemaCommitPtr> schema_commits_;
 
     std::map<ID_TYPE, CollectionCommitPtr> collection_commit_;
     std::map<ID_TYPE, PartitionPtr> partitions_;

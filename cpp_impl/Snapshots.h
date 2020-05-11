@@ -16,11 +16,10 @@
 #include <chrono>
 
 
-using Strings = std::vector<std::string>;
-using Collections = std::vector<Collection>;
-
 using CollectionScopedT = ScopedResource<Collection>;
 using CollectionCommitScopedT = ScopedResource<CollectionCommit>;
+
+using SchemaCommitScopedT = ScopedResource<SchemaCommit>;
 
 using PartitionScopedT = ScopedResource<Partition>;
 using PartitionCommitScopedT = ScopedResource<PartitionCommit>;
@@ -50,6 +49,7 @@ private:
     /* FieldElements */
 
     CollectionScopedT collection_;
+    SchemaCommitScopedT schema_commit_;
     CollectionCommitScopedT collection_commit_;
     PartitionsT partitions_;
     PartitionCommitsT partition_commits_;
@@ -60,6 +60,7 @@ private:
 
 void Snapshot::UnRefAll() {
     collection_commit_->UnRef();
+    /* schema_commit_->UnRef(); */
     collection_->UnRef();
     for (auto& partition : partitions_) {
         partition.second->UnRef();
@@ -82,6 +83,7 @@ void Snapshot::UnRefAll() {
 Snapshot::Snapshot(ID_TYPE id) {
     collection_commit_ = CollectionCommitsHolder::GetInstance().GetResource(id, false);
     assert(collection_commit_);
+    /* schema_commits_ =  SegmentFilesHolder::GetInstance().GetResource(collection_commit_->S); */
     collection_ = CollectionsHolder::GetInstance().GetResource(collection_commit_->GetCollectionId(), false);
     auto& mappings =  collection_commit_->GetMappings();
     auto& partition_commits_holder = PartitionCommitsHolder::GetInstance();

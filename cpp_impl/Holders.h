@@ -69,6 +69,16 @@ private:
     NameMapT name_map_;
 };
 
+class SchemaCommitsHolder : public ResourceHolder<SchemaCommit, SchemaCommitsHolder> {
+public:
+    using BaseT = ResourceHolder<SchemaCommit, SchemaCommitsHolder>;
+    using ResourcePtr = typename BaseT::ResourcePtr;
+
+private:
+    ResourcePtr Load(ID_TYPE id) override;
+    bool HardDelete(ID_TYPE id) override;
+};
+
 class CollectionCommitsHolder : public ResourceHolder<CollectionCommit, CollectionCommitsHolder> {
 public:
     using BaseT = ResourceHolder<CollectionCommit, CollectionCommitsHolder>;

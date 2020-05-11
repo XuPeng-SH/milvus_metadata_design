@@ -158,6 +158,24 @@ bool CollectionsHolder::Release(ID_TYPE id) {
     return true;
 }
 
+SchemaCommitsHolder::ResourcePtr
+SchemaCommitsHolder::Load(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    auto c = store.GetSchemaCommit(id);
+    if (c) {
+        AddNoLock(c);
+        return c;
+    }
+    return nullptr;
+}
+
+bool
+SchemaCommitsHolder::HardDelete(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    bool ok = store.RemoveSchemaCommit(id);
+    return ok;
+}
+
 CollectionCommitsHolder::ResourcePtr
 CollectionCommitsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
