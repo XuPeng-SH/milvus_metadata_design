@@ -163,6 +163,29 @@ public:
         return true;
     }
 
+    SegmentFilePtr GetSegmentFile(ID_TYPE id) {
+        auto it = segment_files_.find(id);
+        if (it == segment_files_.end()) {
+            return nullptr;
+        }
+        std::cout << "<<< [Load] SegmentFile " << id << std::endl;
+        auto& c = it->second;
+        auto ret = std::make_shared<SegmentFile>(c->GetID(), c->GetPartitionId(), c->GetSegmentId(),
+                c->GetFieldElementId(), c->GetStatus(), c->GetCreatedTime());
+        return ret;
+    }
+
+    bool RemoveSegmentFile(ID_TYPE id) {
+        auto it = segment_files_.find(id);
+        if (it == segment_files_.end()) {
+            return false;
+        }
+
+        segment_files_.erase(id);
+        std::cout << ">>> [Remove] SegmentFile " << id << std::endl;
+        return true;
+    }
+
 private:
     Store() {
         srand(time(0));
@@ -170,7 +193,9 @@ private:
         random = rand() % 2 + 4;
         int p_i = 0;
         int s_i = 0;
+        int s_f_i = 0;
         int schema_id = 1;
+        int field_element_id = 1;
         for (auto i=1; i<=random; i++) {
             std::stringstream name;
             name << "c_" << i;
@@ -203,6 +228,15 @@ private:
                     segment_commits_[s_c->GetID()] = s_c;
                     auto& p_c_m = p_c->GetMappings();
                     p_c_m.push_back(s_c->GetID());
+                    int random_seg_files = rand() % 2 + 1;
+                    for (auto sfi=1; sfi<=random_seg_files; sfi++) {
+                        s_f_i++;
+                        auto sf = std::make_shared<SegmentFile>(s_f_i, p->GetID(), s->GetID(), field_element_id);
+                        segment_files_[sf->GetID()] = sf;
+
+                        auto& s_c_m = s_c->GetMappings();
+                        s_c_m.push_back(sf->GetID());
+                    }
                 }
             }
         }
@@ -217,4 +251,6 @@ private:
 
     std::map<ID_TYPE, SegmentPtr> segments_;
     std::map<ID_TYPE, SegmentCommitPtr> segment_commits_;
+
+    std::map<ID_TYPE, SegmentFilePtr> segment_files_;
 };

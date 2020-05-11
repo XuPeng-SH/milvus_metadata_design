@@ -29,8 +29,10 @@ using PartitionCommitsT = std::map<ID_TYPE, PartitionCommitScopedT>;
 
 using SegmentScopedT = ScopedResource<Segment>;
 using SegmentCommitScopedT = ScopedResource<SegmentCommit>;
+using SegmentFileScopedT = ScopedResource<SegmentFile>;
 using SegmentsT = std::map<ID_TYPE, SegmentScopedT>;
 using SegmentCommitsT = std::map<ID_TYPE, SegmentCommitScopedT>;
+using SegmentFilesT = std::map<ID_TYPE, SegmentFileScopedT>;
 
 class Snapshot : public ReferenceProxy {
 public:
@@ -46,7 +48,6 @@ private:
     /* FieldCommits */
     /* Fields */
     /* FieldElements */
-    /* SegmentFiles */
 
     CollectionScopedT collection_;
     CollectionCommitScopedT collection_commit_;
@@ -54,6 +55,7 @@ private:
     PartitionCommitsT partition_commits_;
     SegmentsT segments_;
     SegmentCommitsT segment_commits_;
+    SegmentFilesT segment_files_;
 };
 
 void Snapshot::UnRefAll() {
@@ -71,6 +73,9 @@ void Snapshot::UnRefAll() {
     for (auto& segment_commit : segment_commits_) {
         segment_commit.second->UnRef();
     }
+    for (auto& segment_file : segment_files_) {
+        segment_file.second->UnRef();
+    }
     /* std::cout << "XXXXXXXXXXXXXXXXX Collection " << c->GetID() << " RefCnt=" << c->RefCnt()  << std::endl; */
 }
 
@@ -83,6 +88,8 @@ Snapshot::Snapshot(ID_TYPE id) {
     auto& partitions_holder = PartitionsHolder::GetInstance();
     auto& segments_holder = SegmentsHolder::GetInstance();
     auto& segment_commits_holder = SegmentCommitsHolder::GetInstance();
+    auto& segment_files_holder = SegmentFilesHolder::GetInstance();
+
     for (auto& id : mappings) {
         auto partition_commit = partition_commits_holder.GetResource(id, false);
         auto partition = partitions_holder.GetResource(partition_commit->GetPartitionId(), false);
@@ -98,11 +105,13 @@ Snapshot::Snapshot(ID_TYPE id) {
             segment_commits_[segment_commit->GetID()] = segment_commit;
             segment->Ref();
             segments_[segment->GetID()] = segment;
-    /*         auto& s_f_mappings = segment_commit->GetMappings(); */
-    /*         for (auto& s_f_id : s_f_mappings) { */
-    /*             segment_file = segment_files_holder.GetResource(s_f_id); */
-    /*             segment_files_[segment_commit->GetSegmentID()][s_f_id] = segment_file; */
-    /*         } */
+            auto& s_f_mappings = segment_commit->GetMappings();
+            for (auto& s_f_id : s_f_mappings) {
+                auto segment_file = segment_files_holder.GetResource(s_f_id, false);
+                segment_file->Ref();
+                /* std::cout << "XXXXXXXXXXXXXXXXXX " << segment_file->RefCnt() << std::endl; */
+                segment_files_[s_f_id] = segment_file;
+            }
         }
     }
     /* schema_commit = SchemaCommitsHolder::GetInstance().GetResource(collection_commit_->GetSchemaCommitId()); */

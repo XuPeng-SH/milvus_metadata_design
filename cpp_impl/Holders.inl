@@ -247,3 +247,21 @@ SegmentCommitsHolder::HardDelete(ID_TYPE id) {
     bool ok = store.RemoveSegmentCommit(id);
     return ok;
 }
+
+SegmentFilesHolder::ResourcePtr
+SegmentFilesHolder::Load(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    auto c = store.GetSegmentFile(id);
+    if (c) {
+        AddNoLock(c);
+        return c;
+    }
+    return nullptr;
+}
+
+bool
+SegmentFilesHolder::HardDelete(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    bool ok = store.RemoveSegmentFile(id);
+    return ok;
+}

@@ -119,4 +119,14 @@ private:
     bool HardDelete(ID_TYPE id) override;
 };
 
+class SegmentFilesHolder : public ResourceHolder<SegmentFile, SegmentFilesHolder> {
+public:
+    using BaseT = ResourceHolder<SegmentFile, SegmentFilesHolder>;
+    using ResourcePtr = typename BaseT::ResourcePtr;
+
+private:
+    ResourcePtr Load(ID_TYPE id) override;
+    bool HardDelete(ID_TYPE id) override;
+};
+
 #include "Holders.inl"
