@@ -176,6 +176,60 @@ SchemaCommitsHolder::HardDelete(ID_TYPE id) {
     return ok;
 }
 
+FieldCommitsHolder::ResourcePtr
+FieldCommitsHolder::Load(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    auto c = store.GetFieldCommit(id);
+    if (c) {
+        AddNoLock(c);
+        return c;
+    }
+    return nullptr;
+}
+
+bool
+FieldCommitsHolder::HardDelete(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    bool ok = store.RemoveFieldCommit(id);
+    return ok;
+}
+
+FieldsHolder::ResourcePtr
+FieldsHolder::Load(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    auto c = store.GetField(id);
+    if (c) {
+        AddNoLock(c);
+        return c;
+    }
+    return nullptr;
+}
+
+bool
+FieldsHolder::HardDelete(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    bool ok = store.RemoveField(id);
+    return ok;
+}
+
+FieldElementsHolder::ResourcePtr
+FieldElementsHolder::Load(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    auto c = store.GetFieldElement(id);
+    if (c) {
+        AddNoLock(c);
+        return c;
+    }
+    return nullptr;
+}
+
+bool
+FieldElementsHolder::HardDelete(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    bool ok = store.RemoveFieldElement(id);
+    return ok;
+}
+
 CollectionCommitsHolder::ResourcePtr
 CollectionCommitsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();

@@ -55,8 +55,7 @@ public:
         }
         std::cout << "<<< [Load] SchemaCommit " << id << std::endl;
         auto& c = it->second;
-        auto ret = std::make_shared<SchemaCommit>(c->GetID(), c->GetCollectionId(),
-                c->GetMappings(), c->GetStatus(), c->GetCreatedTime());
+        auto ret = std::make_shared<SchemaCommit>(*c);
         return ret;
     }
 
@@ -68,6 +67,69 @@ public:
 
         schema_commits_.erase(it);
         std::cout << ">>> [Remove] SchemaCommit " << id << std::endl;
+        return true;
+    }
+
+    FieldCommitPtr GetFieldCommit(ID_TYPE id) {
+        auto it = field_commits_.find(id);
+        if (it == field_commits_.end()) {
+            return nullptr;
+        }
+        std::cout << "<<< [Load] FieldCommit " << id << std::endl;
+        auto& c = it->second;
+        return std::make_shared<FieldCommit>(*c);
+    }
+
+    bool RemoveFieldCommit(ID_TYPE id) {
+        auto it = field_commits_.find(id);
+        if (it == field_commits_.end()) {
+            return false;
+        }
+
+        field_commits_.erase(it);
+        std::cout << ">>> [Remove] FieldCommit " << id << std::endl;
+        return true;
+    }
+
+    FieldPtr GetField(ID_TYPE id) {
+        auto it = fields_.find(id);
+        if (it == fields_.end()) {
+            return nullptr;
+        }
+        std::cout << "<<< [Load] Field " << id << std::endl;
+        auto& c = it->second;
+        return std::make_shared<Field>(*c);
+    }
+
+    bool RemoveField(ID_TYPE id) {
+        auto it = fields_.find(id);
+        if (it == fields_.end()) {
+            return false;
+        }
+
+        fields_.erase(it);
+        std::cout << ">>> [Remove] Field " << id << std::endl;
+        return true;
+    }
+
+    FieldElementPtr GetFieldElement(ID_TYPE id) {
+        auto it = field_elements_.find(id);
+        if (it == field_elements_.end()) {
+            return nullptr;
+        }
+        std::cout << "<<< [Load] FieldElement " << id << std::endl;
+        auto& c = it->second;
+        return std::make_shared<FieldElement>(*c);
+    }
+
+    bool RemoveFieldElement(ID_TYPE id) {
+        auto it = field_elements_.find(id);
+        if (it == field_elements_.end()) {
+            return false;
+        }
+
+        field_elements_.erase(it);
+        std::cout << ">>> [Remove] FieldElement " << id << std::endl;
         return true;
     }
 
@@ -218,6 +280,7 @@ private:
         int s_i = 0;
         int s_f_i = 0;
         int f_i = 0;
+        int f_e_i = 0;
         int field_element_id = 1;
         for (auto i=1; i<=random; i++) {
             std::stringstream name;
@@ -227,9 +290,30 @@ private:
             name_collections_[name.str()] = c;
 
             auto schema = std::make_shared<SchemaCommit>(i, i);
+            auto& schema_c_m = schema->GetMappings();
             int random_fields = rand() % 2 + 1;
             for (auto fi=1; fi<=random_fields; ++fi) {
-                // TODO
+                f_i++;
+                std::stringstream fname;
+                fname << "f_" << fi << "_" << f_i;
+                auto field = std::make_shared<Field>(f_i, fname.str(), (NUM_TYPE)fi);
+                fields_[field->GetID()] = field;
+
+                auto f_c = std::make_shared<FieldCommit>(f_i, c->GetID(), field->GetID());
+                field_commits_[f_c->GetID()] = f_c;
+                schema_c_m.push_back(f_c->GetID());
+
+                auto& f_c_m = f_c->GetMappings();
+                int random_elements = rand() % 2 + 2;
+                for (auto fei=1; fei<=random_elements; ++fei) {
+                    f_e_i++;
+                    std::stringstream fename;
+                    fename << "fe_" << fei << "_" << f_e_i;
+
+                    auto element = std::make_shared<FieldElement>(f_e_i, c->GetID(), field->GetID(), fename.str(), fei);
+                    field_elements_[element->GetID()] = element;
+                    f_c_m.push_back(element->GetID());
+                }
             }
 
             schema_commits_[i] = schema;
@@ -277,6 +361,9 @@ private:
     std::map<std::string, CollectionPtr> name_collections_;
 
     std::map<ID_TYPE, SchemaCommitPtr> schema_commits_;
+    std::map<ID_TYPE, FieldCommitPtr> field_commits_;
+    std::map<ID_TYPE, FieldPtr> fields_;
+    std::map<ID_TYPE, FieldElementPtr> field_elements_;
 
     std::map<ID_TYPE, CollectionCommitPtr> collection_commit_;
     std::map<ID_TYPE, PartitionPtr> partitions_;

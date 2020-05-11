@@ -79,6 +79,36 @@ private:
     bool HardDelete(ID_TYPE id) override;
 };
 
+class FieldCommitsHolder : public ResourceHolder<FieldCommit, FieldCommitsHolder> {
+public:
+    using BaseT = ResourceHolder<FieldCommit, FieldCommitsHolder>;
+    using ResourcePtr = typename BaseT::ResourcePtr;
+
+private:
+    ResourcePtr Load(ID_TYPE id) override;
+    bool HardDelete(ID_TYPE id) override;
+};
+
+class FieldsHolder : public ResourceHolder<Field, FieldsHolder> {
+public:
+    using BaseT = ResourceHolder<Field, FieldsHolder>;
+    using ResourcePtr = typename BaseT::ResourcePtr;
+
+private:
+    ResourcePtr Load(ID_TYPE id) override;
+    bool HardDelete(ID_TYPE id) override;
+};
+
+class FieldElementsHolder : public ResourceHolder<FieldElement, FieldElementsHolder> {
+public:
+    using BaseT = ResourceHolder<FieldElement, FieldElementsHolder>;
+    using ResourcePtr = typename BaseT::ResourcePtr;
+
+private:
+    ResourcePtr Load(ID_TYPE id) override;
+    bool HardDelete(ID_TYPE id) override;
+};
+
 class CollectionCommitsHolder : public ResourceHolder<CollectionCommit, CollectionCommitsHolder> {
 public:
     using BaseT = ResourceHolder<CollectionCommit, CollectionCommitsHolder>;

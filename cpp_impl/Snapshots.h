@@ -22,6 +22,13 @@ using CollectionCommitScopedT = ScopedResource<CollectionCommit>;
 using SchemaCommitScopedT = ScopedResource<SchemaCommit>;
 using SchemaCommitsT = std::map<ID_TYPE, SchemaCommitScopedT>;
 
+using FieldScopedT = ScopedResource<Field>;
+using FieldsT = std::map<ID_TYPE, FieldScopedT>;
+using FieldCommitScopedT = ScopedResource<FieldCommit>;
+using FieldCommitsT = std::map<ID_TYPE, FieldCommitScopedT>;
+using FieldElementScopedT = ScopedResource<FieldElement>;
+using FieldElementsT = std::map<ID_TYPE, FieldElementScopedT>;
+
 using PartitionScopedT = ScopedResource<Partition>;
 using PartitionCommitScopedT = ScopedResource<PartitionCommit>;
 using PartitionsT = std::map<ID_TYPE, PartitionScopedT>;
@@ -41,16 +48,17 @@ public:
 
     ID_TYPE GetID() const { return collection_commit_->GetID();}
 
+    void RefAll();
     void UnRefAll();
-private:
 
-    /* FieldCommits */
-    /* Fields */
-    /* FieldElements */
+private:
 
     CollectionScopedT collection_;
     ID_TYPE current_schema_id_;
     SchemaCommitsT schema_commits_;
+    FieldsT fields_;
+    FieldCommitsT field_commits_;
+    FieldElementsT field_elements_;
     CollectionCommitScopedT collection_commit_;
     PartitionsT partitions_;
     PartitionCommitsT partition_commits_;
@@ -59,10 +67,51 @@ private:
     SegmentFilesT segment_files_;
 };
 
+void Snapshot::RefAll() {
+    collection_commit_->Ref();
+    for (auto& schema : schema_commits_) {
+        schema.second->Ref();
+    }
+    for (auto& element : field_elements_) {
+        element.second->Ref();
+    }
+    for (auto& field : fields_) {
+        field.second->Ref();
+    }
+    for (auto& field_commit : field_commits_) {
+        field_commit.second->Ref();
+    }
+    collection_->Ref();
+    for (auto& partition : partitions_) {
+        partition.second->Ref();
+    }
+    for (auto& partition_commit : partition_commits_) {
+        partition_commit.second->Ref();
+    }
+    for (auto& segment : segments_) {
+        segment.second->Ref();
+    }
+    for (auto& segment_commit : segment_commits_) {
+        segment_commit.second->Ref();
+    }
+    for (auto& segment_file : segment_files_) {
+        segment_file.second->Ref();
+    }
+}
+
 void Snapshot::UnRefAll() {
     collection_commit_->UnRef();
     for (auto& schema : schema_commits_) {
         schema.second->UnRef();
+    }
+    for (auto& element : field_elements_) {
+        element.second->UnRef();
+    }
+    for (auto& field : fields_) {
+        field.second->UnRef();
+    }
+    for (auto& field_commit : field_commits_) {
+        field_commit.second->UnRef();
     }
     collection_->UnRef();
     for (auto& partition : partitions_) {
@@ -80,7 +129,6 @@ void Snapshot::UnRefAll() {
     for (auto& segment_file : segment_files_) {
         segment_file.second->UnRef();
     }
-    /* std::cout << "XXXXXXXXXXXXXXXXX Collection " << c->GetID() << " RefCnt=" << c->RefCnt()  << std::endl; */
 }
 
 Snapshot::Snapshot(ID_TYPE id) {
@@ -88,9 +136,12 @@ Snapshot::Snapshot(ID_TYPE id) {
     assert(collection_commit_);
     auto& schema_holder =  SchemaCommitsHolder::GetInstance();
     auto current_schema = schema_holder.GetResource(collection_commit_->GetSchemaId(), false);
-    current_schema->Ref();
     schema_commits_[current_schema->GetID()] = current_schema;
     current_schema_id_ = current_schema->GetID();
+    auto& field_commits_holder = FieldCommitsHolder::GetInstance();
+    auto& fields_holder = FieldsHolder::GetInstance();
+    auto& field_elements_holder = FieldElementsHolder::GetInstance();
+
     collection_ = CollectionsHolder::GetInstance().GetResource(collection_commit_->GetCollectionId(), false);
     auto& mappings =  collection_commit_->GetMappings();
     auto& partition_commits_holder = PartitionCommitsHolder::GetInstance();
@@ -102,41 +153,37 @@ Snapshot::Snapshot(ID_TYPE id) {
     for (auto& id : mappings) {
         auto partition_commit = partition_commits_holder.GetResource(id, false);
         auto partition = partitions_holder.GetResource(partition_commit->GetPartitionId(), false);
-        partition_commit->Ref();
         partition_commits_[partition_commit->GetPartitionId()] = partition_commit;
-        partition->Ref();
         partitions_[partition_commit->GetPartitionId()] = partition;
         auto& s_c_mappings = partition_commit->GetMappings();
         for (auto& s_c_id : s_c_mappings) {
             auto segment_commit = segment_commits_holder.GetResource(s_c_id, false);
             auto segment = segments_holder.GetResource(segment_commit->GetSegmentId(), false);
-            segment_commit->Ref();
             segment_commits_[segment_commit->GetID()] = segment_commit;
-            segment->Ref();
             segments_[segment->GetID()] = segment;
             auto& s_f_mappings = segment_commit->GetMappings();
             for (auto& s_f_id : s_f_mappings) {
                 auto segment_file = segment_files_holder.GetResource(s_f_id, false);
-                segment_file->Ref();
                 segment_files_[s_f_id] = segment_file;
             }
         }
     }
-    /* schema_commit = SchemaCommitsHolder::GetInstance().GetResource(collection_commit_->GetSchemaCommitId()); */
-    /* auto& f_c_mappings =  schema_commit->GetMappings(); */
-    /* for (auto& f_c_id : f_c_mappings) { */
-    /*     field_commit = field_commits_holder.GetResource(f_c_id); */
-    /*     field = fields_holder.GetResource(field_commit->GetFieldID()); */
-    /*     field_commits_[field_commit->GetFieldID()] = field_commit; */
-    /*     fields_[fields_commit->GetFieldID()] = field; */
-    /*     auto& f_e_mappings = field_commit->GetMappings(); */
-    /*     for (auto& f_e_id : f_e_mappings) { */
-    /*         field_element = field_elements_holder.GetResource(f_e_id); */
-    /*         field_elements_[field_commit->GetFieldID()][f_e_id] = field_element; */
-    /*     } */
-    /* } */
-    collection_commit_->Ref();
-    collection_->Ref();
+
+    for (auto& kv : schema_commits_) {
+        auto& schema_commit = kv.second;
+        auto& s_c_m =  current_schema->GetMappings();
+        for (auto field_commit_id : s_c_m) {
+            auto field_commit = field_commits_holder.GetResource(field_commit_id, false);
+            field_commits_[field_commit_id] = field_commit;
+            auto field = fields_holder.GetResource(field_commit->GetFieldId(), false);
+            fields_[field->GetID()] = field;
+            auto& f_c_m = field_commit->GetMappings();
+            for (auto field_element_id : f_c_m) {
+                auto field_element = field_elements_holder.GetResource(field_element_id, false);
+                field_elements_[field_element_id] = field_element;
+            }
+        }
+    }
 };
 
 
