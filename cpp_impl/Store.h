@@ -167,7 +167,7 @@ private:
     Store() {
         srand(time(0));
         int random;
-        random = rand() % 5 + 5;
+        random = rand() % 2 + 4;
         int p_i = 0;
         int s_i = 0;
         int schema_id = 1;
@@ -181,7 +181,7 @@ private:
             auto c_c = std::make_shared<CollectionCommit>(i, i);
             collection_commit_[i] = c_c;
 
-            int random_partitions = rand() % 3 + 2;
+            int random_partitions = rand() % 2 + 1;
             for (auto pi=1; pi<=random_partitions; ++pi) {
                 p_i++;
                 std::stringstream pname;
@@ -194,7 +194,7 @@ private:
                 auto& c_c_m = c_c->GetMappings();
                 c_c_m.push_back(p_i);
 
-                int random_segments = rand() % 10 + 2;
+                int random_segments = rand() % 2 + 1;
                 for (auto si=1; si<=random_segments; ++si) {
                     s_i++;
                     auto s = std::make_shared<Segment>(s_i, p->GetID());

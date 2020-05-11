@@ -21,10 +21,16 @@ using Collections = std::vector<Collection>;
 
 using CollectionScopedT = ScopedResource<Collection>;
 using CollectionCommitScopedT = ScopedResource<CollectionCommit>;
+
 using PartitionScopedT = ScopedResource<Partition>;
 using PartitionCommitScopedT = ScopedResource<PartitionCommit>;
 using PartitionsT = std::map<ID_TYPE, PartitionScopedT>;
 using PartitionCommitsT = std::map<ID_TYPE, PartitionCommitScopedT>;
+
+using SegmentScopedT = ScopedResource<Segment>;
+using SegmentCommitScopedT = ScopedResource<SegmentCommit>;
+using SegmentsT = std::map<ID_TYPE, SegmentScopedT>;
+using SegmentCommitsT = std::map<ID_TYPE, SegmentCommitScopedT>;
 
 class Snapshot : public ReferenceProxy {
 public:
@@ -36,20 +42,18 @@ public:
     void UnRefAll();
 private:
 
-    /* PartitionCommits */
-    /* Partitions */
-    /* Schema::Ptr */
+    /* Schema */
     /* FieldCommits */
     /* Fields */
     /* FieldElements */
-    /* SegmentCommits */
-    /* Segments */
     /* SegmentFiles */
 
     CollectionScopedT collection_;
     CollectionCommitScopedT collection_commit_;
     PartitionsT partitions_;
     PartitionCommitsT partition_commits_;
+    SegmentsT segments_;
+    SegmentCommitsT segment_commits_;
 };
 
 void Snapshot::UnRefAll() {
@@ -61,6 +65,12 @@ void Snapshot::UnRefAll() {
     for (auto& partition_commit : partition_commits_) {
         partition_commit.second->UnRef();
     }
+    for (auto& segment : segments_) {
+        segment.second->UnRef();
+    }
+    for (auto& segment_commit : segment_commits_) {
+        segment_commit.second->UnRef();
+    }
     /* std::cout << "XXXXXXXXXXXXXXXXX Collection " << c->GetID() << " RefCnt=" << c->RefCnt()  << std::endl; */
 }
 
@@ -71,6 +81,8 @@ Snapshot::Snapshot(ID_TYPE id) {
     auto& mappings =  collection_commit_->GetMappings();
     auto& partition_commits_holder = PartitionCommitsHolder::GetInstance();
     auto& partitions_holder = PartitionsHolder::GetInstance();
+    auto& segments_holder = SegmentsHolder::GetInstance();
+    auto& segment_commits_holder = SegmentCommitsHolder::GetInstance();
     for (auto& id : mappings) {
         auto partition_commit = partition_commits_holder.GetResource(id, false);
         auto partition = partitions_holder.GetResource(partition_commit->GetPartitionId(), false);
@@ -78,18 +90,20 @@ Snapshot::Snapshot(ID_TYPE id) {
         partition_commits_[partition_commit->GetPartitionId()] = partition_commit;
         partition->Ref();
         partitions_[partition_commit->GetPartitionId()] = partition;
-    /*     auto& s_c_mappings = partition_commit->GetMappings(); */
-    /*     for (auto& s_c_id : s_c_mappings) { */
-    /*         segment_commit = segment_commits_holder.GetResource(s_c_id); */
-    /*         segment = segments_holder.GetResource(segment_commit->GetSegmentID()); */
-    /*         segment_commits_[segment_commit->GetSegmentID()] = segment_commit; */
-    /*         segments_[segment_commit->GetGetSegmentID()] = segment; */
+        auto& s_c_mappings = partition_commit->GetMappings();
+        for (auto& s_c_id : s_c_mappings) {
+            auto segment_commit = segment_commits_holder.GetResource(s_c_id, false);
+            auto segment = segments_holder.GetResource(segment_commit->GetSegmentId(), false);
+            segment_commit->Ref();
+            segment_commits_[segment_commit->GetID()] = segment_commit;
+            segment->Ref();
+            segments_[segment->GetID()] = segment;
     /*         auto& s_f_mappings = segment_commit->GetMappings(); */
     /*         for (auto& s_f_id : s_f_mappings) { */
     /*             segment_file = segment_files_holder.GetResource(s_f_id); */
     /*             segment_files_[segment_commit->GetSegmentID()][s_f_id] = segment_file; */
     /*         } */
-    /*     } */
+        }
     }
     /* schema_commit = SchemaCommitsHolder::GetInstance().GetResource(collection_commit_->GetSchemaCommitId()); */
     /* auto& f_c_mappings =  schema_commit->GetMappings(); */
@@ -217,7 +231,7 @@ SnapshotsHolder::BackgroundGC() {
             std::unique_lock<std::mutex> lock(gcmutex_);
             cv_.wait_for(lock, std::chrono::milliseconds(100), [this]() {return to_release_.size() > 0;});
             if (to_release_.size() > 0) {
-                std::cout << "size = " << to_release_.size() << std::endl;
+                /* std::cout << "size = " << to_release_.size() << std::endl; */
                 sss = to_release_;
                 to_release_.clear();
             }
@@ -225,7 +239,7 @@ SnapshotsHolder::BackgroundGC() {
 
         for (auto& ss : sss) {
             ss->UnRef();
-            std::cout << "BG Handling " << ss->GetID() << " RefCnt=" << ss->RefCnt() << std::endl;
+            /* std::cout << "BG Handling " << ss->GetID() << " RefCnt=" << ss->RefCnt() << std::endl; */
         }
 
     }
