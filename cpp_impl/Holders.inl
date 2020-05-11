@@ -211,3 +211,39 @@ PartitionCommitsHolder::HardDelete(ID_TYPE id) {
     bool ok = store.RemovePartitionCommit(id);
     return ok;
 }
+
+SegmentsHolder::ResourcePtr
+SegmentsHolder::Load(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    auto c = store.GetSegment(id);
+    if (c) {
+        AddNoLock(c);
+        return c;
+    }
+    return nullptr;
+}
+
+bool
+SegmentsHolder::HardDelete(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    bool ok = store.RemoveSegment(id);
+    return ok;
+}
+
+SegmentCommitsHolder::ResourcePtr
+SegmentCommitsHolder::Load(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    auto c = store.GetSegmentCommit(id);
+    if (c) {
+        AddNoLock(c);
+        return c;
+    }
+    return nullptr;
+}
+
+bool
+SegmentCommitsHolder::HardDelete(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    bool ok = store.RemoveSegmentCommit(id);
+    return ok;
+}

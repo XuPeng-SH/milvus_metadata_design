@@ -117,12 +117,60 @@ public:
         return true;
     }
 
+    SegmentPtr GetSegment(ID_TYPE id) {
+        auto it = segments_.find(id);
+        if (it == segments_.end()) {
+            return nullptr;
+        }
+        std::cout << "<<< [Load] Segment " << id << std::endl;
+        auto& c = it->second;
+        auto ret = std::make_shared<Segment>(c->GetID(), c->GetPartitionId(),
+                c->GetStatus(), c->GetCreatedTime());
+        return ret;
+    }
+
+    bool RemoveSegment(ID_TYPE id) {
+        auto it = segments_.find(id);
+        if (it == segments_.end()) {
+            return false;
+        }
+
+        segments_.erase(id);
+        std::cout << ">>> [Remove] Segment " << id << std::endl;
+        return true;
+    }
+
+    SegmentCommitPtr GetSegmentCommit(ID_TYPE id) {
+        auto it = segment_commits_.find(id);
+        if (it == segment_commits_.end()) {
+            return nullptr;
+        }
+        std::cout << "<<< [Load] SegmentCommit " << id << std::endl;
+        auto& c = it->second;
+        auto ret = std::make_shared<SegmentCommit>(c->GetID(), c->GetSchemaId(), c->GetPartitionId(),
+                c->GetSegmentId(), c->GetMappings(), c->GetStatus(), c->GetCreatedTime());
+        return ret;
+    }
+
+    bool RemoveSegmentCommit(ID_TYPE id) {
+        auto it = segment_commits_.find(id);
+        if (it == segment_commits_.end()) {
+            return false;
+        }
+
+        segment_commits_.erase(id);
+        std::cout << ">>> [Remove] SegmentCommit " << id << std::endl;
+        return true;
+    }
+
 private:
     Store() {
         srand(time(0));
         int random;
         random = rand() % 5 + 5;
         int p_i = 0;
+        int s_i = 0;
+        int schema_id = 1;
         for (auto i=1; i<=random; i++) {
             std::stringstream name;
             name << "c_" << i;
@@ -145,6 +193,17 @@ private:
                 partition_commits_[p_i] = p_c;
                 auto& c_c_m = c_c->GetMappings();
                 c_c_m.push_back(p_i);
+
+                int random_segments = rand() % 10 + 2;
+                for (auto si=1; si<=random_segments; ++si) {
+                    s_i++;
+                    auto s = std::make_shared<Segment>(s_i, p->GetID());
+                    segments_[s_i] = s;
+                    auto s_c = std::make_shared<SegmentCommit>(s_i, schema_id, p->GetID(), s->GetID());
+                    segment_commits_[s_c->GetID()] = s_c;
+                    auto& p_c_m = p_c->GetMappings();
+                    p_c_m.push_back(s_c->GetID());
+                }
             }
         }
     }
@@ -155,4 +214,7 @@ private:
     std::map<ID_TYPE, CollectionCommitPtr> collection_commit_;
     std::map<ID_TYPE, PartitionPtr> partitions_;
     std::map<ID_TYPE, PartitionCommitPtr> partition_commits_;
+
+    std::map<ID_TYPE, SegmentPtr> segments_;
+    std::map<ID_TYPE, SegmentCommitPtr> segment_commits_;
 };

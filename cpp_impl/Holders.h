@@ -99,4 +99,24 @@ private:
     bool HardDelete(ID_TYPE id) override;
 };
 
+class SegmentsHolder : public ResourceHolder<Segment, SegmentsHolder> {
+public:
+    using BaseT = ResourceHolder<Segment, SegmentsHolder>;
+    using ResourcePtr = typename BaseT::ResourcePtr;
+
+private:
+    ResourcePtr Load(ID_TYPE id) override;
+    bool HardDelete(ID_TYPE id) override;
+};
+
+class SegmentCommitsHolder : public ResourceHolder<SegmentCommit, SegmentCommitsHolder> {
+public:
+    using BaseT = ResourceHolder<SegmentCommit, SegmentCommitsHolder>;
+    using ResourcePtr = typename BaseT::ResourcePtr;
+
+private:
+    ResourcePtr Load(ID_TYPE id) override;
+    bool HardDelete(ID_TYPE id) override;
+};
+
 #include "Holders.inl"
