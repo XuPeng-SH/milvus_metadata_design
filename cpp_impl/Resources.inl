@@ -35,6 +35,11 @@ SchemaCommit::SchemaCommit(ID_TYPE id, ID_TYPE collection_id,
     BaseT(id, collection_id, mappings, status, created_on) {
 }
 
+FieldCommit::FieldCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE field_id,
+        const MappingT& mappings, State status, TS_TYPE created_on) :
+    BaseT(id, collection_id, field_id, mappings, status, created_on) {
+}
+
 CollectionCommit::CollectionCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE schema_id,
         const MappingT& mappings, State status, TS_TYPE created_on) :
     BaseT(id, collection_id, schema_id, mappings, status, created_on) {

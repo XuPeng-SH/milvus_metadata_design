@@ -92,6 +92,15 @@ protected:
     ID_TYPE schema_id_;
 };
 
+class FieldIdField {
+public:
+    FieldIdField(ID_TYPE id) : field_id_(id) {}
+    ID_TYPE GetFieldId() const { return field_id_; };
+
+protected:
+    ID_TYPE field_id_;
+};
+
 class FieldElementIdField {
 public:
     FieldElementIdField(ID_TYPE id) : field_element_id_(id) {}
@@ -153,6 +162,22 @@ public:
 };
 
 using SchemaCommitPtr = std::shared_ptr<SchemaCommit>;
+
+class FieldCommit : public DBBaseResource<IdField,
+                                          CollectionIdField,
+                                          FieldIdField,
+                                          MappingsField,
+                                          StatusField,
+                                          CreatedOnField>
+{
+public:
+    using BaseT = DBBaseResource<IdField, CollectionIdField, FieldIdField,
+          MappingsField, StatusField, CreatedOnField>;
+    FieldCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE field_id, const MappingT& mappings = {},
+            State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
+};
+
+using FieldCommitPtr = std::shared_ptr<FieldCommit>;
 
 class CollectionCommit : public DBBaseResource<IdField,
                                                CollectionIdField,
