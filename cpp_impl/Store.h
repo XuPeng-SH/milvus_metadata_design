@@ -218,7 +218,6 @@ private:
         int s_i = 0;
         int s_f_i = 0;
         int f_i = 0;
-        int schema_id = 1;
         int field_element_id = 1;
         for (auto i=1; i<=random; i++) {
             std::stringstream name;
@@ -256,7 +255,7 @@ private:
                     s_i++;
                     auto s = std::make_shared<Segment>(s_i, p->GetID());
                     segments_[s_i] = s;
-                    auto s_c = std::make_shared<SegmentCommit>(s_i, schema_id, p->GetID(), s->GetID());
+                    auto s_c = std::make_shared<SegmentCommit>(s_i, schema->GetID(), p->GetID(), s->GetID());
                     segment_commits_[s_c->GetID()] = s_c;
                     auto& p_c_m = p_c->GetMappings();
                     p_c_m.push_back(s_c->GetID());

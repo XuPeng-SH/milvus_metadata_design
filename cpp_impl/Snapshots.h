@@ -20,6 +20,7 @@ using CollectionScopedT = ScopedResource<Collection>;
 using CollectionCommitScopedT = ScopedResource<CollectionCommit>;
 
 using SchemaCommitScopedT = ScopedResource<SchemaCommit>;
+using SchemaCommitsT = std::map<ID_TYPE, SchemaCommitScopedT>;
 
 using PartitionScopedT = ScopedResource<Partition>;
 using PartitionCommitScopedT = ScopedResource<PartitionCommit>;
@@ -43,13 +44,13 @@ public:
     void UnRefAll();
 private:
 
-    /* Schema */
     /* FieldCommits */
     /* Fields */
     /* FieldElements */
 
     CollectionScopedT collection_;
-    SchemaCommitScopedT schema_commit_;
+    ID_TYPE current_schema_id_;
+    SchemaCommitsT schema_commits_;
     CollectionCommitScopedT collection_commit_;
     PartitionsT partitions_;
     PartitionCommitsT partition_commits_;
@@ -60,7 +61,9 @@ private:
 
 void Snapshot::UnRefAll() {
     collection_commit_->UnRef();
-    /* schema_commit_->UnRef(); */
+    for (auto& schema : schema_commits_) {
+        schema.second->UnRef();
+    }
     collection_->UnRef();
     for (auto& partition : partitions_) {
         partition.second->UnRef();
@@ -83,7 +86,11 @@ void Snapshot::UnRefAll() {
 Snapshot::Snapshot(ID_TYPE id) {
     collection_commit_ = CollectionCommitsHolder::GetInstance().GetResource(id, false);
     assert(collection_commit_);
-    /* schema_commits_ =  SegmentFilesHolder::GetInstance().GetResource(collection_commit_->S); */
+    auto& schema_holder =  SchemaCommitsHolder::GetInstance();
+    auto current_schema = schema_holder.GetResource(collection_commit_->GetSchemaId(), false);
+    current_schema->Ref();
+    schema_commits_[current_schema->GetID()] = current_schema;
+    current_schema_id_ = current_schema->GetID();
     collection_ = CollectionsHolder::GetInstance().GetResource(collection_commit_->GetCollectionId(), false);
     auto& mappings =  collection_commit_->GetMappings();
     auto& partition_commits_holder = PartitionCommitsHolder::GetInstance();
