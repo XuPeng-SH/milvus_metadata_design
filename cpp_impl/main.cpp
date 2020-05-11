@@ -64,5 +64,7 @@ int main() {
     ss_holder.NotifyDone();
     gc_thread.join();
 
+    /* Snapshots::GetInstance().GetHolder(1)->GetSnapshot() */
+
     return 0;
 }
