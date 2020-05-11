@@ -159,11 +159,15 @@ Snapshot::Snapshot(ID_TYPE id) {
         for (auto& s_c_id : s_c_mappings) {
             auto segment_commit = segment_commits_holder.GetResource(s_c_id, false);
             auto segment = segments_holder.GetResource(segment_commit->GetSegmentId(), false);
+            auto schema = schema_holder.GetResource(segment_commit->GetSchemaId(), false);
+            schema_commits_[schema->GetID()] = schema;
             segment_commits_[segment_commit->GetID()] = segment_commit;
             segments_[segment->GetID()] = segment;
             auto& s_f_mappings = segment_commit->GetMappings();
             for (auto& s_f_id : s_f_mappings) {
                 auto segment_file = segment_files_holder.GetResource(s_f_id, false);
+                auto field_element = field_elements_holder.GetResource(segment_file->GetFieldElementId(), false);
+                field_elements_[field_element->GetID()] = field_element;
                 segment_files_[s_f_id] = segment_file;
             }
         }
@@ -184,6 +188,8 @@ Snapshot::Snapshot(ID_TYPE id) {
             }
         }
     }
+
+    RefAll();
 };
 
 
