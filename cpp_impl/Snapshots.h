@@ -198,7 +198,10 @@ public:
     using ScopedSnapshotT = ScopedResource<Snapshot>;
     using ScopedPtr = std::shared_ptr<ScopedSnapshotT>;
 
-    SnapshotsHolder(size_t num_versions = 1) : num_versions_(num_versions), done_(false) {}
+    SnapshotsHolder(ID_TYPE collection_id, size_t num_versions = 1)
+        : collection_id_(collection_id), num_versions_(num_versions), done_(false) {}
+
+    ID_TYPE GetID() const { return collection_id_; }
     bool Add(ID_TYPE id) {
         {
             std::unique_lock<std::mutex> lock(mutex_);
@@ -257,6 +260,7 @@ private:
     std::mutex mutex_;
     std::mutex gcmutex_;
     std::condition_variable cv_;
+    ID_TYPE collection_id_;
     ID_TYPE min_id_ = std::numeric_limits<ID_TYPE>::max();
     ID_TYPE max_id_ = std::numeric_limits<ID_TYPE>::min();
     std::map<ID_TYPE, Snapshot::Ptr> active_;
@@ -327,6 +331,7 @@ public:
     SnapshotsHolderPtr GetHolder(ID_TYPE collection_id);
 
 private:
+    void SnapshotGCCallback(Snapshot::Ptr ss_ptr);
     Snapshots() {
         Init();
     }
@@ -334,6 +339,7 @@ private:
     bool Load(ID_TYPE collection_id);
 
     std::map<ID_TYPE, SnapshotsHolderPtr> holders_;
+    std::vector<Snapshot::Ptr> to_release_;
 };
 
 void
@@ -357,4 +363,11 @@ Snapshots::GetHolder(ID_TYPE collection_id) {
         return nullptr;
     }
     return it->second;
+}
+
+
+void
+Snapshots::SnapshotGCCallback(Snapshot::Ptr ss_ptr) {
+    to_release_.push_back(ss_ptr);
+    std::cout << "Snapshot " << ss_ptr->GetID() << " To be removed" << std::endl;
 }
