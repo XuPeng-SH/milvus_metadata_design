@@ -346,6 +346,7 @@ public:
     }
     bool Close(ID_TYPE collection_id);
     SnapshotsHolderPtr GetHolder(ID_TYPE collection_id);
+    SnapshotsHolderPtr GetHolder(const std::string& name);
 
     IDS_TYPE GetCollectionIds() const;
 
@@ -357,6 +358,7 @@ private:
     void Init();
 
     mutable std::shared_mutex mutex_;
+    SnapshotsHolderPtr LoadNoLock(ID_TYPE collection_id);
     SnapshotsHolderPtr Load(ID_TYPE collection_id);
 
     std::map<ID_TYPE, SnapshotsHolderPtr> holders_;
@@ -385,6 +387,12 @@ Snapshots::Close(ID_TYPE collection_id) {
 
 SnapshotsHolderPtr
 Snapshots::Load(ID_TYPE collection_id) {
+    std::unique_lock lock(mutex_);
+    return LoadNoLock(collection_id);
+}
+
+SnapshotsHolderPtr
+Snapshots::LoadNoLock(ID_TYPE collection_id) {
     auto& store = Store::GetInstance();
     auto collection_commit_ids = store.AllActiveCollectionCommitIds(collection_id, false);
     if (collection_commit_ids.size() == 0) {
@@ -395,7 +403,6 @@ Snapshots::Load(ID_TYPE collection_id) {
     for (auto c_c_id : collection_commit_ids) {
         holder->Add(c_c_id);
     }
-    std::unique_lock lock(mutex_);
     holders_[collection_id] = holder;
     name_id_map_[holder->GetSnapshot()->GetName()] = collection_id;
     return holder;
@@ -412,9 +419,10 @@ Snapshots::Init() {
 
 SnapshotsHolderPtr
 Snapshots::GetHolder(ID_TYPE collection_id) {
+    std::unique_lock lock(mutex_);
     auto it = holders_.find(collection_id);
     if (it == holders_.end()) {
-        return Load(collection_id);
+        return LoadNoLock(collection_id);
     }
     return it->second;
 }
