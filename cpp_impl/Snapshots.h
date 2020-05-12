@@ -351,24 +351,34 @@ private:
         Init();
     }
     void Init();
-    bool Load(ID_TYPE collection_id);
+    SnapshotsHolderPtr Load(ID_TYPE collection_id);
 
     std::map<ID_TYPE, SnapshotsHolderPtr> holders_;
     std::vector<Snapshot::Ptr> to_release_;
 };
+
+SnapshotsHolderPtr
+Snapshots::Load(ID_TYPE collection_id) {
+    auto& store = Store::GetInstance();
+    auto collection_commit_ids = store.AllActiveCollectionCommitIds(collection_id, false);
+    if (collection_commit_ids.size() == 0) {
+        return nullptr;
+    }
+    auto holder = std::make_shared<SnapshotsHolder>(collection_id,
+            std::bind(&Snapshots::SnapshotGCCallback, this, std::placeholders::_1));
+    for (auto c_c_id : collection_commit_ids) {
+        holder->Add(c_c_id);
+    }
+    holders_[collection_id] = holder;
+    return holder;
+}
 
 void
 Snapshots::Init() {
     auto& store = Store::GetInstance();
     auto collection_ids = store.AllActiveCollectionIds();
     for (auto collection_id : collection_ids) {
-        auto holder = std::make_shared<SnapshotsHolder>(collection_id,
-                std::bind(&Snapshots::SnapshotGCCallback, this, std::placeholders::_1));
-        auto collection_commit_ids = store.AllActiveCollectionCommitIds(collection_id, false);
-        for (auto c_c_id : collection_commit_ids) {
-            holder->Add(c_c_id);
-        }
-        holders_[collection_id] = holder;
+        Load(collection_id);
     }
 }
 
@@ -376,11 +386,10 @@ SnapshotsHolderPtr
 Snapshots::GetHolder(ID_TYPE collection_id) {
     auto it = holders_.find(collection_id);
     if (it == holders_.end()) {
-        return nullptr;
+        return Load(collection_id);
     }
     return it->second;
 }
-
 
 void
 Snapshots::SnapshotGCCallback(Snapshot::Ptr ss_ptr) {
