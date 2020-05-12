@@ -192,14 +192,18 @@ Snapshot::Snapshot(ID_TYPE id) {
     RefAll();
 };
 
+using GCHandler = std::function<void(Snapshot::Ptr)>;
 
 class SnapshotsHolder {
 public:
     using ScopedSnapshotT = ScopedResource<Snapshot>;
     using ScopedPtr = std::shared_ptr<ScopedSnapshotT>;
 
-    SnapshotsHolder(ID_TYPE collection_id, size_t num_versions = 1)
-        : collection_id_(collection_id), num_versions_(num_versions), done_(false) {}
+    SnapshotsHolder(ID_TYPE collection_id, GCHandler gc_handler = nullptr, size_t num_versions = 1)
+        : collection_id_(collection_id), num_versions_(num_versions), gc_handler_(gc_handler), done_(false) {}
+
+    /* SnapshotsHolder(ID_TYPE collection_id, size_t num_versions = 1) */
+    /*     : collection_id_(collection_id), num_versions_(num_versions), done_(false) {} */
 
     ID_TYPE GetID() const { return collection_id_; }
     bool Add(ID_TYPE id) {
@@ -249,12 +253,22 @@ public:
 
     ScopedSnapshotT GetSnapshot(ID_TYPE id = 0, bool scoped = true);
 
-private:
-    void ReadyForRelease(Snapshot::Ptr ss) {
+    void GCHandlerTestCallBack(Snapshot::Ptr ss) {
         std::unique_lock<std::mutex> lock(gcmutex_);
         to_release_.push_back(ss);
         lock.unlock();
         cv_.notify_one();
+    }
+
+    bool SetGCHandler(GCHandler gc_handler) {
+        gc_handler_ = gc_handler;
+    }
+
+private:
+    void ReadyForRelease(Snapshot::Ptr ss) {
+        if (gc_handler_) {
+            gc_handler_(ss);
+        }
     }
 
     std::mutex mutex_;
@@ -266,6 +280,7 @@ private:
     std::map<ID_TYPE, Snapshot::Ptr> active_;
     std::vector<Snapshot::Ptr> to_release_;
     size_t num_versions_ = 1;
+    GCHandler gc_handler_;
     std::atomic<bool> done_;
 };
 
@@ -347,7 +362,8 @@ Snapshots::Init() {
     auto& store = Store::GetInstance();
     auto collection_ids = store.AllActiveCollectionIds();
     for (auto collection_id : collection_ids) {
-        auto holder = std::make_shared<SnapshotsHolder>(collection_id);
+        auto holder = std::make_shared<SnapshotsHolder>(collection_id,
+                std::bind(&Snapshots::SnapshotGCCallback, this, std::placeholders::_1));
         auto collection_commit_ids = store.AllActiveCollectionCommitIds(collection_id, false);
         for (auto c_c_id : collection_commit_ids) {
             holder->Add(c_c_id);
