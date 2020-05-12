@@ -271,6 +271,20 @@ public:
         return true;
     }
 
+    IDS_TYPE AllActiveCollectionIds(bool reversed = false) const {
+        IDS_TYPE ids;
+        if (!reversed) {
+            for (auto& kv : id_collections_) {
+                ids.push_back(kv.first);
+            }
+        } else {
+            for (auto kv = id_collections_.rbegin(); kv != id_collections_.rend(); ++kv) {
+                ids.push_back(kv->first);
+            }
+        }
+        return ids;
+    }
+
 private:
     Store() {
         srand(time(0));

@@ -9,6 +9,8 @@ using FTYPE_TYPE = int16_t;
 using TS_TYPE = int64_t;
 using MappingT = std::vector<ID_TYPE>;
 
+using IDS_TYPE = std::vector<ID_TYPE>;
+
 enum State {
     PENDING = 0,
     ACTIVE = 1,

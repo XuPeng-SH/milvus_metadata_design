@@ -60,11 +60,16 @@ int main() {
 
     ss_holder.Add(4);
 
-    sleep(1);
+    sleep(0.1);
     ss_holder.NotifyDone();
     gc_thread.join();
 
     /* Snapshots::GetInstance().GetHolder(1)->GetSnapshot() */
+    auto& store = Store::GetInstance();
+    auto ids = store.AllActiveCollectionIds();
+    for (auto id : ids) {
+        std::cout << id << std::endl;
+    }
 
     return 0;
 }
