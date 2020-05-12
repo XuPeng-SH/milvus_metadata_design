@@ -38,7 +38,8 @@ int main() {
     /* } */
 
     auto& sss = Snapshots::GetInstance();
-    auto ss_holder = sss.GetHolder(1);
+    auto ss_holder = sss.GetHolder("c_1");
+    cout << "ss_holder id=" << ss_holder->GetID() << " name=" << ss_holder->GetSnapshot()->GetName() << std::endl;
 
     auto collection_ids = sss.GetCollectionIds();
     for (auto id : collection_ids) {

@@ -425,6 +425,11 @@ Snapshots::GetHolder(const std::string& name) {
     if (kv != name_id_map_.end()) {
         return GetHolderNoLock(kv->second);
     }
+    lock.release();
+    auto& store = Store::GetInstance();
+    auto c = store.GetCollection(name);
+    if (!c) return nullptr;
+    return Load(c->GetID());
 }
 
 SnapshotsHolderPtr
