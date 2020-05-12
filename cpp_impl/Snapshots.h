@@ -351,6 +351,8 @@ public:
     ScopedSnapshotT GetSnapshot(ID_TYPE collection_id, ID_TYPE id = 0, bool scoped = true);
     ScopedSnapshotT GetSnapshot(const std::string& name, ID_TYPE id = 0, bool scoped = true);
 
+    /* ScopedSnapshotT CreateCollection(const CollectionSchema& schema); */
+
     IDS_TYPE GetCollectionIds() const;
 
 private:
@@ -369,6 +371,30 @@ private:
     std::map<std::string, ID_TYPE> name_id_map_;
     std::vector<Snapshot::Ptr> to_release_;
 };
+
+// PXU TODO: Change ID = 0 as default for all resources
+/* ScopedSnapshotT */
+/* CreateCollection(const CollectionSchema& schema) { */
+/*     auto& store = Store.GetInstance(); */
+/*     auto& name = schema.GetName(); */
+/*     auto collection = store.CreateCollection(Collection(name)); */
+/*     auto& fields = schema.GetFields(); */
+/*     for(auto& field_schema : fields) { */
+/*         auto& field_name = field_schema.GetName(); */
+/*         auto& ftype = field_schema.GetType(); */
+/*         auto& field_params = field_schema.GetParams(); */
+/*         auto field = store.CreateField(Field(collection->GetID(), field_name, ftype field_params)); */
+/*         auto raw_element = store.CreateFieldElement(FieldElement(RAW_ELEMENT_NAME, field->GetID(), RAW_ELEMENT)); */
+/*         auto& elements = field_schema.GetElements(); */
+/*         for (auto element_schema : elements) { */
+/*             auto& element_name = element_schema.GetName(); */
+/*             auto& element_type = element_schema.GetType(); */
+/*             auto& element_params = element_schema.GetParams(); */
+/*             auto element = store.CreateFieldElement(element_name, element_type, field_params, field->GetID()); */
+/*         } */
+/*     } */
+
+/* } */
 
 ScopedSnapshotT
 Snapshots::GetSnapshot(ID_TYPE collection_id, ID_TYPE id, bool scoped) {
