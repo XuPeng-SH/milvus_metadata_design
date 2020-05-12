@@ -281,7 +281,7 @@ private:
         int s_f_i = 0;
         int f_i = 0;
         int f_e_i = 0;
-        int field_element_id = 1;
+        /* int field_element_id = 1; */
         for (auto i=1; i<=random; i++) {
             std::stringstream name;
             name << "c_" << i;
@@ -344,13 +344,18 @@ private:
                     auto& p_c_m = p_c->GetMappings();
                     p_c_m.push_back(s_c->GetID());
                     int random_seg_files = rand() % 2 + 1;
-                    for (auto sfi=1; sfi<=random_seg_files; sfi++) {
-                        s_f_i++;
-                        auto sf = std::make_shared<SegmentFile>(s_f_i, p->GetID(), s->GetID(), field_element_id);
-                        segment_files_[sf->GetID()] = sf;
+                    auto& schema_m = schema->GetMappings();
+                    for (auto field_commit_id : schema_m) {
+                        auto& field_commit = field_commits_[field_commit_id];
+                        auto& f_c_m = field_commit->GetMappings();
+                        for (auto field_element_id : f_c_m) {
+                            s_f_i++;
+                            auto sf = std::make_shared<SegmentFile>(s_f_i, p->GetID(), s->GetID(), field_element_id);
+                            segment_files_[sf->GetID()] = sf;
 
-                        auto& s_c_m = s_c->GetMappings();
-                        s_c_m.push_back(sf->GetID());
+                            auto& s_c_m = s_c->GetMappings();
+                            s_c_m.push_back(sf->GetID());
+                        }
                     }
                 }
             }
