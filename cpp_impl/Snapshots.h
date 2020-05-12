@@ -317,32 +317,44 @@ SnapshotsHolder::BackgroundGC() {
 
 using SnapshotsHolderPtr = std::shared_ptr<SnapshotsHolder>;
 
-/* class Snapshots { */
-/* public: */
-/*     Snapshots() { */
-/*         Init(); */
-/*     } */
+class Snapshots {
+public:
+    static Snapshots& GetInstance() {
+        static Snapshots sss;
+        return sss;
+    }
+    bool Close(ID_TYPE collection_id);
+    SnapshotsHolderPtr GetHolder(ID_TYPE collection_id);
 
-/*     bool Close(ID_TYPE collection_id); */
-/*     SnapshotsHolderPtr GetHolder(ID_TYPE collection_id); */
+private:
+    Snapshots() {
+        Init();
+    }
+    void Init();
+    bool Load(ID_TYPE collection_id);
 
-/* private: */
-/*     void Init(); */
-/*     bool Load(ID_TYPE collection_id) */
+    std::map<ID_TYPE, SnapshotsHolderPtr> holders_;
+};
 
-/*     std::map<ID_TYPE, SnapshotsHolderPtr> holders_; */
-/* } */
+void
+Snapshots::Init() {
+    auto& store = Store::GetInstance();
+    auto collection_ids = store.AllActiveCollectionIds();
+    for (auto collection_id : collection_ids) {
+        auto holder = std::make_shared<SnapshotsHolder>(collection_id);
+        auto collection_commit_ids = store.AllActiveCollectionCommitIds(collection_id, false);
+        for (auto c_c_id : collection_commit_ids) {
+            holder->Add(c_c_id);
+        }
+        holders_[collection_id] = holder;
+    }
+}
 
-/* void */
-/* Snapshots::Init() { */
-/*     auto& store = Store::GetInstance(); */
-/*     auto collection_ids = store.AllActiveCollectionIds(); */
-/*     for (auto collection_id : collection_ids) { */
-/*         auto holder = std::make_shared<SnapshotsHolder>(collection_id); */
-/*         auto collection_commit_ids = store.AllActiveCollectionCommitIds(collection_id); */
-/*         for (auto c_c_id : collection_commit_ids) { */
-/*             holder->Add(c_c_id); */
-/*         } */
-/*         holders_[collection_id] = holder; */
-/*     } */
-/* } */
+SnapshotsHolderPtr
+Snapshots::GetHolder(ID_TYPE collection_id) {
+    auto it = holders_.find(collection_id);
+    if (it == holders_.end()) {
+        return nullptr;
+    }
+    return it->second;
+}

@@ -285,15 +285,19 @@ public:
         return ids;
     }
 
-    IDS_TYPE AllActiveCollectionCommitIds(bool reversed = true) const {
+    IDS_TYPE AllActiveCollectionCommitIds(ID_TYPE collection_id, bool reversed = true) const {
         IDS_TYPE ids;
         if (!reversed) {
             for (auto& kv : collection_commit_) {
-                ids.push_back(kv.first);
+                if (kv.second->GetCollectionId() == collection_id) {
+                    ids.push_back(kv.first);
+                }
             }
         } else {
             for (auto kv = collection_commit_.rbegin(); kv != collection_commit_.rend(); ++kv) {
-                ids.push_back(kv->first);
+                if (kv->second->GetCollectionId() == collection_id) {
+                    ids.push_back(kv->first);
+                }
             }
         }
         return ids;
