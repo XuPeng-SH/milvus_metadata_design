@@ -48,6 +48,7 @@ public:
     Snapshot(ID_TYPE id);
 
     ID_TYPE GetID() const { return collection_commit_->GetID();}
+    const std::string& GetName() const { return collection_->GetName(); }
 
     void RefAll();
     void UnRefAll();
@@ -289,7 +290,7 @@ SnapshotsHolder::ScopedSnapshotT
 SnapshotsHolder::GetSnapshot(ID_TYPE id, bool scoped) {
     std::unique_lock<std::mutex> lock(mutex_);
     if (id == 0 || id == max_id_) {
-        auto ss = active_[id];
+        auto ss = active_[max_id_];
         return ScopedSnapshotT(ss, scoped);
     }
     if (id < min_id_ || id > max_id_) {
@@ -359,6 +360,7 @@ private:
     SnapshotsHolderPtr Load(ID_TYPE collection_id);
 
     std::map<ID_TYPE, SnapshotsHolderPtr> holders_;
+    std::map<std::string, ID_TYPE> name_id_map_;
     std::vector<Snapshot::Ptr> to_release_;
 };
 
@@ -374,7 +376,10 @@ Snapshots::GetCollectionIds() const {
 
 bool
 Snapshots::Close(ID_TYPE collection_id) {
+    auto name = GetHolder(collection_id)->GetSnapshot()->GetName();
+    std::unique_lock lock(mutex_);
     holders_.erase(collection_id);
+    name_id_map_.erase(name);
     return true;
 }
 
@@ -390,7 +395,9 @@ Snapshots::Load(ID_TYPE collection_id) {
     for (auto c_c_id : collection_commit_ids) {
         holder->Add(c_c_id);
     }
+    std::unique_lock lock(mutex_);
     holders_[collection_id] = holder;
+    name_id_map_[holder->GetSnapshot()->GetName()] = collection_id;
     return holder;
 }
 

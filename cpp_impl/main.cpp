@@ -48,7 +48,7 @@ int main() {
     sss.Close(2);
     collection_ids = sss.GetCollectionIds();
     for (auto id : collection_ids) {
-        cout << "SSS2 cid=" << id << endl;
+        std::cout << "CID=" << id << " CNAME=" << sss.GetHolder(id)->GetSnapshot()->GetName() << std::endl;
     }
 
     return 0;
