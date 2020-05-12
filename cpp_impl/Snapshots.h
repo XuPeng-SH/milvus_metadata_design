@@ -360,6 +360,7 @@ private:
     mutable std::shared_mutex mutex_;
     SnapshotsHolderPtr LoadNoLock(ID_TYPE collection_id);
     SnapshotsHolderPtr Load(ID_TYPE collection_id);
+    SnapshotsHolderPtr GetHolderNoLock(ID_TYPE collection_id);
 
     std::map<ID_TYPE, SnapshotsHolderPtr> holders_;
     std::map<std::string, ID_TYPE> name_id_map_;
@@ -418,8 +419,22 @@ Snapshots::Init() {
 }
 
 SnapshotsHolderPtr
+Snapshots::GetHolder(const std::string& name) {
+    std::unique_lock lock(mutex_);
+    auto kv = name_id_map_.find(name);
+    if (kv != name_id_map_.end()) {
+        return GetHolderNoLock(kv->second);
+    }
+}
+
+SnapshotsHolderPtr
 Snapshots::GetHolder(ID_TYPE collection_id) {
     std::unique_lock lock(mutex_);
+    return GetHolderNoLock(collection_id);
+}
+
+SnapshotsHolderPtr
+Snapshots::GetHolderNoLock(ID_TYPE collection_id) {
     auto it = holders_.find(collection_id);
     if (it == holders_.end()) {
         return LoadNoLock(collection_id);
