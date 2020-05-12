@@ -271,7 +271,7 @@ public:
         return true;
     }
 
-    IDS_TYPE AllActiveCollectionIds(bool reversed = false) const {
+    IDS_TYPE AllActiveCollectionIds(bool reversed = true) const {
         IDS_TYPE ids;
         if (!reversed) {
             for (auto& kv : id_collections_) {
@@ -279,6 +279,20 @@ public:
             }
         } else {
             for (auto kv = id_collections_.rbegin(); kv != id_collections_.rend(); ++kv) {
+                ids.push_back(kv->first);
+            }
+        }
+        return ids;
+    }
+
+    IDS_TYPE AllActiveCollectionCommitIds(bool reversed = true) const {
+        IDS_TYPE ids;
+        if (!reversed) {
+            for (auto& kv : collection_commit_) {
+                ids.push_back(kv.first);
+            }
+        } else {
+            for (auto kv = collection_commit_.rbegin(); kv != collection_commit_.rend(); ++kv) {
                 ids.push_back(kv->first);
             }
         }

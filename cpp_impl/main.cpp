@@ -68,7 +68,11 @@ int main() {
     auto& store = Store::GetInstance();
     auto ids = store.AllActiveCollectionIds();
     for (auto id : ids) {
-        std::cout << id << std::endl;
+        std::cout << "c " << id << std::endl;
+    }
+    auto ccids = store.AllActiveCollectionCommitIds();
+    for (auto id : ccids) {
+        std::cout << "c_c " << id << std::endl;
     }
 
     return 0;
