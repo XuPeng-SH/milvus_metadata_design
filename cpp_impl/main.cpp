@@ -49,7 +49,7 @@ int main() {
     sss.Close(2);
     collection_ids = sss.GetCollectionIds();
     for (auto id : collection_ids) {
-        std::cout << "CID=" << id << " CNAME=" << sss.GetHolder(id)->GetSnapshot()->GetName() << std::endl;
+        std::cout << "CID=" << id << " CNAME=" << sss.GetSnapshot(id)->GetName() << std::endl;
     }
 
     return 0;

@@ -194,11 +194,11 @@ Snapshot::Snapshot(ID_TYPE id) {
     RefAll();
 };
 
+using ScopedSnapshotT = ScopedResource<Snapshot>;
 using GCHandler = std::function<void(Snapshot::Ptr)>;
 
 class SnapshotsHolder {
 public:
-    using ScopedSnapshotT = ScopedResource<Snapshot>;
     using ScopedPtr = std::shared_ptr<ScopedSnapshotT>;
 
     SnapshotsHolder(ID_TYPE collection_id, GCHandler gc_handler = nullptr, size_t num_versions = 1)
@@ -286,7 +286,7 @@ private:
     std::atomic<bool> done_;
 };
 
-SnapshotsHolder::ScopedSnapshotT
+ScopedSnapshotT
 SnapshotsHolder::GetSnapshot(ID_TYPE id, bool scoped) {
     std::unique_lock<std::mutex> lock(mutex_);
     if (id == 0 || id == max_id_) {
@@ -348,6 +348,9 @@ public:
     SnapshotsHolderPtr GetHolder(ID_TYPE collection_id);
     SnapshotsHolderPtr GetHolder(const std::string& name);
 
+    ScopedSnapshotT GetSnapshot(ID_TYPE collection_id, ID_TYPE id = 0, bool scoped = true);
+    ScopedSnapshotT GetSnapshot(const std::string& name, ID_TYPE id = 0, bool scoped = true);
+
     IDS_TYPE GetCollectionIds() const;
 
 private:
@@ -367,6 +370,20 @@ private:
     std::vector<Snapshot::Ptr> to_release_;
 };
 
+ScopedSnapshotT
+Snapshots::GetSnapshot(ID_TYPE collection_id, ID_TYPE id, bool scoped) {
+    auto holder = GetHolder(collection_id);
+    if (!holder) return ScopedSnapshotT();
+    return holder->GetSnapshot(id, scoped);
+}
+
+ScopedSnapshotT
+Snapshots::GetSnapshot(const std::string& name, ID_TYPE id, bool scoped) {
+    auto holder = GetHolder(name);
+    if (!holder) return ScopedSnapshotT();
+    return holder->GetSnapshot(id, scoped);
+}
+
 IDS_TYPE
 Snapshots::GetCollectionIds() const {
     IDS_TYPE ids;
@@ -379,7 +396,7 @@ Snapshots::GetCollectionIds() const {
 
 bool
 Snapshots::Close(ID_TYPE collection_id) {
-    auto name = GetHolder(collection_id)->GetSnapshot()->GetName();
+    auto name = GetSnapshot(collection_id)->GetName();
     std::unique_lock lock(mutex_);
     holders_.erase(collection_id);
     name_id_map_.erase(name);
