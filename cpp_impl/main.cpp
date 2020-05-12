@@ -40,13 +40,16 @@ int main() {
     auto& sss = Snapshots::GetInstance();
     auto ss_holder = sss.GetHolder(1);
 
-    thread gc_thread(&SnapshotsHolder::BackgroundGC, ss_holder);
+    auto collection_ids = sss.GetCollectionIds();
+    for (auto id : collection_ids) {
+        cout << "SSS cid=" << id << endl;
+    }
 
-
-    sleep(0.2);
-
-    ss_holder->NotifyDone();
-    gc_thread.join();
+    sss.Close(2);
+    collection_ids = sss.GetCollectionIds();
+    for (auto id : collection_ids) {
+        cout << "SSS2 cid=" << id << endl;
+    }
 
     return 0;
 }

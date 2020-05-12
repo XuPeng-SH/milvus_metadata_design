@@ -11,6 +11,7 @@
 #include <limits>
 #include <cstddef>
 #include <mutex>
+#include <shared_mutex>
 #include <thread>
 #include <atomic>
 #include <chrono>
@@ -345,17 +346,37 @@ public:
     bool Close(ID_TYPE collection_id);
     SnapshotsHolderPtr GetHolder(ID_TYPE collection_id);
 
+    IDS_TYPE GetCollectionIds() const;
+
 private:
     void SnapshotGCCallback(Snapshot::Ptr ss_ptr);
     Snapshots() {
         Init();
     }
     void Init();
+
+    mutable std::shared_mutex mutex_;
     SnapshotsHolderPtr Load(ID_TYPE collection_id);
 
     std::map<ID_TYPE, SnapshotsHolderPtr> holders_;
     std::vector<Snapshot::Ptr> to_release_;
 };
+
+IDS_TYPE
+Snapshots::GetCollectionIds() const {
+    IDS_TYPE ids;
+    std::shared_lock lock(mutex_);
+    for(auto& kv : holders_) {
+        ids.push_back(kv.first);
+    }
+    return ids;
+}
+
+bool
+Snapshots::Close(ID_TYPE collection_id) {
+    holders_.erase(collection_id);
+    return true;
+}
 
 SnapshotsHolderPtr
 Snapshots::Load(ID_TYPE collection_id) {
