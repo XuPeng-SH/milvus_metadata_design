@@ -335,8 +335,16 @@ public:
         return GetFieldCommit(fc->GetID());
     }
 
+    SchemaCommitPtr CreateSchemaCommit(SchemaCommit&& schema_commit) {
+        auto sc = std::make_shared<SchemaCommit>(schema_commit);
+        sc->SetID(++s_c_id_);
+        schema_commits_[sc->GetID()] = sc;
+        return GetSchemaCommit(sc->GetID());
+    }
+
     CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
         auto collection = CreateCollection(Collection(collection_schema.name()));
+        IDS_TYPE field_commit_ids = {};
         for (auto i=0; i<collection_schema.fields_size(); ++i) {
             auto field_schema = collection_schema.fields(i);
             auto& field_name = field_schema.name();
@@ -357,7 +365,9 @@ public:
                 element_ids.push_back(element->GetID());
             }
             auto field_commit = CreateFieldCommit(FieldCommit(collection->GetID(), field->GetID(), element_ids));
+            field_commit_ids.push_back(field_commit->GetID());
         }
+        auto schema_commit = CreateSchemaCommit(SchemaCommit(collection->GetID(), field_commit_ids));
     }
 
 private:
@@ -368,16 +378,13 @@ private:
         IDS_TYPE empty_mappings = {};
         /* int field_element_id = 1; */
         for (auto i=1; i<=random; i++) {
-            std::cout << "CCCCCC " << i << std::endl;
             c_c_id_++;
-            s_c_id_++;
             std::stringstream name;
             name << "c_" << (c_id_ + 1);
 
             auto c = CreateCollection(Collection(name.str()));
 
-            auto schema = std::make_shared<SchemaCommit>(c->GetID(), empty_mappings, s_c_id_);
-            auto& schema_c_m = schema->GetMappings();
+            IDS_TYPE schema_c_m;
             int random_fields = rand() % 2 + 1;
             for (auto fi=1; fi<=random_fields; ++fi) {
                 std::stringstream fname;
@@ -397,7 +404,7 @@ private:
                 }
             }
 
-            schema_commits_[schema->GetID()] = schema;
+            auto schema = CreateSchemaCommit(SchemaCommit(c->GetID(), schema_c_m));
 
             auto c_c = std::make_shared<CollectionCommit>(c->GetID(), schema->GetID(), empty_mappings, c_c_id_);
             collection_commit_[c_c->GetID()] = c_c;
