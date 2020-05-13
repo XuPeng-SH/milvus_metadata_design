@@ -19,14 +19,14 @@ enum FType {
     UNKOWN = 9999;
 }
 
-message ParamsPB {
+message ParamPB {
     string key = 1;
     string value = 2;
 }
 
 message FieldElementInfoPB {
     string type = 1;
-    ParamsPB params = 2;
+    repeated ParamPB params = 2;
 }
 
 message FieldElementSchemaPB {
@@ -38,7 +38,7 @@ message FieldElementSchemaPB {
 
 message FieldInfoPB {
     FType type = 1;
-    ParamsPB params = 2;
+    repeated ParamPB params = 2;
 }
 
 message FieldSchemaPB {

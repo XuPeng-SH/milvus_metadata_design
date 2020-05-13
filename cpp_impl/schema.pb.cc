@@ -17,12 +17,12 @@
 extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FieldElementInfoPB_schema_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FieldInfoPB_schema_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FieldSchemaPB_schema_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ParamsPB_schema_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ParamPB_schema_2eproto;
 namespace schema {
-class ParamsPBDefaultTypeInternal {
+class ParamPBDefaultTypeInternal {
  public:
-  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ParamsPB> _instance;
-} _ParamsPB_default_instance_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<ParamPB> _instance;
+} _ParamPB_default_instance_;
 class FieldElementInfoPBDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<FieldElementInfoPB> _instance;
@@ -72,7 +72,7 @@ static void InitDefaultsscc_info_FieldElementInfoPB_schema_2eproto() {
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FieldElementInfoPB_schema_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FieldElementInfoPB_schema_2eproto}, {
-      &scc_info_ParamsPB_schema_2eproto.base,}};
+      &scc_info_ParamPB_schema_2eproto.base,}};
 
 static void InitDefaultsscc_info_FieldElementSchemaPB_schema_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -102,7 +102,7 @@ static void InitDefaultsscc_info_FieldInfoPB_schema_2eproto() {
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FieldInfoPB_schema_2eproto =
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FieldInfoPB_schema_2eproto}, {
-      &scc_info_ParamsPB_schema_2eproto.base,}};
+      &scc_info_ParamPB_schema_2eproto.base,}};
 
 static void InitDefaultsscc_info_FieldSchemaPB_schema_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -119,19 +119,19 @@ static void InitDefaultsscc_info_FieldSchemaPB_schema_2eproto() {
     {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FieldSchemaPB_schema_2eproto}, {
       &scc_info_FieldInfoPB_schema_2eproto.base,}};
 
-static void InitDefaultsscc_info_ParamsPB_schema_2eproto() {
+static void InitDefaultsscc_info_ParamPB_schema_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
-    void* ptr = &::schema::_ParamsPB_default_instance_;
-    new (ptr) ::schema::ParamsPB();
+    void* ptr = &::schema::_ParamPB_default_instance_;
+    new (ptr) ::schema::ParamPB();
     ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::schema::ParamsPB::InitAsDefaultInstance();
+  ::schema::ParamPB::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ParamsPB_schema_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_ParamsPB_schema_2eproto}, {}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ParamPB_schema_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_ParamPB_schema_2eproto}, {}};
 
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_schema_2eproto[6];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_schema_2eproto[1];
@@ -139,12 +139,12 @@ static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_s
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_schema_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::schema::ParamsPB, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::schema::ParamPB, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::schema::ParamsPB, key_),
-  PROTOBUF_FIELD_OFFSET(::schema::ParamsPB, value_),
+  PROTOBUF_FIELD_OFFSET(::schema::ParamPB, key_),
+  PROTOBUF_FIELD_OFFSET(::schema::ParamPB, value_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::schema::FieldElementInfoPB, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -187,7 +187,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_schema_2eproto::offsets[] PROT
   PROTOBUF_FIELD_OFFSET(::schema::CollectionSchemaPB, fields_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, -1, sizeof(::schema::ParamsPB)},
+  { 0, -1, sizeof(::schema::ParamPB)},
   { 7, -1, sizeof(::schema::FieldElementInfoPB)},
   { 14, -1, sizeof(::schema::FieldElementSchemaPB)},
   { 23, -1, sizeof(::schema::FieldInfoPB)},
@@ -196,7 +196,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::schema::_ParamsPB_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::schema::_ParamPB_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::schema::_FieldElementInfoPB_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::schema::_FieldElementSchemaPB_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::schema::_FieldInfoPB_default_instance_),
@@ -205,22 +205,22 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 };
 
 const char descriptor_table_protodef_schema_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\014schema.proto\022\006schema\"&\n\010ParamsPB\022\013\n\003ke"
-  "y\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"D\n\022FieldElementIn"
-  "foPB\022\014\n\004type\030\001 \001(\t\022 \n\006params\030\002 \001(\0132\020.sch"
-  "ema.ParamsPB\"g\n\024FieldElementSchemaPB\022\n\n\002"
-  "id\030\001 \001(\004\022\013\n\003num\030\002 \001(\005\022\014\n\004name\030\003 \001(\t\022(\n\004i"
-  "nfo\030\004 \001(\0132\032.schema.FieldElementInfoPB\"L\n"
-  "\013FieldInfoPB\022\033\n\004type\030\001 \001(\0162\r.schema.FTyp"
-  "e\022 \n\006params\030\002 \001(\0132\020.schema.ParamsPB\"Y\n\rF"
-  "ieldSchemaPB\022\n\n\002id\030\001 \001(\004\022\013\n\003num\030\002 \001(\005\022\014\n"
-  "\004name\030\003 \001(\t\022!\n\004info\030\004 \001(\0132\023.schema.Field"
-  "InfoPB\"U\n\022CollectionSchemaPB\022\n\n\002id\030\001 \001(\004"
-  "\022\014\n\004name\030\002 \001(\t\022%\n\006fields\030\003 \003(\0132\025.schema."
-  "FieldSchemaPB*\177\n\005FType\022\010\n\004INT8\020\000\022\t\n\005INT1"
-  "6\020\001\022\t\n\005INT32\020\002\022\t\n\005INT64\020\003\022\t\n\005FLOAT\020e\022\r\n\t"
-  "HALFFLOAT\020f\022\n\n\006DOUBLE\020g\022\013\n\006STRING\020\311\001\022\013\n\006"
-  "VECTOR\020\255\002\022\013\n\006UNKOWN\020\217Nb\006proto3"
+  "\n\014schema.proto\022\006schema\"%\n\007ParamPB\022\013\n\003key"
+  "\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"C\n\022FieldElementInf"
+  "oPB\022\014\n\004type\030\001 \001(\t\022\037\n\006params\030\002 \003(\0132\017.sche"
+  "ma.ParamPB\"g\n\024FieldElementSchemaPB\022\n\n\002id"
+  "\030\001 \001(\004\022\013\n\003num\030\002 \001(\005\022\014\n\004name\030\003 \001(\t\022(\n\004inf"
+  "o\030\004 \001(\0132\032.schema.FieldElementInfoPB\"K\n\013F"
+  "ieldInfoPB\022\033\n\004type\030\001 \001(\0162\r.schema.FType\022"
+  "\037\n\006params\030\002 \003(\0132\017.schema.ParamPB\"Y\n\rFiel"
+  "dSchemaPB\022\n\n\002id\030\001 \001(\004\022\013\n\003num\030\002 \001(\005\022\014\n\004na"
+  "me\030\003 \001(\t\022!\n\004info\030\004 \001(\0132\023.schema.FieldInf"
+  "oPB\"U\n\022CollectionSchemaPB\022\n\n\002id\030\001 \001(\004\022\014\n"
+  "\004name\030\002 \001(\t\022%\n\006fields\030\003 \003(\0132\025.schema.Fie"
+  "ldSchemaPB*\177\n\005FType\022\010\n\004INT8\020\000\022\t\n\005INT16\020\001"
+  "\022\t\n\005INT32\020\002\022\t\n\005INT64\020\003\022\t\n\005FLOAT\020e\022\r\n\tHAL"
+  "FFLOAT\020f\022\n\n\006DOUBLE\020g\022\013\n\006STRING\020\311\001\022\013\n\006VEC"
+  "TOR\020\255\002\022\013\n\006UNKOWN\020\217Nb\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_schema_2eproto_deps[1] = {
 };
@@ -230,12 +230,12 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_sch
   &scc_info_FieldElementSchemaPB_schema_2eproto.base,
   &scc_info_FieldInfoPB_schema_2eproto.base,
   &scc_info_FieldSchemaPB_schema_2eproto.base,
-  &scc_info_ParamsPB_schema_2eproto.base,
+  &scc_info_ParamPB_schema_2eproto.base,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_schema_2eproto_once;
 static bool descriptor_table_schema_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_schema_2eproto = {
-  &descriptor_table_schema_2eproto_initialized, descriptor_table_protodef_schema_2eproto, "schema.proto", 630,
+  &descriptor_table_schema_2eproto_initialized, descriptor_table_protodef_schema_2eproto, "schema.proto", 627,
   &descriptor_table_schema_2eproto_once, descriptor_table_schema_2eproto_sccs, descriptor_table_schema_2eproto_deps, 6, 0,
   schemas, file_default_instances, TableStruct_schema_2eproto::offsets,
   file_level_metadata_schema_2eproto, 6, file_level_enum_descriptors_schema_2eproto, file_level_service_descriptors_schema_2eproto,
@@ -269,18 +269,18 @@ bool FType_IsValid(int value) {
 
 // ===================================================================
 
-void ParamsPB::InitAsDefaultInstance() {
+void ParamPB::InitAsDefaultInstance() {
 }
-class ParamsPB::_Internal {
+class ParamPB::_Internal {
  public:
 };
 
-ParamsPB::ParamsPB()
+ParamPB::ParamPB()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
-  // @@protoc_insertion_point(constructor:schema.ParamsPB)
+  // @@protoc_insertion_point(constructor:schema.ParamPB)
 }
-ParamsPB::ParamsPB(const ParamsPB& from)
+ParamPB::ParamPB(const ParamPB& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
@@ -292,36 +292,36 @@ ParamsPB::ParamsPB(const ParamsPB& from)
   if (!from._internal_value().empty()) {
     value_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.value_);
   }
-  // @@protoc_insertion_point(copy_constructor:schema.ParamsPB)
+  // @@protoc_insertion_point(copy_constructor:schema.ParamPB)
 }
 
-void ParamsPB::SharedCtor() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ParamsPB_schema_2eproto.base);
+void ParamPB::SharedCtor() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ParamPB_schema_2eproto.base);
   key_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
-ParamsPB::~ParamsPB() {
-  // @@protoc_insertion_point(destructor:schema.ParamsPB)
+ParamPB::~ParamPB() {
+  // @@protoc_insertion_point(destructor:schema.ParamPB)
   SharedDtor();
 }
 
-void ParamsPB::SharedDtor() {
+void ParamPB::SharedDtor() {
   key_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   value_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
-void ParamsPB::SetCachedSize(int size) const {
+void ParamPB::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
-const ParamsPB& ParamsPB::default_instance() {
-  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ParamsPB_schema_2eproto.base);
+const ParamPB& ParamPB::default_instance() {
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&::scc_info_ParamPB_schema_2eproto.base);
   return *internal_default_instance();
 }
 
 
-void ParamsPB::Clear() {
-// @@protoc_insertion_point(message_clear_start:schema.ParamsPB)
+void ParamPB::Clear() {
+// @@protoc_insertion_point(message_clear_start:schema.ParamPB)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -331,7 +331,7 @@ void ParamsPB::Clear() {
   _internal_metadata_.Clear();
 }
 
-const char* ParamsPB::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* ParamPB::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
@@ -341,14 +341,14 @@ const char* ParamsPB::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::i
       // string key = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(_internal_mutable_key(), ptr, ctx, "schema.ParamsPB.key");
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(_internal_mutable_key(), ptr, ctx, "schema.ParamPB.key");
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
       // string value = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(_internal_mutable_value(), ptr, ctx, "schema.ParamsPB.value");
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(_internal_mutable_value(), ptr, ctx, "schema.ParamPB.value");
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -372,9 +372,9 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* ParamsPB::InternalSerializeWithCachedSizesToArray(
+::PROTOBUF_NAMESPACE_ID::uint8* ParamPB::InternalSerializeWithCachedSizesToArray(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:schema.ParamsPB)
+  // @@protoc_insertion_point(serialize_to_array_start:schema.ParamPB)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -383,7 +383,7 @@ failure:
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_key().data(), static_cast<int>(this->_internal_key().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "schema.ParamsPB.key");
+      "schema.ParamPB.key");
     target = stream->WriteStringMaybeAliased(
         1, this->_internal_key(), target);
   }
@@ -393,7 +393,7 @@ failure:
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_value().data(), static_cast<int>(this->_internal_value().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "schema.ParamsPB.value");
+      "schema.ParamPB.value");
     target = stream->WriteStringMaybeAliased(
         2, this->_internal_value(), target);
   }
@@ -402,12 +402,12 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:schema.ParamsPB)
+  // @@protoc_insertion_point(serialize_to_array_end:schema.ParamPB)
   return target;
 }
 
-size_t ParamsPB::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:schema.ParamsPB)
+size_t ParamPB::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:schema.ParamPB)
   size_t total_size = 0;
 
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -437,23 +437,23 @@ size_t ParamsPB::ByteSizeLong() const {
   return total_size;
 }
 
-void ParamsPB::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:schema.ParamsPB)
+void ParamPB::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:schema.ParamPB)
   GOOGLE_DCHECK_NE(&from, this);
-  const ParamsPB* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ParamsPB>(
+  const ParamPB* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ParamPB>(
           &from);
   if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:schema.ParamsPB)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:schema.ParamPB)
     ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:schema.ParamsPB)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:schema.ParamPB)
     MergeFrom(*source);
   }
 }
 
-void ParamsPB::MergeFrom(const ParamsPB& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:schema.ParamsPB)
+void ParamPB::MergeFrom(const ParamPB& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:schema.ParamPB)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -469,25 +469,25 @@ void ParamsPB::MergeFrom(const ParamsPB& from) {
   }
 }
 
-void ParamsPB::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:schema.ParamsPB)
+void ParamPB::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:schema.ParamPB)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void ParamsPB::CopyFrom(const ParamsPB& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:schema.ParamsPB)
+void ParamPB::CopyFrom(const ParamPB& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:schema.ParamPB)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool ParamsPB::IsInitialized() const {
+bool ParamPB::IsInitialized() const {
   return true;
 }
 
-void ParamsPB::InternalSwap(ParamsPB* other) {
+void ParamPB::InternalSwap(ParamPB* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   key_.Swap(&other->key_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
@@ -496,7 +496,7 @@ void ParamsPB::InternalSwap(ParamsPB* other) {
     GetArenaNoVirtual());
 }
 
-::PROTOBUF_NAMESPACE_ID::Metadata ParamsPB::GetMetadata() const {
+::PROTOBUF_NAMESPACE_ID::Metadata ParamPB::GetMetadata() const {
   return GetMetadataStatic();
 }
 
@@ -504,18 +504,11 @@ void ParamsPB::InternalSwap(ParamsPB* other) {
 // ===================================================================
 
 void FieldElementInfoPB::InitAsDefaultInstance() {
-  ::schema::_FieldElementInfoPB_default_instance_._instance.get_mutable()->params_ = const_cast< ::schema::ParamsPB*>(
-      ::schema::ParamsPB::internal_default_instance());
 }
 class FieldElementInfoPB::_Internal {
  public:
-  static const ::schema::ParamsPB& params(const FieldElementInfoPB* msg);
 };
 
-const ::schema::ParamsPB&
-FieldElementInfoPB::_Internal::params(const FieldElementInfoPB* msg) {
-  return *msg->params_;
-}
 FieldElementInfoPB::FieldElementInfoPB()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
@@ -523,16 +516,12 @@ FieldElementInfoPB::FieldElementInfoPB()
 }
 FieldElementInfoPB::FieldElementInfoPB(const FieldElementInfoPB& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
+      _internal_metadata_(nullptr),
+      params_(from.params_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   type_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_type().empty()) {
     type_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.type_);
-  }
-  if (from._internal_has_params()) {
-    params_ = new ::schema::ParamsPB(*from.params_);
-  } else {
-    params_ = nullptr;
   }
   // @@protoc_insertion_point(copy_constructor:schema.FieldElementInfoPB)
 }
@@ -540,7 +529,6 @@ FieldElementInfoPB::FieldElementInfoPB(const FieldElementInfoPB& from)
 void FieldElementInfoPB::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_FieldElementInfoPB_schema_2eproto.base);
   type_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  params_ = nullptr;
 }
 
 FieldElementInfoPB::~FieldElementInfoPB() {
@@ -550,7 +538,6 @@ FieldElementInfoPB::~FieldElementInfoPB() {
 
 void FieldElementInfoPB::SharedDtor() {
   type_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (this != internal_default_instance()) delete params_;
 }
 
 void FieldElementInfoPB::SetCachedSize(int size) const {
@@ -568,11 +555,8 @@ void FieldElementInfoPB::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  params_.Clear();
   type_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (GetArenaNoVirtual() == nullptr && params_ != nullptr) {
-    delete params_;
-  }
-  params_ = nullptr;
   _internal_metadata_.Clear();
 }
 
@@ -590,11 +574,16 @@ const char* FieldElementInfoPB::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // .schema.ParamsPB params = 2;
+      // repeated .schema.ParamPB params = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr = ctx->ParseMessage(_internal_mutable_params(), ptr);
-          CHK_(ptr);
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_params(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -633,12 +622,12 @@ failure:
         1, this->_internal_type(), target);
   }
 
-  // .schema.ParamsPB params = 2;
-  if (this->has_params()) {
+  // repeated .schema.ParamPB params = 2;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_params_size()); i < n; i++) {
     stream->EnsureSpace(&target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        2, _Internal::params(this), target, stream);
+      InternalWriteMessageToArray(2, this->_internal_params(i), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -657,18 +646,18 @@ size_t FieldElementInfoPB::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  // repeated .schema.ParamPB params = 2;
+  total_size += 1UL * this->_internal_params_size();
+  for (const auto& msg : this->params_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
+
   // string type = 1;
   if (this->type().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_type());
-  }
-
-  // .schema.ParamsPB params = 2;
-  if (this->has_params()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *params_);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -702,12 +691,10 @@ void FieldElementInfoPB::MergeFrom(const FieldElementInfoPB& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  params_.MergeFrom(from.params_);
   if (from.type().size() > 0) {
 
     type_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.type_);
-  }
-  if (from.has_params()) {
-    _internal_mutable_params()->::schema::ParamsPB::MergeFrom(from._internal_params());
   }
 }
 
@@ -732,9 +719,9 @@ bool FieldElementInfoPB::IsInitialized() const {
 void FieldElementInfoPB::InternalSwap(FieldElementInfoPB* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
+  params_.InternalSwap(&other->params_);
   type_.Swap(&other->type_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
-  swap(params_, other->params_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata FieldElementInfoPB::GetMetadata() const {
@@ -1042,18 +1029,11 @@ void FieldElementSchemaPB::InternalSwap(FieldElementSchemaPB* other) {
 // ===================================================================
 
 void FieldInfoPB::InitAsDefaultInstance() {
-  ::schema::_FieldInfoPB_default_instance_._instance.get_mutable()->params_ = const_cast< ::schema::ParamsPB*>(
-      ::schema::ParamsPB::internal_default_instance());
 }
 class FieldInfoPB::_Internal {
  public:
-  static const ::schema::ParamsPB& params(const FieldInfoPB* msg);
 };
 
-const ::schema::ParamsPB&
-FieldInfoPB::_Internal::params(const FieldInfoPB* msg) {
-  return *msg->params_;
-}
 FieldInfoPB::FieldInfoPB()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
@@ -1061,22 +1041,16 @@ FieldInfoPB::FieldInfoPB()
 }
 FieldInfoPB::FieldInfoPB(const FieldInfoPB& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
+      _internal_metadata_(nullptr),
+      params_(from.params_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  if (from._internal_has_params()) {
-    params_ = new ::schema::ParamsPB(*from.params_);
-  } else {
-    params_ = nullptr;
-  }
   type_ = from.type_;
   // @@protoc_insertion_point(copy_constructor:schema.FieldInfoPB)
 }
 
 void FieldInfoPB::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_FieldInfoPB_schema_2eproto.base);
-  ::memset(&params_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&type_) -
-      reinterpret_cast<char*>(&params_)) + sizeof(type_));
+  type_ = 0;
 }
 
 FieldInfoPB::~FieldInfoPB() {
@@ -1085,7 +1059,6 @@ FieldInfoPB::~FieldInfoPB() {
 }
 
 void FieldInfoPB::SharedDtor() {
-  if (this != internal_default_instance()) delete params_;
 }
 
 void FieldInfoPB::SetCachedSize(int size) const {
@@ -1103,10 +1076,7 @@ void FieldInfoPB::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaNoVirtual() == nullptr && params_ != nullptr) {
-    delete params_;
-  }
-  params_ = nullptr;
+  params_.Clear();
   type_ = 0;
   _internal_metadata_.Clear();
 }
@@ -1126,11 +1096,16 @@ const char* FieldInfoPB::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
           _internal_set_type(static_cast<::schema::FType>(val));
         } else goto handle_unusual;
         continue;
-      // .schema.ParamsPB params = 2;
+      // repeated .schema.ParamPB params = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
-          ptr = ctx->ParseMessage(_internal_mutable_params(), ptr);
-          CHK_(ptr);
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_params(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -1166,12 +1141,12 @@ failure:
       1, this->_internal_type(), target);
   }
 
-  // .schema.ParamsPB params = 2;
-  if (this->has_params()) {
+  // repeated .schema.ParamPB params = 2;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_params_size()); i < n; i++) {
     stream->EnsureSpace(&target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessageToArray(
-        2, _Internal::params(this), target, stream);
+      InternalWriteMessageToArray(2, this->_internal_params(i), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1190,11 +1165,11 @@ size_t FieldInfoPB::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // .schema.ParamsPB params = 2;
-  if (this->has_params()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *params_);
+  // repeated .schema.ParamPB params = 2;
+  total_size += 1UL * this->_internal_params_size();
+  for (const auto& msg : this->params_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
   // .schema.FType type = 1;
@@ -1234,9 +1209,7 @@ void FieldInfoPB::MergeFrom(const FieldInfoPB& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.has_params()) {
-    _internal_mutable_params()->::schema::ParamsPB::MergeFrom(from._internal_params());
-  }
+  params_.MergeFrom(from.params_);
   if (from.type() != 0) {
     _internal_set_type(from._internal_type());
   }
@@ -1263,7 +1236,7 @@ bool FieldInfoPB::IsInitialized() const {
 void FieldInfoPB::InternalSwap(FieldInfoPB* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
-  swap(params_, other->params_);
+  params_.InternalSwap(&other->params_);
   swap(type_, other->type_);
 }
 
@@ -1827,8 +1800,8 @@ void CollectionSchemaPB::InternalSwap(CollectionSchemaPB* other) {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace schema
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::schema::ParamsPB* Arena::CreateMaybeMessage< ::schema::ParamsPB >(Arena* arena) {
-  return Arena::CreateInternal< ::schema::ParamsPB >(arena);
+template<> PROTOBUF_NOINLINE ::schema::ParamPB* Arena::CreateMaybeMessage< ::schema::ParamPB >(Arena* arena) {
+  return Arena::CreateInternal< ::schema::ParamPB >(arena);
 }
 template<> PROTOBUF_NOINLINE ::schema::FieldElementInfoPB* Arena::CreateMaybeMessage< ::schema::FieldElementInfoPB >(Arena* arena) {
   return Arena::CreateInternal< ::schema::FieldElementInfoPB >(arena);
