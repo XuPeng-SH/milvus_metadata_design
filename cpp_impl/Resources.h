@@ -212,19 +212,19 @@ public:
 
 using FieldCommitPtr = std::shared_ptr<FieldCommit>;
 
-class FieldElement : public DBBaseResource<IdField,
-                                           CollectionIdField,
+class FieldElement : public DBBaseResource<CollectionIdField,
                                            FieldIdField,
                                            NameField,
                                            FtypeField,
+                                           IdField,
                                            StatusField,
                                            CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, CollectionIdField, FieldIdField, NameField,
-          FtypeField, StatusField, CreatedOnField>;
-    FieldElement(ID_TYPE id, ID_TYPE collection_id, ID_TYPE field_id, const std::string& name, FTYPE_TYPE ftype,
-            State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
+    using BaseT = DBBaseResource<CollectionIdField, FieldIdField, NameField,
+          FtypeField, IdField, StatusField, CreatedOnField>;
+    FieldElement(ID_TYPE collection_id, ID_TYPE field_id, const std::string& name, FTYPE_TYPE ftype,
+            ID_TYPE id = 0, State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
 using FieldElementPtr = std::shared_ptr<FieldElement>;

@@ -345,7 +345,7 @@ private:
                     std::stringstream fename;
                     fename << "fe_" << fei << "_" << f_e_id_;
 
-                    auto element = std::make_shared<FieldElement>(f_e_id_, c->GetID(), field->GetID(), fename.str(), fei);
+                    auto element = std::make_shared<FieldElement>(c->GetID(), field->GetID(), fename.str(), fei, f_e_id_);
                     field_elements_[element->GetID()] = element;
                     f_c_m.push_back(element->GetID());
                 }
