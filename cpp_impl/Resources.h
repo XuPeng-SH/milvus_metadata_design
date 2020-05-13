@@ -260,17 +260,18 @@ public:
 
 using PartitionPtr = std::shared_ptr<Partition>;
 
-class PartitionCommit : public DBBaseResource<IdField,
-                                              CollectionIdField,
+class PartitionCommit : public DBBaseResource<CollectionIdField,
                                               PartitionIdField,
                                               MappingsField,
+                                              IdField,
                                               StatusField,
                                               CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, CollectionIdField, PartitionIdField, MappingsField, StatusField, CreatedOnField>;
-    PartitionCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE partition_id,
-            const MappingT& mappings = {}, State status = PENDING,
+    using BaseT = DBBaseResource<CollectionIdField, PartitionIdField, MappingsField,
+          IdField, StatusField, CreatedOnField>;
+    PartitionCommit(ID_TYPE collection_id, ID_TYPE partition_id,
+            const MappingT& mappings = {}, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 

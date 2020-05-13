@@ -184,8 +184,7 @@ public:
         }
         std::cout << "<<< [Load] PartitionCommit " << id << std::endl;
         auto& c = it->second;
-        auto ret = std::make_shared<PartitionCommit>(c->GetID(), c->GetCollectionId(), c->GetPartitionId(),
-                c->GetMappings(), c->GetStatus(), c->GetCreatedTime());
+        auto ret = std::make_shared<PartitionCommit>(*c);
         return ret;
     }
 
@@ -363,7 +362,7 @@ private:
                 auto p = std::make_shared<Partition>(pname.str(), c->GetID(), p_id_);
 
                 partitions_[p_id_] = p;
-                auto p_c = std::make_shared<PartitionCommit>(p_c_id_, c->GetID(), p->GetID());
+                auto p_c = std::make_shared<PartitionCommit>(c->GetID(), p->GetID(), empty_mappings, p_c_id_);
                 partition_commits_[p_c->GetID()] = p_c;
                 auto& c_c_m = c_c->GetMappings();
                 c_c_m.push_back(p_c->GetID());
