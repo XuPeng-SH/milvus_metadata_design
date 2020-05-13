@@ -396,6 +396,7 @@ public:
                     empty_mappings));
         auto collection_commit = CreateCollectionCommit(CollectionCommit(collection->GetID(),
                     schema_commit->GetID(), {partition_commit->GetID()}));
+        return collection;
     }
 
 private:
