@@ -1,6 +1,7 @@
 #pragma once
 #include "Resources.h"
 #include "Schema.h"
+#include "schema.pb.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -297,8 +298,26 @@ public:
         return ids;
     }
 
-    /* CollectionPtr CreateCollection(const schema::FieldSchemaPB& collection_schema) { */
-    /* } */
+    CollectionPtr CreateCollection(Collection&& collection) {
+        auto c = std::make_shared<Collection>(collection);
+        c->SetID(++c_id_);
+        id_collections_[c->GetID()] = c;
+        name_collections_[c->GetName()] = c;
+        return GetCollection(c->GetID());
+    }
+
+    CollectionPtr CreateCollection(const Collection& collection) {
+        auto ret = std::make_shared<Collection>(collection);
+        ret->SetID(++c_id_);
+        id_collections_[ret->GetID()] = ret;
+        name_collections_[ret->GetName()] = ret;
+        return GetCollection(ret->GetID());
+    }
+
+    CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
+        /* auto collection = Collection(collection_schema.name()); */
+        auto c_ptr = CreateCollection(Collection(collection_schema.name()));
+    }
 
 private:
     Store() {
@@ -308,14 +327,12 @@ private:
         IDS_TYPE empty_mappings = {};
         /* int field_element_id = 1; */
         for (auto i=1; i<=random; i++) {
-            c_id_++;
             c_c_id_++;
             s_c_id_++;
             std::stringstream name;
-            name << "c_" << c_id_;
-            auto c = std::make_shared<Collection>(name.str(), c_id_);
-            id_collections_[c_id_] = c;
-            name_collections_[name.str()] = c;
+            name << "c_" << (c_id_ + 1);
+
+            auto c = CreateCollection(Collection(name.str()));
 
             auto schema = std::make_shared<SchemaCommit>(c->GetID(), empty_mappings, s_c_id_);
             auto& schema_c_m = schema->GetMappings();

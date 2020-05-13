@@ -48,6 +48,7 @@ int main() {
     auto collection_schema = proto_lab();
     cout << collection_schema.fields_size() << endl;
     cout << collection_schema.fields(0).name() << endl;
+    /* Store::GetInstance().CreateCollection(collection_schema); */
     /* cout << element.info().params_size() << endl; */
     /* return 0; */
     /* { */

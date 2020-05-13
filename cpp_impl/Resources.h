@@ -69,6 +69,7 @@ class IdField {
 public:
     IdField(ID_TYPE id) : id_(id) {}
     ID_TYPE GetID() const { return id_; };
+    void SetID(ID_TYPE id) {id_ = id;}
 
 protected:
     ID_TYPE id_;
