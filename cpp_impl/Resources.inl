@@ -50,9 +50,9 @@ FieldElement::FieldElement(ID_TYPE collection_id, ID_TYPE field_id, const std::s
     BaseT(collection_id, field_id, name, ftype, id, status, created_on) {
 }
 
-CollectionCommit::CollectionCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE schema_id,
-        const MappingT& mappings, State status, TS_TYPE created_on) :
-    BaseT(id, collection_id, schema_id, mappings, status, created_on) {
+CollectionCommit::CollectionCommit(ID_TYPE collection_id, ID_TYPE schema_id,
+        const MappingT& mappings, ID_TYPE id, State status, TS_TYPE created_on) :
+    BaseT(collection_id, schema_id, mappings, id, status, created_on) {
 }
 
 /* std::string CollectionCommit::ToString() const { */
