@@ -30,9 +30,9 @@ Collection::Collection(ID_TYPE id, const std::string& name, State status, TS_TYP
     BaseT(id, name, status, created_on) {
 }
 
-SchemaCommit::SchemaCommit(ID_TYPE id, ID_TYPE collection_id,
-        const MappingT& mappings, State status, TS_TYPE created_on) :
-    BaseT(id, collection_id, mappings, status, created_on) {
+SchemaCommit::SchemaCommit(ID_TYPE collection_id, const MappingT& mappings,
+       ID_TYPE id, State status, TS_TYPE created_on) :
+    BaseT(collection_id, mappings, id, status, created_on) {
 }
 
 FieldCommit::FieldCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE field_id,

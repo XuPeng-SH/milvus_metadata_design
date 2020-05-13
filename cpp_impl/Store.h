@@ -311,11 +311,7 @@ private:
         srand(time(0));
         int random;
         random = rand() % 2 + 4;
-        int p_id_ = 0;
-        int seg_id_ = 0;
-        int s_f_i = 0;
-        int f_id_ = 0;
-        int f_e_id_ = 0;
+        IDS_TYPE empty_mappings = {};
         /* int field_element_id = 1; */
         for (auto i=1; i<=random; i++) {
             c_id_++;
@@ -327,7 +323,7 @@ private:
             id_collections_[c_id_] = c;
             name_collections_[name.str()] = c;
 
-            auto schema = std::make_shared<SchemaCommit>(s_c_id_, c->GetID());
+            auto schema = std::make_shared<SchemaCommit>(c->GetID(), empty_mappings, s_c_id_);
             auto& schema_c_m = schema->GetMappings();
             int random_fields = rand() % 2 + 1;
             for (auto fi=1; fi<=random_fields; ++fi) {
@@ -390,8 +386,8 @@ private:
                         auto& field_commit = field_commits_[field_commit_id];
                         auto& f_c_m = field_commit->GetMappings();
                         for (auto field_element_id : f_c_m) {
-                            s_f_i++;
-                            auto sf = std::make_shared<SegmentFile>(s_f_i, p->GetID(), s->GetID(), field_element_id);
+                            seg_f_id_++;
+                            auto sf = std::make_shared<SegmentFile>(seg_f_id_, p->GetID(), s->GetID(), field_element_id);
                             segment_files_[sf->GetID()] = sf;
 
                             auto& s_c_m = s_c->GetMappings();

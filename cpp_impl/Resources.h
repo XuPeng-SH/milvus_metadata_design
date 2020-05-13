@@ -167,15 +167,15 @@ public:
 
 using CollectionPtr = std::shared_ptr<Collection>;
 
-class SchemaCommit : public DBBaseResource<IdField,
-                                           CollectionIdField,
+class SchemaCommit : public DBBaseResource<CollectionIdField,
                                            MappingsField,
+                                           IdField,
                                            StatusField,
                                            CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, CollectionIdField, MappingsField, StatusField, CreatedOnField>;
-    SchemaCommit(ID_TYPE id, ID_TYPE collection_id, const MappingT& mappings = {},
+    using BaseT = DBBaseResource<CollectionIdField, MappingsField, IdField, StatusField, CreatedOnField>;
+    SchemaCommit(ID_TYPE collection_id, const MappingT& mappings = {}, ID_TYPE id = 0,
             State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
