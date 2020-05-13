@@ -856,11 +856,30 @@ class FieldSchemaPB :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kElementsFieldNumber = 5,
     kNameFieldNumber = 3,
     kInfoFieldNumber = 4,
     kIdFieldNumber = 1,
     kNumFieldNumber = 2,
   };
+  // repeated .schema.FieldElementSchemaPB elements = 5;
+  int elements_size() const;
+  private:
+  int _internal_elements_size() const;
+  public:
+  void clear_elements();
+  ::schema::FieldElementSchemaPB* mutable_elements(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::schema::FieldElementSchemaPB >*
+      mutable_elements();
+  private:
+  const ::schema::FieldElementSchemaPB& _internal_elements(int index) const;
+  ::schema::FieldElementSchemaPB* _internal_add_elements();
+  public:
+  const ::schema::FieldElementSchemaPB& elements(int index) const;
+  ::schema::FieldElementSchemaPB* add_elements();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::schema::FieldElementSchemaPB >&
+      elements() const;
+
   // string name = 3;
   void clear_name();
   const std::string& name() const;
@@ -915,6 +934,7 @@ class FieldSchemaPB :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::schema::FieldElementSchemaPB > elements_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
   ::schema::FieldInfoPB* info_;
   ::PROTOBUF_NAMESPACE_ID::uint64 id_;
@@ -1711,6 +1731,45 @@ inline void FieldSchemaPB::set_allocated_info(::schema::FieldInfoPB* info) {
   }
   info_ = info;
   // @@protoc_insertion_point(field_set_allocated:schema.FieldSchemaPB.info)
+}
+
+// repeated .schema.FieldElementSchemaPB elements = 5;
+inline int FieldSchemaPB::_internal_elements_size() const {
+  return elements_.size();
+}
+inline int FieldSchemaPB::elements_size() const {
+  return _internal_elements_size();
+}
+inline void FieldSchemaPB::clear_elements() {
+  elements_.Clear();
+}
+inline ::schema::FieldElementSchemaPB* FieldSchemaPB::mutable_elements(int index) {
+  // @@protoc_insertion_point(field_mutable:schema.FieldSchemaPB.elements)
+  return elements_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::schema::FieldElementSchemaPB >*
+FieldSchemaPB::mutable_elements() {
+  // @@protoc_insertion_point(field_mutable_list:schema.FieldSchemaPB.elements)
+  return &elements_;
+}
+inline const ::schema::FieldElementSchemaPB& FieldSchemaPB::_internal_elements(int index) const {
+  return elements_.Get(index);
+}
+inline const ::schema::FieldElementSchemaPB& FieldSchemaPB::elements(int index) const {
+  // @@protoc_insertion_point(field_get:schema.FieldSchemaPB.elements)
+  return _internal_elements(index);
+}
+inline ::schema::FieldElementSchemaPB* FieldSchemaPB::_internal_add_elements() {
+  return elements_.Add();
+}
+inline ::schema::FieldElementSchemaPB* FieldSchemaPB::add_elements() {
+  // @@protoc_insertion_point(field_add:schema.FieldSchemaPB.elements)
+  return _internal_add_elements();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::schema::FieldElementSchemaPB >&
+FieldSchemaPB::elements() const {
+  // @@protoc_insertion_point(field_list:schema.FieldSchemaPB.elements)
+  return elements_;
 }
 
 // -------------------------------------------------------------------

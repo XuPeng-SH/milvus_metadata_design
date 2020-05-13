@@ -15,8 +15,9 @@
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FieldElementInfoPB_schema_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FieldElementSchemaPB_schema_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FieldInfoPB_schema_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FieldSchemaPB_schema_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_FieldSchemaPB_schema_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_schema_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ParamPB_schema_2eproto;
 namespace schema {
 class ParamPBDefaultTypeInternal {
@@ -115,9 +116,10 @@ static void InitDefaultsscc_info_FieldSchemaPB_schema_2eproto() {
   ::schema::FieldSchemaPB::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_FieldSchemaPB_schema_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_FieldSchemaPB_schema_2eproto}, {
-      &scc_info_FieldInfoPB_schema_2eproto.base,}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_FieldSchemaPB_schema_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 2, 0, InitDefaultsscc_info_FieldSchemaPB_schema_2eproto}, {
+      &scc_info_FieldInfoPB_schema_2eproto.base,
+      &scc_info_FieldElementSchemaPB_schema_2eproto.base,}};
 
 static void InitDefaultsscc_info_ParamPB_schema_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -177,6 +179,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_schema_2eproto::offsets[] PROT
   PROTOBUF_FIELD_OFFSET(::schema::FieldSchemaPB, num_),
   PROTOBUF_FIELD_OFFSET(::schema::FieldSchemaPB, name_),
   PROTOBUF_FIELD_OFFSET(::schema::FieldSchemaPB, info_),
+  PROTOBUF_FIELD_OFFSET(::schema::FieldSchemaPB, elements_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::schema::CollectionSchemaPB, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -192,7 +195,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 14, -1, sizeof(::schema::FieldElementSchemaPB)},
   { 23, -1, sizeof(::schema::FieldInfoPB)},
   { 30, -1, sizeof(::schema::FieldSchemaPB)},
-  { 39, -1, sizeof(::schema::CollectionSchemaPB)},
+  { 40, -1, sizeof(::schema::CollectionSchemaPB)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -212,15 +215,16 @@ const char descriptor_table_protodef_schema_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "\030\001 \001(\004\022\013\n\003num\030\002 \001(\005\022\014\n\004name\030\003 \001(\t\022(\n\004inf"
   "o\030\004 \001(\0132\032.schema.FieldElementInfoPB\"K\n\013F"
   "ieldInfoPB\022\033\n\004type\030\001 \001(\0162\r.schema.FType\022"
-  "\037\n\006params\030\002 \003(\0132\017.schema.ParamPB\"Y\n\rFiel"
-  "dSchemaPB\022\n\n\002id\030\001 \001(\004\022\013\n\003num\030\002 \001(\005\022\014\n\004na"
-  "me\030\003 \001(\t\022!\n\004info\030\004 \001(\0132\023.schema.FieldInf"
-  "oPB\"U\n\022CollectionSchemaPB\022\n\n\002id\030\001 \001(\004\022\014\n"
-  "\004name\030\002 \001(\t\022%\n\006fields\030\003 \003(\0132\025.schema.Fie"
-  "ldSchemaPB*\177\n\005FType\022\010\n\004INT8\020\000\022\t\n\005INT16\020\001"
-  "\022\t\n\005INT32\020\002\022\t\n\005INT64\020\003\022\t\n\005FLOAT\020e\022\r\n\tHAL"
-  "FFLOAT\020f\022\n\n\006DOUBLE\020g\022\013\n\006STRING\020\311\001\022\013\n\006VEC"
-  "TOR\020\255\002\022\013\n\006UNKOWN\020\217Nb\006proto3"
+  "\037\n\006params\030\002 \003(\0132\017.schema.ParamPB\"\211\001\n\rFie"
+  "ldSchemaPB\022\n\n\002id\030\001 \001(\004\022\013\n\003num\030\002 \001(\005\022\014\n\004n"
+  "ame\030\003 \001(\t\022!\n\004info\030\004 \001(\0132\023.schema.FieldIn"
+  "foPB\022.\n\010elements\030\005 \003(\0132\034.schema.FieldEle"
+  "mentSchemaPB\"U\n\022CollectionSchemaPB\022\n\n\002id"
+  "\030\001 \001(\004\022\014\n\004name\030\002 \001(\t\022%\n\006fields\030\003 \003(\0132\025.s"
+  "chema.FieldSchemaPB*\177\n\005FType\022\010\n\004INT8\020\000\022\t"
+  "\n\005INT16\020\001\022\t\n\005INT32\020\002\022\t\n\005INT64\020\003\022\t\n\005FLOAT"
+  "\020e\022\r\n\tHALFFLOAT\020f\022\n\n\006DOUBLE\020g\022\013\n\006STRING\020"
+  "\311\001\022\013\n\006VECTOR\020\255\002\022\013\n\006UNKOWN\020\217Nb\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_schema_2eproto_deps[1] = {
 };
@@ -235,7 +239,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_sch
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_schema_2eproto_once;
 static bool descriptor_table_schema_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_schema_2eproto = {
-  &descriptor_table_schema_2eproto_initialized, descriptor_table_protodef_schema_2eproto, "schema.proto", 627,
+  &descriptor_table_schema_2eproto_initialized, descriptor_table_protodef_schema_2eproto, "schema.proto", 676,
   &descriptor_table_schema_2eproto_once, descriptor_table_schema_2eproto_sccs, descriptor_table_schema_2eproto_deps, 6, 0,
   schemas, file_default_instances, TableStruct_schema_2eproto::offsets,
   file_level_metadata_schema_2eproto, 6, file_level_enum_descriptors_schema_2eproto, file_level_service_descriptors_schema_2eproto,
@@ -1267,7 +1271,8 @@ FieldSchemaPB::FieldSchemaPB()
 }
 FieldSchemaPB::FieldSchemaPB(const FieldSchemaPB& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _internal_metadata_(nullptr) {
+      _internal_metadata_(nullptr),
+      elements_(from.elements_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_name().empty()) {
@@ -1317,6 +1322,7 @@ void FieldSchemaPB::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  elements_.Clear();
   name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (GetArenaNoVirtual() == nullptr && info_ != nullptr) {
     delete info_;
@@ -1361,6 +1367,18 @@ const char* FieldSchemaPB::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           ptr = ctx->ParseMessage(_internal_mutable_info(), ptr);
           CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // repeated .schema.FieldElementSchemaPB elements = 5;
+      case 5:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_elements(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -1419,6 +1437,14 @@ failure:
         4, _Internal::info(this), target, stream);
   }
 
+  // repeated .schema.FieldElementSchemaPB elements = 5;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_elements_size()); i < n; i++) {
+    stream->EnsureSpace(&target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessageToArray(5, this->_internal_elements(i), target, stream);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
@@ -1434,6 +1460,13 @@ size_t FieldSchemaPB::ByteSizeLong() const {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // repeated .schema.FieldElementSchemaPB elements = 5;
+  total_size += 1UL * this->_internal_elements_size();
+  for (const auto& msg : this->elements_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
+  }
 
   // string name = 3;
   if (this->name().size() > 0) {
@@ -1494,6 +1527,7 @@ void FieldSchemaPB::MergeFrom(const FieldSchemaPB& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  elements_.MergeFrom(from.elements_);
   if (from.name().size() > 0) {
 
     name_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.name_);
@@ -1530,6 +1564,7 @@ bool FieldSchemaPB::IsInitialized() const {
 void FieldSchemaPB::InternalSwap(FieldSchemaPB* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
+  elements_.InternalSwap(&other->elements_);
   name_.Swap(&other->name_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
     GetArenaNoVirtual());
   swap(info_, other->info_);

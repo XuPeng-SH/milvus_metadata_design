@@ -46,6 +46,7 @@ message FieldSchemaPB {
     int32 num = 2;
     string name = 3;
     FieldInfoPB info = 4;
+    repeated FieldElementSchemaPB elements = 5;
 }
 
 message CollectionSchemaPB {
