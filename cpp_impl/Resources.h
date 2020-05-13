@@ -255,7 +255,7 @@ class Partition : public DBBaseResource<NameField,
 public:
     using BaseT = DBBaseResource<NameField, CollectionIdField, IdField, StatusField, CreatedOnField>;
 
-    Partition(const std::string& name, ID_TYPE collection_id, ID_TYPE id, State status = PENDING,
+    Partition(const std::string& name, ID_TYPE collection_id, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
