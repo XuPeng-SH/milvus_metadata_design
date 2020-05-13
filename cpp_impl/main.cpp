@@ -15,12 +15,12 @@ schema::FieldSchemaPB proto_lab() {
     collection_schema.set_name("new_c");
     schema::FieldSchemaPB vector_field;
     vector_field.set_name("vector");
-    schema::FieldInfoPB vector_field_info;
-    vector_field_info.set_type(schema::VECTOR);
+    schema::FieldInfoPB* vector_field_info = new schema::FieldInfoPB;
+    vector_field_info->set_type(schema::VECTOR);
     schema::ParamPB dimension_param;
     dimension_param.set_key("dimension");
     dimension_param.set_value("512");
-    vector_field_info.mutable_params()->Add(std::move(dimension_param));
+    vector_field_info->mutable_params()->Add(std::move(dimension_param));
 
     schema::FieldElementSchemaPB ivf_sq8_element;
     ivf_sq8_element.set_name("IVFSQ8");
@@ -38,8 +38,8 @@ schema::FieldSchemaPB proto_lab() {
     ivf_sq8_element.set_allocated_info(ivf_sq8_element_info);
 
     vector_field.mutable_elements()->Add(std::move(ivf_sq8_element));
+    vector_field.set_allocated_info(vector_field_info);
 
-    /* vector_field.set_allocated_info(vector_field_info); */
     return vector_field;
 }
 
