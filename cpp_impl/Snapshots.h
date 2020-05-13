@@ -50,6 +50,15 @@ public:
 
     ID_TYPE GetID() const { return collection_commit_->GetID();}
     const std::string& GetName() const { return collection_->GetName(); }
+    CollectionCommitPtr GetCollectionCommit() { return collection_commit_.Get(); }
+    std::vector<std::string> GetPartitionNames() const {
+        std::vector<std::string> names;
+        for (auto& kv : partitions_) {
+            std::cout << "Partition: " << kv.second->GetName() << std::endl;
+            names.push_back(kv.second->GetName());
+        }
+        return names;
+    }
 
     void RefAll();
     void UnRefAll();

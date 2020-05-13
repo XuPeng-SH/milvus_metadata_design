@@ -91,13 +91,15 @@ int main() {
     cout << collection_schema.fields_size() << endl;
     cout << collection_schema.fields(0).name() << endl;
     auto c = Store::GetInstance().CreateCollection(collection_schema);
-    sss.GetHolder(c->GetID());
+    auto holder = sss.GetHolder(c->GetID());
 
     /* cout << element.info().params_size() << endl; */
     collection_ids = sss.GetCollectionIds();
     for (auto id : collection_ids) {
         std::cout << "CID=" << id << " CNAME=" << sss.GetSnapshot(id)->GetName() << std::endl;
     }
+
+    holder->GetSnapshot()->GetPartitionNames();
 
     return 0;
 }
