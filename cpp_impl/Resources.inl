@@ -69,9 +69,9 @@ CollectionCommit::CollectionCommit(ID_TYPE collection_id, ID_TYPE schema_id,
 /*     return ss.str(); */
 /* } */
 
-Partition::Partition(ID_TYPE id, const std::string& name, ID_TYPE collection_id,
+Partition::Partition(const std::string& name, ID_TYPE collection_id, ID_TYPE id,
         State status, TS_TYPE created_on) :
-    BaseT(id, name, collection_id, status, created_on)
+    BaseT(name, collection_id, id, status, created_on)
 {
 }
 

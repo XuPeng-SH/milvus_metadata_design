@@ -245,16 +245,16 @@ public:
 
 using CollectionCommitPtr = std::shared_ptr<CollectionCommit>;
 
-class Partition : public DBBaseResource<IdField,
-                                        NameField,
+class Partition : public DBBaseResource<NameField,
                                         CollectionIdField,
+                                        IdField,
                                         StatusField,
                                         CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, NameField, CollectionIdField, StatusField, CreatedOnField>;
+    using BaseT = DBBaseResource<NameField, CollectionIdField, IdField, StatusField, CreatedOnField>;
 
-    Partition(ID_TYPE id, const std::string& name, ID_TYPE collection_id, State status = PENDING,
+    Partition(const std::string& name, ID_TYPE collection_id, ID_TYPE id, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 

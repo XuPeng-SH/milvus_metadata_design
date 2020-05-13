@@ -162,8 +162,7 @@ public:
         }
         std::cout << "<<< [Load] Partition " << id << std::endl;
         auto& c = it->second;
-        auto ret = std::make_shared<Partition>(c->GetID(), c->GetName(), c->GetCollectionId(),
-                c->GetStatus(), c->GetCreatedTime());
+        auto ret = std::make_shared<Partition>(*c);
         return ret;
     }
 
@@ -361,7 +360,7 @@ private:
                 p_c_id_++;
                 std::stringstream pname;
                 pname << "p_" << i << "_" << pi;
-                auto p = std::make_shared<Partition>(p_id_, pname.str(), c->GetID());
+                auto p = std::make_shared<Partition>(pname.str(), c->GetID(), p_id_);
 
                 partitions_[p_id_] = p;
                 auto p_c = std::make_shared<PartitionCommit>(p_c_id_, c->GetID(), p->GetID());
