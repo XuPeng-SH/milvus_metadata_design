@@ -21,6 +21,7 @@ add_executable(meta_lab ${src})
 set(lab_libs
     gflags
     pthread
+    protobuf
     )
 
 target_link_libraries(meta_lab ${lab_libs})
