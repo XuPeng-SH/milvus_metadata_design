@@ -90,7 +90,7 @@ SegmentCommit::SegmentCommit(ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE se
     BaseT(schema_id, partition_id, segment_id, mappings, id, status, created_on) {
 }
 
-SegmentFile::SegmentFile(ID_TYPE id, ID_TYPE partition_id, ID_TYPE segment_id, ID_TYPE field_element_id,
+SegmentFile::SegmentFile(ID_TYPE partition_id, ID_TYPE segment_id, ID_TYPE field_element_id, ID_TYPE id,
             State status, TS_TYPE created_on) :
-    BaseT(id, partition_id, segment_id, field_element_id, status, created_on) {
+    BaseT(partition_id, segment_id, field_element_id, id, status, created_on) {
 }

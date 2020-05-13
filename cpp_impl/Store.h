@@ -381,7 +381,7 @@ private:
                         auto& f_c_m = field_commit->GetMappings();
                         for (auto field_element_id : f_c_m) {
                             seg_f_id_++;
-                            auto sf = std::make_shared<SegmentFile>(seg_f_id_, p->GetID(), s->GetID(), field_element_id);
+                            auto sf = std::make_shared<SegmentFile>(p->GetID(), s->GetID(), field_element_id, seg_f_id_);
                             segment_files_[sf->GetID()] = sf;
 
                             auto& s_c_m = s_c->GetMappings();

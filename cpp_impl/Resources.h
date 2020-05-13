@@ -309,18 +309,18 @@ public:
 
 using SegmentCommitPtr = std::shared_ptr<SegmentCommit>;
 
-class SegmentFile : public DBBaseResource<IdField,
-                                          PartitionIdField,
+class SegmentFile : public DBBaseResource<PartitionIdField,
                                           SegmentIdField,
                                           FieldElementIdField,
+                                          IdField,
                                           StatusField,
                                           CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, PartitionIdField, SegmentIdField, FieldElementIdField,
+    using BaseT = DBBaseResource<PartitionIdField, SegmentIdField, FieldElementIdField, IdField,
           StatusField, CreatedOnField>;
 
-    SegmentFile(ID_TYPE id, ID_TYPE partition_id, ID_TYPE segment_id, ID_TYPE field_element_id,
+    SegmentFile(ID_TYPE partition_id, ID_TYPE segment_id, ID_TYPE field_element_id, ID_TYPE id = 0,
             State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
