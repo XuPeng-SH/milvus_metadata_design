@@ -228,8 +228,7 @@ public:
         }
         std::cout << "<<< [Load] SegmentCommit " << id << std::endl;
         auto& c = it->second;
-        auto ret = std::make_shared<SegmentCommit>(c->GetID(), c->GetSchemaId(), c->GetPartitionId(),
-                c->GetSegmentId(), c->GetMappings(), c->GetStatus(), c->GetCreatedTime());
+        auto ret = std::make_shared<SegmentCommit>(*c);
         return ret;
     }
 
@@ -251,8 +250,7 @@ public:
         }
         std::cout << "<<< [Load] SegmentFile " << id << std::endl;
         auto& c = it->second;
-        auto ret = std::make_shared<SegmentFile>(c->GetID(), c->GetPartitionId(), c->GetSegmentId(),
-                c->GetFieldElementId(), c->GetStatus(), c->GetCreatedTime());
+        auto ret = std::make_shared<SegmentFile>(*c);
         return ret;
     }
 
@@ -372,7 +370,7 @@ private:
                     seg_c_id_++;
                     auto s = std::make_shared<Segment>(p->GetID(), seg_id_);
                     segments_[seg_id_] = s;
-                    auto s_c = std::make_shared<SegmentCommit>(seg_c_id_, schema->GetID(), p->GetID(), s->GetID());
+                    auto s_c = std::make_shared<SegmentCommit>(schema->GetID(), p->GetID(), s->GetID(), empty_mappings, seg_c_id_);
                     segment_commits_[s_c->GetID()] = s_c;
                     auto& p_c_m = p_c->GetMappings();
                     p_c_m.push_back(s_c->GetID());

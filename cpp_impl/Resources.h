@@ -291,19 +291,19 @@ public:
 
 using SegmentPtr = std::shared_ptr<Segment>;
 
-class SegmentCommit : public DBBaseResource<IdField,
-                                            SchemaIdField,
+class SegmentCommit : public DBBaseResource<SchemaIdField,
                                             PartitionIdField,
                                             SegmentIdField,
                                             MappingsField,
+                                            IdField,
                                             StatusField,
                                             CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, SchemaIdField, PartitionIdField, SegmentIdField,
-          MappingsField, StatusField, CreatedOnField>;
-    SegmentCommit(ID_TYPE id, ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE segment_id,
-            const MappingT& mappings = {}, State status = PENDING,
+    using BaseT = DBBaseResource<SchemaIdField, PartitionIdField, SegmentIdField,
+          MappingsField, IdField, StatusField, CreatedOnField>;
+    SegmentCommit(ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE segment_id,
+            const MappingT& mappings = {}, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 

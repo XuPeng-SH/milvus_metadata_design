@@ -85,9 +85,9 @@ Segment::Segment(ID_TYPE partition_id, ID_TYPE id, State status, TS_TYPE created
 {
 }
 
-SegmentCommit::SegmentCommit(ID_TYPE id, ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE segment_id,
-        const MappingT& mappings, State status, TS_TYPE created_on) :
-    BaseT(id, schema_id, partition_id, segment_id, mappings, status, created_on) {
+SegmentCommit::SegmentCommit(ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE segment_id,
+        const MappingT& mappings, ID_TYPE id, State status, TS_TYPE created_on) :
+    BaseT(schema_id, partition_id, segment_id, mappings, id, status, created_on) {
 }
 
 SegmentFile::SegmentFile(ID_TYPE id, ID_TYPE partition_id, ID_TYPE segment_id, ID_TYPE field_element_id,
