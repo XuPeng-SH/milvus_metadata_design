@@ -314,9 +314,22 @@ public:
         return GetCollection(ret->GetID());
     }
 
+    FieldPtr CreateField(Field&& field) {
+        auto f = std::make_shared<Field>(field);
+        f->SetID(++f_id_);
+        fields_[f->GetID()] = f;
+        return GetField(f->GetID());
+    }
+
     CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
-        /* auto collection = Collection(collection_schema.name()); */
-        auto c_ptr = CreateCollection(Collection(collection_schema.name()));
+        auto collection = CreateCollection(Collection(collection_schema.name()));
+        for (auto i=0; i<collection_schema.fields_size(); ++i) {
+            auto field_schema = collection_schema.fields(i);
+            auto& field_name = field_schema.name();
+            auto& field_info = field_schema.info();
+            auto field_type = field_info.type();
+            auto field = CreateField(Field(field_name, i));
+        }
     }
 
 private:
@@ -338,12 +351,10 @@ private:
             auto& schema_c_m = schema->GetMappings();
             int random_fields = rand() % 2 + 1;
             for (auto fi=1; fi<=random_fields; ++fi) {
-                f_id_++;
                 f_c_id_++;
                 std::stringstream fname;
-                fname << "f_" << fi << "_" << f_id_;
-                auto field = std::make_shared<Field>(fname.str(), (NUM_TYPE)fi, f_id_);
-                fields_[field->GetID()] = field;
+                fname << "f_" << fi << "_" << f_id_ + 1;
+                auto field = CreateField(Field(fname.str(), fi));
 
                 auto f_c = std::make_shared<FieldCommit>(c->GetID(), field->GetID(), empty_mappings, f_c_id_);
                 field_commits_[f_c->GetID()] = f_c;

@@ -191,7 +191,7 @@ class Field : public DBBaseResource<NameField,
 public:
     using BaseT = DBBaseResource<NameField, NumField, IdField, StatusField, CreatedOnField>;
 
-    Field(const std::string& name, NUM_TYPE num, ID_TYPE id, State status = PENDING,
+    Field(const std::string& name, NUM_TYPE num, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
