@@ -362,7 +362,7 @@ private:
     }
     void Init();
 
-    mutable std::shared_mutex mutex_;
+    mutable std::shared_timed_mutex mutex_;
     SnapshotsHolderPtr LoadNoLock(ID_TYPE collection_id);
     SnapshotsHolderPtr Load(ID_TYPE collection_id);
     SnapshotsHolderPtr GetHolderNoLock(ID_TYPE collection_id);
@@ -413,7 +413,7 @@ Snapshots::GetSnapshot(const std::string& name, ID_TYPE id, bool scoped) {
 IDS_TYPE
 Snapshots::GetCollectionIds() const {
     IDS_TYPE ids;
-    std::shared_lock lock(mutex_);
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_);
     for(auto& kv : holders_) {
         ids.push_back(kv.first);
     }
@@ -423,7 +423,7 @@ Snapshots::GetCollectionIds() const {
 bool
 Snapshots::Close(ID_TYPE collection_id) {
     auto name = GetSnapshot(collection_id)->GetName();
-    std::unique_lock lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     holders_.erase(collection_id);
     name_id_map_.erase(name);
     return true;
@@ -431,7 +431,7 @@ Snapshots::Close(ID_TYPE collection_id) {
 
 SnapshotsHolderPtr
 Snapshots::Load(ID_TYPE collection_id) {
-    std::unique_lock lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     return LoadNoLock(collection_id);
 }
 
@@ -463,7 +463,7 @@ Snapshots::Init() {
 
 SnapshotsHolderPtr
 Snapshots::GetHolder(const std::string& name) {
-    std::unique_lock lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     auto kv = name_id_map_.find(name);
     if (kv != name_id_map_.end()) {
         return GetHolderNoLock(kv->second);
@@ -477,7 +477,7 @@ Snapshots::GetHolder(const std::string& name) {
 
 SnapshotsHolderPtr
 Snapshots::GetHolder(ID_TYPE collection_id) {
-    std::unique_lock lock(mutex_);
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     return GetHolderNoLock(collection_id);
 }
 

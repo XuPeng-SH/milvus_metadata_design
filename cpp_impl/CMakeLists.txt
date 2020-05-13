@@ -7,7 +7,7 @@ aux_source_directory(./ source_files)
 include_directories(/usr/include)
 include_directories(/usr/local/include)
 
-link_directories(/usr/lib/gcc/x86_64-linux-gnu/5/
+link_directories(/usr/lib/gcc/x86_64-linux-gnu/7/
     /usr/lib/x86_64-linux-gnu
     /usr/lib
     /usr/local/lib
