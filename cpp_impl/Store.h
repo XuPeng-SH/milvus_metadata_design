@@ -399,8 +399,12 @@ public:
         return collection;
     }
 
+    void Mock() { DoMock(); }
+
 private:
-    Store() {
+    Store() { }
+
+    void DoMock() {
         srand(time(0));
         int random;
         random = rand() % 2 + 4;

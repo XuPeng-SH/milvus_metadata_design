@@ -394,7 +394,9 @@ Snapshots::GetCollectionIds() const {
 
 bool
 Snapshots::Close(ID_TYPE collection_id) {
-    auto name = GetSnapshot(collection_id)->GetName();
+    auto ss = GetSnapshot(collection_id);
+    if (!ss) return false;
+    auto name = ss->GetName();
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     holders_.erase(collection_id);
     name_id_map_.erase(name);
@@ -435,12 +437,13 @@ Snapshots::Init() {
 
 SnapshotsHolderPtr
 Snapshots::GetHolder(const std::string& name) {
-    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
-    auto kv = name_id_map_.find(name);
-    if (kv != name_id_map_.end()) {
-        return GetHolderNoLock(kv->second);
+    {
+        std::unique_lock<std::shared_timed_mutex> lock(mutex_);
+        auto kv = name_id_map_.find(name);
+        if (kv != name_id_map_.end()) {
+            return GetHolderNoLock(kv->second);
+        }
     }
-    lock.release();
     auto& store = Store::GetInstance();
     auto c = store.GetCollection(name);
     if (!c) return nullptr;
