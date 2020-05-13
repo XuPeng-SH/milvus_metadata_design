@@ -210,7 +210,7 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 const char descriptor_table_protodef_schema_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\014schema.proto\022\006schema\"%\n\007ParamPB\022\013\n\003key"
   "\030\001 \001(\t\022\r\n\005value\030\002 \001(\t\"C\n\022FieldElementInf"
-  "oPB\022\014\n\004type\030\001 \001(\t\022\037\n\006params\030\002 \003(\0132\017.sche"
+  "oPB\022\014\n\004type\030\001 \001(\005\022\037\n\006params\030\002 \003(\0132\017.sche"
   "ma.ParamPB\"g\n\024FieldElementSchemaPB\022\n\n\002id"
   "\030\001 \001(\004\022\013\n\003num\030\002 \001(\005\022\014\n\004name\030\003 \001(\t\022(\n\004inf"
   "o\030\004 \001(\0132\032.schema.FieldElementInfoPB\"K\n\013F"
@@ -523,16 +523,13 @@ FieldElementInfoPB::FieldElementInfoPB(const FieldElementInfoPB& from)
       _internal_metadata_(nullptr),
       params_(from.params_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  type_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_type().empty()) {
-    type_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.type_);
-  }
+  type_ = from.type_;
   // @@protoc_insertion_point(copy_constructor:schema.FieldElementInfoPB)
 }
 
 void FieldElementInfoPB::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_FieldElementInfoPB_schema_2eproto.base);
-  type_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  type_ = 0;
 }
 
 FieldElementInfoPB::~FieldElementInfoPB() {
@@ -541,7 +538,6 @@ FieldElementInfoPB::~FieldElementInfoPB() {
 }
 
 void FieldElementInfoPB::SharedDtor() {
-  type_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void FieldElementInfoPB::SetCachedSize(int size) const {
@@ -560,7 +556,7 @@ void FieldElementInfoPB::Clear() {
   (void) cached_has_bits;
 
   params_.Clear();
-  type_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  type_ = 0;
   _internal_metadata_.Clear();
 }
 
@@ -571,10 +567,10 @@ const char* FieldElementInfoPB::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string type = 1;
+      // int32 type = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParserUTF8(_internal_mutable_type(), ptr, ctx, "schema.FieldElementInfoPB.type");
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
+          type_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -616,14 +612,10 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string type = 1;
-  if (this->type().size() > 0) {
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_type().data(), static_cast<int>(this->_internal_type().length()),
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "schema.FieldElementInfoPB.type");
-    target = stream->WriteStringMaybeAliased(
-        1, this->_internal_type(), target);
+  // int32 type = 1;
+  if (this->type() != 0) {
+    stream->EnsureSpace(&target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_type(), target);
   }
 
   // repeated .schema.ParamPB params = 2;
@@ -657,10 +649,10 @@ size_t FieldElementInfoPB::ByteSizeLong() const {
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
 
-  // string type = 1;
-  if (this->type().size() > 0) {
+  // int32 type = 1;
+  if (this->type() != 0) {
     total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
         this->_internal_type());
   }
 
@@ -696,9 +688,8 @@ void FieldElementInfoPB::MergeFrom(const FieldElementInfoPB& from) {
   (void) cached_has_bits;
 
   params_.MergeFrom(from.params_);
-  if (from.type().size() > 0) {
-
-    type_.AssignWithDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), from.type_);
+  if (from.type() != 0) {
+    _internal_set_type(from._internal_type());
   }
 }
 
@@ -724,8 +715,7 @@ void FieldElementInfoPB::InternalSwap(FieldElementInfoPB* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
   params_.InternalSwap(&other->params_);
-  type_.Swap(&other->type_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-    GetArenaNoVirtual());
+  swap(type_, other->type_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata FieldElementInfoPB::GetMetadata() const {

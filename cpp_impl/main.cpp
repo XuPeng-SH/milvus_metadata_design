@@ -10,6 +10,8 @@
 
 using namespace std;
 
+const int32_t IVFSQ8 = 1;
+
 schema::CollectionSchemaPB proto_lab() {
     schema::CollectionSchemaPB collection_schema;
     collection_schema.set_name("new_c");
@@ -25,7 +27,7 @@ schema::CollectionSchemaPB proto_lab() {
     schema::FieldElementSchemaPB ivf_sq8_element;
     ivf_sq8_element.set_name("IVFSQ8");
     schema::FieldElementInfoPB* ivf_sq8_element_info = new schema::FieldElementInfoPB;
-    ivf_sq8_element_info->set_type("IVFSQ8");
+    ivf_sq8_element_info->set_type(IVFSQ8);
     schema::ParamPB nprobe_param;
     nprobe_param.set_key("nprobe");
     nprobe_param.set_value("32");

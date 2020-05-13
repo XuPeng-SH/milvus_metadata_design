@@ -400,20 +400,13 @@ class FieldElementInfoPB :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::schema::ParamPB >&
       params() const;
 
-  // string type = 1;
+  // int32 type = 1;
   void clear_type();
-  const std::string& type() const;
-  void set_type(const std::string& value);
-  void set_type(std::string&& value);
-  void set_type(const char* value);
-  void set_type(const char* value, size_t size);
-  std::string* mutable_type();
-  std::string* release_type();
-  void set_allocated_type(std::string* type);
+  ::PROTOBUF_NAMESPACE_ID::int32 type() const;
+  void set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
   private:
-  const std::string& _internal_type() const;
-  void _internal_set_type(const std::string& value);
-  std::string* _internal_mutable_type();
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_type() const;
+  void _internal_set_type(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
   // @@protoc_insertion_point(class_scope:schema.FieldElementInfoPB)
@@ -422,7 +415,7 @@ class FieldElementInfoPB :
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::schema::ParamPB > params_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr type_;
+  ::PROTOBUF_NAMESPACE_ID::int32 type_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_schema_2eproto;
 };
@@ -1243,64 +1236,24 @@ inline void ParamPB::set_allocated_value(std::string* value) {
 
 // FieldElementInfoPB
 
-// string type = 1;
+// int32 type = 1;
 inline void FieldElementInfoPB::clear_type() {
-  type_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  type_ = 0;
 }
-inline const std::string& FieldElementInfoPB::type() const {
+inline ::PROTOBUF_NAMESPACE_ID::int32 FieldElementInfoPB::_internal_type() const {
+  return type_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 FieldElementInfoPB::type() const {
   // @@protoc_insertion_point(field_get:schema.FieldElementInfoPB.type)
   return _internal_type();
 }
-inline void FieldElementInfoPB::set_type(const std::string& value) {
+inline void FieldElementInfoPB::_internal_set_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  type_ = value;
+}
+inline void FieldElementInfoPB::set_type(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_type(value);
   // @@protoc_insertion_point(field_set:schema.FieldElementInfoPB.type)
-}
-inline std::string* FieldElementInfoPB::mutable_type() {
-  // @@protoc_insertion_point(field_mutable:schema.FieldElementInfoPB.type)
-  return _internal_mutable_type();
-}
-inline const std::string& FieldElementInfoPB::_internal_type() const {
-  return type_.GetNoArena();
-}
-inline void FieldElementInfoPB::_internal_set_type(const std::string& value) {
-  
-  type_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value);
-}
-inline void FieldElementInfoPB::set_type(std::string&& value) {
-  
-  type_.SetNoArena(
-    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:schema.FieldElementInfoPB.type)
-}
-inline void FieldElementInfoPB::set_type(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  type_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:schema.FieldElementInfoPB.type)
-}
-inline void FieldElementInfoPB::set_type(const char* value, size_t size) {
-  
-  type_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:schema.FieldElementInfoPB.type)
-}
-inline std::string* FieldElementInfoPB::_internal_mutable_type() {
-  
-  return type_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline std::string* FieldElementInfoPB::release_type() {
-  // @@protoc_insertion_point(field_release:schema.FieldElementInfoPB.type)
-  
-  return type_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-}
-inline void FieldElementInfoPB::set_allocated_type(std::string* type) {
-  if (type != nullptr) {
-    
-  } else {
-    
-  }
-  type_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), type);
-  // @@protoc_insertion_point(field_set_allocated:schema.FieldElementInfoPB.type)
 }
 
 // repeated .schema.ParamPB params = 2;

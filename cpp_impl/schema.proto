@@ -25,7 +25,7 @@ message ParamPB {
 }
 
 message FieldElementInfoPB {
-    string type = 1;
+    int32 type = 1;
     repeated ParamPB params = 2;
 }
 
