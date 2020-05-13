@@ -181,16 +181,16 @@ public:
 
 using SchemaCommitPtr = std::shared_ptr<SchemaCommit>;
 
-class Field : public DBBaseResource<IdField,
-                                    NameField,
+class Field : public DBBaseResource<NameField,
                                     NumField,
+                                    IdField,
                                     StatusField,
                                     CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, NameField, NumField, StatusField, CreatedOnField>;
+    using BaseT = DBBaseResource<NameField, NumField, IdField, StatusField, CreatedOnField>;
 
-    Field(ID_TYPE id, const std::string& name, NUM_TYPE num, State status = PENDING,
+    Field(const std::string& name, NUM_TYPE num, ID_TYPE id, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 

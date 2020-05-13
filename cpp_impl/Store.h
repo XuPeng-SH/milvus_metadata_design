@@ -331,7 +331,7 @@ private:
                 f_c_id_++;
                 std::stringstream fname;
                 fname << "f_" << fi << "_" << f_id_;
-                auto field = std::make_shared<Field>(f_id_, fname.str(), (NUM_TYPE)fi);
+                auto field = std::make_shared<Field>(fname.str(), (NUM_TYPE)fi, f_id_);
                 fields_[field->GetID()] = field;
 
                 auto f_c = std::make_shared<FieldCommit>(f_c_id_, c->GetID(), field->GetID());

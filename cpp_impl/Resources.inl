@@ -40,8 +40,8 @@ FieldCommit::FieldCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE field_id,
     BaseT(id, collection_id, field_id, mappings, status, created_on) {
 }
 
-Field::Field(ID_TYPE id, const std::string& name, NUM_TYPE num, State status, TS_TYPE created_on) :
-    BaseT(id, name, num, status, created_on) {
+Field::Field(const std::string& name, NUM_TYPE num, ID_TYPE id, State status, TS_TYPE created_on) :
+    BaseT(name, num, id, status, created_on) {
 
 }
 
