@@ -1,6 +1,7 @@
 #pragma once
 #include "Resources.h"
 #include "Holders.h"
+#include "schema.pb.h"
 #include <map>
 #include <memory>
 #include <deque>
@@ -351,7 +352,7 @@ public:
     ScopedSnapshotT GetSnapshot(ID_TYPE collection_id, ID_TYPE id = 0, bool scoped = true);
     ScopedSnapshotT GetSnapshot(const std::string& name, ID_TYPE id = 0, bool scoped = true);
 
-    /* ScopedSnapshotT CreateCollection(const CollectionSchema& schema); */
+    /* ScopedSnapshotT CreateCollection(const schema::FieldSchemaPB& collection_schema); */
 
     IDS_TYPE GetCollectionIds() const;
 

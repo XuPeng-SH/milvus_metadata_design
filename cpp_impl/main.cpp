@@ -49,7 +49,7 @@ int main() {
     cout << collection_schema.fields_size() << endl;
     cout << collection_schema.fields(0).name() << endl;
     /* cout << element.info().params_size() << endl; */
-    return 0;
+    /* return 0; */
     /* { */
         /* auto ss_holder = make_shared<SnapshotsHolder>(1); */
         /* ss_holder->SetGCHandler(std::bind(&SnapshotsHolder::GCHandlerTestCallBack, ss_holder, std::placeholders::_1)); */

@@ -303,75 +303,84 @@ public:
         return ids;
     }
 
+    /* CollectionPtr CreateCollection(const schema::FieldSchemaPB& collection_schema) { */
+    /* } */
+
 private:
     Store() {
         srand(time(0));
         int random;
         random = rand() % 2 + 4;
-        int p_i = 0;
-        int s_i = 0;
+        int p_id_ = 0;
+        int seg_id_ = 0;
         int s_f_i = 0;
-        int f_i = 0;
-        int f_e_i = 0;
+        int f_id_ = 0;
+        int f_e_id_ = 0;
         /* int field_element_id = 1; */
         for (auto i=1; i<=random; i++) {
+            c_id_++;
+            c_c_id_++;
+            s_c_id_++;
             std::stringstream name;
-            name << "c_" << i;
-            auto c = std::make_shared<Collection>(i, name.str());
-            id_collections_[i] = c;
+            name << "c_" << c_id_;
+            auto c = std::make_shared<Collection>(c_id_, name.str());
+            id_collections_[c_id_] = c;
             name_collections_[name.str()] = c;
 
-            auto schema = std::make_shared<SchemaCommit>(i, i);
+            auto schema = std::make_shared<SchemaCommit>(s_c_id_, c->GetID());
             auto& schema_c_m = schema->GetMappings();
             int random_fields = rand() % 2 + 1;
             for (auto fi=1; fi<=random_fields; ++fi) {
-                f_i++;
+                f_id_++;
+                f_c_id_++;
                 std::stringstream fname;
-                fname << "f_" << fi << "_" << f_i;
-                auto field = std::make_shared<Field>(f_i, fname.str(), (NUM_TYPE)fi);
+                fname << "f_" << fi << "_" << f_id_;
+                auto field = std::make_shared<Field>(f_id_, fname.str(), (NUM_TYPE)fi);
                 fields_[field->GetID()] = field;
 
-                auto f_c = std::make_shared<FieldCommit>(f_i, c->GetID(), field->GetID());
+                auto f_c = std::make_shared<FieldCommit>(f_c_id_, c->GetID(), field->GetID());
                 field_commits_[f_c->GetID()] = f_c;
                 schema_c_m.push_back(f_c->GetID());
 
                 auto& f_c_m = f_c->GetMappings();
                 int random_elements = rand() % 2 + 2;
                 for (auto fei=1; fei<=random_elements; ++fei) {
-                    f_e_i++;
+                    f_e_id_++;
                     std::stringstream fename;
-                    fename << "fe_" << fei << "_" << f_e_i;
+                    fename << "fe_" << fei << "_" << f_e_id_;
 
-                    auto element = std::make_shared<FieldElement>(f_e_i, c->GetID(), field->GetID(), fename.str(), fei);
+                    auto element = std::make_shared<FieldElement>(f_e_id_, c->GetID(), field->GetID(), fename.str(), fei);
                     field_elements_[element->GetID()] = element;
                     f_c_m.push_back(element->GetID());
                 }
             }
 
-            schema_commits_[i] = schema;
+            schema_commits_[schema->GetID()] = schema;
 
-            auto c_c = std::make_shared<CollectionCommit>(i, i, schema->GetID());
-            collection_commit_[i] = c_c;
+            auto c_c = std::make_shared<CollectionCommit>(c_c_id_, c->GetID(), schema->GetID());
+            collection_commit_[c_c->GetID()] = c_c;
 
             int random_partitions = rand() % 2 + 1;
             for (auto pi=1; pi<=random_partitions; ++pi) {
-                p_i++;
+                p_id_++;
+                p_c_id_++;
                 std::stringstream pname;
                 pname << "p_" << i << "_" << pi;
-                auto p = std::make_shared<Partition>(p_i, pname.str(), c->GetID());
+                auto p = std::make_shared<Partition>(p_id_, pname.str(), c->GetID());
 
-                partitions_[p_i] = p;
-                auto p_c = std::make_shared<PartitionCommit>(p_i, c->GetID(), p_i);
-                partition_commits_[p_i] = p_c;
+                partitions_[p_id_] = p;
+                auto p_c = std::make_shared<PartitionCommit>(p_c_id_, c->GetID(), p->GetID());
+                partition_commits_[p_c->GetID()] = p_c;
                 auto& c_c_m = c_c->GetMappings();
-                c_c_m.push_back(p_i);
+                c_c_m.push_back(p_c->GetID());
 
                 int random_segments = rand() % 2 + 1;
                 for (auto si=1; si<=random_segments; ++si) {
-                    s_i++;
-                    auto s = std::make_shared<Segment>(s_i, p->GetID());
-                    segments_[s_i] = s;
-                    auto s_c = std::make_shared<SegmentCommit>(s_i, schema->GetID(), p->GetID(), s->GetID());
+                    seg_id_++;
+                    seg_c_id_++;
+                    auto s = std::make_shared<Segment>(seg_id_, p->GetID());
+                    segments_[seg_id_] = s;
+                    auto s_c = std::make_shared<SegmentCommit>(seg_c_id_, schema->GetID(), p->GetID(), s->GetID());
                     segment_commits_[s_c->GetID()] = s_c;
                     auto& p_c_m = p_c->GetMappings();
                     p_c_m.push_back(s_c->GetID());
@@ -394,6 +403,17 @@ private:
         }
     }
 
+    ID_TYPE c_id_ = 0;
+    ID_TYPE s_c_id_ = 0;
+    ID_TYPE f_id_ = 0;
+    ID_TYPE f_c_id_ = 0;
+    ID_TYPE f_e_id_ = 0;
+    ID_TYPE c_c_id_ = 0;
+    ID_TYPE p_id_ = 0;
+    ID_TYPE p_c_id_ = 0;
+    ID_TYPE seg_id_ = 0;
+    ID_TYPE seg_c_id_ = 0;
+    ID_TYPE seg_f_id_ = 0;
     std::map<ID_TYPE, CollectionPtr> id_collections_;
     std::map<std::string, CollectionPtr> name_collections_;
 
