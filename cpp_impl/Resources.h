@@ -155,12 +155,12 @@ protected:
     std::string name_;
 };
 
-class Collection : public DBBaseResource<IdField, NameField, StatusField, CreatedOnField>
+class Collection : public DBBaseResource<NameField, IdField, StatusField, CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, NameField, StatusField, CreatedOnField>;
+    using BaseT = DBBaseResource<NameField, IdField, StatusField, CreatedOnField>;
 
-    Collection(ID_TYPE id, const std::string& name, State status = PENDING,
+    Collection(const std::string& name, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 
 };

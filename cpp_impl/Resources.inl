@@ -26,8 +26,8 @@ std::string DBBaseResource<Fields...>::ToString() const {
     return ss.str();
 }
 
-Collection::Collection(ID_TYPE id, const std::string& name, State status, TS_TYPE created_on) :
-    BaseT(id, name, status, created_on) {
+Collection::Collection(const std::string& name, ID_TYPE id, State status, TS_TYPE created_on) :
+    BaseT(name, id, status, created_on) {
 }
 
 SchemaCommit::SchemaCommit(ID_TYPE collection_id, const MappingT& mappings,

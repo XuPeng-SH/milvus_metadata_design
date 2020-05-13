@@ -20,7 +20,7 @@ public:
         }
         std::cout << "<<< [Load] Collection " << id << std::endl;
         auto& c = it->second;
-        auto ret = std::make_shared<Collection>(c->GetID(), c->GetName(), c->GetStatus(), c->GetCreatedTime());
+        auto ret = std::make_shared<Collection>(*c);
         return ret;
     }
 
@@ -31,7 +31,7 @@ public:
         }
         std::cout << "<<< [Load] Collection " << name << std::endl;
         auto& c = it->second;
-        auto ret = std::make_shared<Collection>(c->GetID(), c->GetName(), c->GetStatus(), c->GetCreatedTime());
+        auto ret = std::make_shared<Collection>(*c);
         return ret;
     }
 
@@ -319,7 +319,7 @@ private:
             s_c_id_++;
             std::stringstream name;
             name << "c_" << c_id_;
-            auto c = std::make_shared<Collection>(c_id_, name.str());
+            auto c = std::make_shared<Collection>(name.str(), c_id_);
             id_collections_[c_id_] = c;
             name_collections_[name.str()] = c;
 
