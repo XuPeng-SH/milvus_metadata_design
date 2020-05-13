@@ -10,7 +10,7 @@
 
 using namespace std;
 
-schema::FieldSchemaPB proto_lab() {
+schema::CollectionSchemaPB proto_lab() {
     schema::CollectionSchemaPB collection_schema;
     collection_schema.set_name("new_c");
     schema::FieldSchemaPB vector_field;
@@ -39,14 +39,15 @@ schema::FieldSchemaPB proto_lab() {
 
     vector_field.mutable_elements()->Add(std::move(ivf_sq8_element));
     vector_field.set_allocated_info(vector_field_info);
+    collection_schema.mutable_fields()->Add(std::move(vector_field));
 
-    return vector_field;
+    return collection_schema;
 }
 
 int main() {
-    auto field = proto_lab();
-    cout << field.elements_size() << endl;
-    cout << field.elements(0).name() << endl;
+    auto collection_schema = proto_lab();
+    cout << collection_schema.fields_size() << endl;
+    cout << collection_schema.fields(0).name() << endl;
     /* cout << element.info().params_size() << endl; */
     return 0;
     /* { */
