@@ -277,15 +277,15 @@ public:
 
 using PartitionCommitPtr = std::shared_ptr<PartitionCommit>;
 
-class Segment : public DBBaseResource<IdField,
-                                      PartitionIdField,
+class Segment : public DBBaseResource<PartitionIdField,
+                                      IdField,
                                       StatusField,
                                       CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, PartitionIdField, StatusField, CreatedOnField>;
+    using BaseT = DBBaseResource<PartitionIdField, IdField, StatusField, CreatedOnField>;
 
-    Segment(ID_TYPE id, ID_TYPE partition_id, State status = PENDING,
+    Segment(ID_TYPE partition_id, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 

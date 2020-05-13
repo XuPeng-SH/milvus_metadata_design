@@ -206,8 +206,7 @@ public:
         }
         std::cout << "<<< [Load] Segment " << id << std::endl;
         auto& c = it->second;
-        auto ret = std::make_shared<Segment>(c->GetID(), c->GetPartitionId(),
-                c->GetStatus(), c->GetCreatedTime());
+        auto ret = std::make_shared<Segment>(*c);
         return ret;
     }
 
@@ -371,7 +370,7 @@ private:
                 for (auto si=1; si<=random_segments; ++si) {
                     seg_id_++;
                     seg_c_id_++;
-                    auto s = std::make_shared<Segment>(seg_id_, p->GetID());
+                    auto s = std::make_shared<Segment>(p->GetID(), seg_id_);
                     segments_[seg_id_] = s;
                     auto s_c = std::make_shared<SegmentCommit>(seg_c_id_, schema->GetID(), p->GetID(), s->GetID());
                     segment_commits_[s_c->GetID()] = s_c;
