@@ -368,6 +368,7 @@ private:
         IDS_TYPE empty_mappings = {};
         /* int field_element_id = 1; */
         for (auto i=1; i<=random; i++) {
+            std::cout << "CCCCCC " << i << std::endl;
             c_c_id_++;
             s_c_id_++;
             std::stringstream name;
@@ -379,7 +380,6 @@ private:
             auto& schema_c_m = schema->GetMappings();
             int random_fields = rand() % 2 + 1;
             for (auto fi=1; fi<=random_fields; ++fi) {
-                f_c_id_++;
                 std::stringstream fname;
                 fname << "f_" << fi << "_" << f_id_ + 1;
                 auto field = CreateField(Field(fname.str(), fi));
