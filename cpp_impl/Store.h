@@ -349,6 +349,13 @@ public:
         return GetPartition(p->GetID());
     }
 
+    PartitionCommitPtr CreatePartitionCommit(PartitionCommit&& partition_commit) {
+        auto pc = std::make_shared<PartitionCommit>(partition_commit);
+        pc->SetID(++p_c_id_);
+        partition_commits_[pc->GetID()] = pc;
+        return GetPartitionCommit(pc->GetID());
+    }
+
     CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
         auto collection = CreateCollection(Collection(collection_schema.name()));
         IDS_TYPE field_commit_ids = {};
@@ -376,7 +383,10 @@ public:
         }
         auto schema_commit = CreateSchemaCommit(SchemaCommit(collection->GetID(), field_commit_ids));
 
+        IDS_TYPE empty_mappings = {};
         auto partition = CreatePartition(Partition("_default", collection->GetID()));
+        auto partition_commit = CreatePartitionCommit(PartitionCommit(collection->GetID(), partition->GetID(),
+                    empty_mappings));
     }
 
 private:
@@ -420,13 +430,11 @@ private:
 
             int random_partitions = rand() % 2 + 1;
             for (auto pi=1; pi<=random_partitions; ++pi) {
-                p_c_id_++;
                 std::stringstream pname;
                 pname << "p_" << i << "_" << p_id_ + 1;
                 auto p = CreatePartition(Partition(pname.str(), c->GetID()));
 
-                auto p_c = std::make_shared<PartitionCommit>(c->GetID(), p->GetID(), empty_mappings, p_c_id_);
-                partition_commits_[p_c->GetID()] = p_c;
+                auto p_c = CreatePartitionCommit(PartitionCommit(c->GetID(), p->GetID(), empty_mappings));
                 auto& c_c_m = c_c->GetMappings();
                 c_c_m.push_back(p_c->GetID());
 
