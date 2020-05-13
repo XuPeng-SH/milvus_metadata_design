@@ -196,17 +196,17 @@ public:
 
 using FieldPtr = std::shared_ptr<Field>;
 
-class FieldCommit : public DBBaseResource<IdField,
-                                          CollectionIdField,
+class FieldCommit : public DBBaseResource<CollectionIdField,
                                           FieldIdField,
                                           MappingsField,
+                                          IdField,
                                           StatusField,
                                           CreatedOnField>
 {
 public:
-    using BaseT = DBBaseResource<IdField, CollectionIdField, FieldIdField,
-          MappingsField, StatusField, CreatedOnField>;
-    FieldCommit(ID_TYPE id, ID_TYPE collection_id, ID_TYPE field_id, const MappingT& mappings = {},
+    using BaseT = DBBaseResource<CollectionIdField, FieldIdField, MappingsField,
+          IdField, StatusField, CreatedOnField>;
+    FieldCommit(ID_TYPE collection_id, ID_TYPE field_id, const MappingT& mappings = {}, ID_TYPE id = 0,
             State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 

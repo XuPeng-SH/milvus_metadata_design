@@ -334,7 +334,7 @@ private:
                 auto field = std::make_shared<Field>(fname.str(), (NUM_TYPE)fi, f_id_);
                 fields_[field->GetID()] = field;
 
-                auto f_c = std::make_shared<FieldCommit>(f_c_id_, c->GetID(), field->GetID());
+                auto f_c = std::make_shared<FieldCommit>(c->GetID(), field->GetID(), empty_mappings, f_c_id_);
                 field_commits_[f_c->GetID()] = f_c;
                 schema_c_m.push_back(f_c->GetID());
 
