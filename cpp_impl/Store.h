@@ -321,6 +321,13 @@ public:
         return GetField(f->GetID());
     }
 
+    FieldElementPtr CreateFieldElement(FieldElement&& field_element) {
+        auto fe = std::make_shared<FieldElement>(field_element);
+        fe->SetID(++f_e_id_);
+        field_elements_[fe->GetID()] = fe;
+        return GetFieldElement(fe->GetID());
+    }
+
     CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
         auto collection = CreateCollection(Collection(collection_schema.name()));
         for (auto i=0; i<collection_schema.fields_size(); ++i) {
@@ -329,6 +336,8 @@ public:
             auto& field_info = field_schema.info();
             auto field_type = field_info.type();
             auto field = CreateField(Field(field_name, i));
+            auto raw_element = CreateFieldElement(FieldElement(collection->GetID(),
+                        field->GetID(), "RAW", 1));
         }
     }
 
@@ -363,12 +372,12 @@ private:
                 auto& f_c_m = f_c->GetMappings();
                 int random_elements = rand() % 2 + 2;
                 for (auto fei=1; fei<=random_elements; ++fei) {
-                    f_e_id_++;
                     std::stringstream fename;
-                    fename << "fe_" << fei << "_" << f_e_id_;
+                    fename << "fe_" << fei << "_" << f_e_id_ + 1;
 
-                    auto element = std::make_shared<FieldElement>(c->GetID(), field->GetID(), fename.str(), fei, f_e_id_);
-                    field_elements_[element->GetID()] = element;
+                    /* auto element = std::make_shared<FieldElement>(c->GetID(), field->GetID(), fename.str(), fei, f_e_id_); */
+                    /* field_elements_[element->GetID()] = element; */
+                    auto element = CreateFieldElement(FieldElement(c->GetID(), field->GetID(), fename.str(), fei));
                     f_c_m.push_back(element->GetID());
                 }
             }
