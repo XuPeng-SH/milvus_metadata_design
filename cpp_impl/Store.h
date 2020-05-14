@@ -39,7 +39,10 @@ using SegmentFileMap = std::map<ID_TYPE, SegmentFilePtr>;
 
 class Store {
 public:
-    using ResourcesT = std::tuple<CollectionCommit::MapT, SchemaCommit::MapT, FieldCommit::MapT>;
+    using ResourcesT = std::tuple<CollectionCommit::MapT,
+                                  SchemaCommit::MapT,
+                                  FieldCommit::MapT,
+                                  Field::MapT>;
 
     static Store& GetInstance() {
         static Store store;

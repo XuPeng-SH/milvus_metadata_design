@@ -194,6 +194,8 @@ class Field : public DBBaseResource<NameField,
                                     CreatedOnField>
 {
 public:
+    using Ptr = std::shared_ptr<Field>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     using BaseT = DBBaseResource<NameField, NumField, IdField, StatusField, CreatedOnField>;
     static constexpr const char* Name = "Field";
 
@@ -201,7 +203,7 @@ public:
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
-using FieldPtr = std::shared_ptr<Field>;
+using FieldPtr = Field::Ptr;
 
 class FieldCommit : public DBBaseResource<CollectionIdField,
                                           FieldIdField,
@@ -232,6 +234,8 @@ class FieldElement : public DBBaseResource<CollectionIdField,
                                            CreatedOnField>
 {
 public:
+    using Ptr = std::shared_ptr<FieldElement>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     static constexpr const char* Name = "FieldElement";
     using BaseT = DBBaseResource<CollectionIdField, FieldIdField, NameField,
           FtypeField, IdField, StatusField, CreatedOnField>;
@@ -239,7 +243,7 @@ public:
             ID_TYPE id = 0, State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
-using FieldElementPtr = std::shared_ptr<FieldElement>;
+using FieldElementPtr = FieldElement::Ptr;
 
 class CollectionCommit : public DBBaseResource<CollectionIdField,
                                                SchemaIdField,
@@ -267,6 +271,8 @@ class Partition : public DBBaseResource<NameField,
                                         CreatedOnField>
 {
 public:
+    using Ptr = std::shared_ptr<Partition>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     static constexpr const char* Name = "Partition";
     using BaseT = DBBaseResource<NameField, CollectionIdField, IdField, StatusField, CreatedOnField>;
 
@@ -274,7 +280,7 @@ public:
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
-using PartitionPtr = std::shared_ptr<Partition>;
+using PartitionPtr = Partition::Ptr;
 
 class PartitionCommit : public DBBaseResource<CollectionIdField,
                                               PartitionIdField,
@@ -284,6 +290,8 @@ class PartitionCommit : public DBBaseResource<CollectionIdField,
                                               CreatedOnField>
 {
 public:
+    using Ptr = std::shared_ptr<PartitionCommit>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     static constexpr const char* Name = "PartitionCommit";
     using BaseT = DBBaseResource<CollectionIdField, PartitionIdField, MappingsField,
           IdField, StatusField, CreatedOnField>;
@@ -292,7 +300,7 @@ public:
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
-using PartitionCommitPtr = std::shared_ptr<PartitionCommit>;
+using PartitionCommitPtr = PartitionCommit::Ptr;
 
 class Segment : public DBBaseResource<PartitionIdField,
                                       IdField,
@@ -300,6 +308,8 @@ class Segment : public DBBaseResource<PartitionIdField,
                                       CreatedOnField>
 {
 public:
+    using Ptr = std::shared_ptr<Segment>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     static constexpr const char* Name = "Segment";
     using BaseT = DBBaseResource<PartitionIdField, IdField, StatusField, CreatedOnField>;
 
@@ -307,7 +317,7 @@ public:
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
-using SegmentPtr = std::shared_ptr<Segment>;
+using SegmentPtr = Segment::Ptr;
 
 class SegmentCommit : public DBBaseResource<SchemaIdField,
                                             PartitionIdField,
@@ -338,6 +348,8 @@ class SegmentFile : public DBBaseResource<PartitionIdField,
                                           CreatedOnField>
 {
 public:
+    using Ptr = std::shared_ptr<SegmentFile>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     static constexpr const char* Name = "SegmentFile";
     using BaseT = DBBaseResource<PartitionIdField, SegmentIdField, FieldElementIdField, IdField,
           StatusField, CreatedOnField>;
@@ -346,6 +358,6 @@ public:
             State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
-using SegmentFilePtr = std::shared_ptr<SegmentFile>;
+using SegmentFilePtr = SegmentFile::Ptr;
 
 #include "Resources.inl"
