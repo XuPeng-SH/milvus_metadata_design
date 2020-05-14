@@ -45,9 +45,16 @@ public:
     template<typename ...ResourceT>
     bool DoCommit(ResourceT&&... resources) {
         auto t = std::make_tuple(std::forward<ResourceT>(resources)...);
+        auto& t_size = std::tuple_size<decltype(t)>::value;
+        if (t_size == 0) return false;
+        StartTransanction();
         std::apply([this](auto&&... resource) {((std::cout << CommitResource(resource) << "\n"), ...);}, t);
+        FinishTransaction();
         return true;
     }
+
+    void StartTransanction() {}
+    void FinishTransaction() {}
 
     template<typename ResourceT>
     bool CommitResource(ResourceT&& resource) {
