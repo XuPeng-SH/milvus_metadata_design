@@ -144,7 +144,8 @@ public:
     CollectionPtr CreateCollection(Collection&& collection) {
         auto& resources = std::get<Collection::MapT>(resources_);
         auto c = std::make_shared<Collection>(collection);
-        c->SetID(++c_id_);
+        auto& id = std::get<Index<Collection::MapT, MockResourcesT>::value>(ids_);
+        c->SetID(++id);
         resources[c->GetID()] = c;
         name_collections_[c->GetName()] = c;
         return GetResource<Collection>(c->GetID());
@@ -209,7 +210,7 @@ private:
         IDS_TYPE empty_mappings = {};
         for (auto i=1; i<=random; i++) {
             std::stringstream name;
-            name << "c_" << (c_id_ + 1);
+            name << "c_" << std::get<Index<Collection::MapT, MockResourcesT>::value>(ids_) + 1;
 
             auto c = CreateCollection(Collection(name.str()));
 
@@ -217,14 +218,14 @@ private:
             int random_fields = rand() % 2 + 1;
             for (auto fi=1; fi<=random_fields; ++fi) {
                 std::stringstream fname;
-                fname << "f_" << fi << "_" << f_id_ + 1;
+                fname << "f_" << fi << "_" << std::get<Index<Field::MapT, MockResourcesT>::value>(ids_) + 1;
                 auto field = CreateResource<Field>(Field(fname.str(), fi));
                 IDS_TYPE f_c_m = {};
 
                 int random_elements = rand() % 2 + 2;
                 for (auto fei=1; fei<=random_elements; ++fei) {
                     std::stringstream fename;
-                    fename << "fe_" << fei << "_" << f_e_id_ + 1;
+                    fename << "fe_" << fei << "_" << std::get<Index<FieldElement::MapT, MockResourcesT>::value>(ids_) + 1;
 
                     auto element = CreateResource<FieldElement>(FieldElement(c->GetID(), field->GetID(), fename.str(), fei));
                     f_c_m.push_back(element->GetID());
@@ -240,7 +241,7 @@ private:
             int random_partitions = rand() % 2 + 1;
             for (auto pi=1; pi<=random_partitions; ++pi) {
                 std::stringstream pname;
-                pname << "p_" << i << "_" << p_id_ + 1;
+                pname << "p_" << i << "_" << std::get<Index<Partition::MapT, MockResourcesT>::value>(ids_) + 1;
                 auto p = CreateResource<Partition>(Partition(pname.str(), c->GetID()));
 
                 auto p_c = CreateResource<PartitionCommit>(PartitionCommit(c->GetID(), p->GetID(), empty_mappings));
@@ -270,16 +271,6 @@ private:
     }
 
     ID_TYPE c_id_ = 0;
-    ID_TYPE s_c_id_ = 0;
-    ID_TYPE f_id_ = 0;
-    ID_TYPE f_c_id_ = 0;
-    ID_TYPE f_e_id_ = 0;
-    ID_TYPE c_c_id_ = 0;
-    ID_TYPE p_id_ = 0;
-    ID_TYPE p_c_id_ = 0;
-    ID_TYPE seg_id_ = 0;
-    ID_TYPE seg_c_id_ = 0;
-    ID_TYPE seg_f_id_ = 0;
 
     MockResourcesT resources_;
     MockIDST ids_;
