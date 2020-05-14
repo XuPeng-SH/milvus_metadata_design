@@ -17,6 +17,12 @@ void ResourceHolder<ResourceT, Derived>::Dump(const std::string& tag) {
 template <typename ResourceT, typename Derived>
 typename ResourceHolder<ResourceT, Derived>::ResourcePtr
 ResourceHolder<ResourceT, Derived>::Load(ID_TYPE id) {
+    auto& store = Store::GetInstance();
+    auto c = store.GetResource<ResourceT>(id);
+    if (c) {
+        AddNoLock(c);
+        return c;
+    }
     return nullptr;
 }
 
@@ -66,7 +72,9 @@ bool ResourceHolder<ResourceT, Derived>::Release(ID_TYPE id) {
 template <typename ResourceT, typename Derived>
 bool
 ResourceHolder<ResourceT, Derived>::HardDelete(ID_TYPE id) {
-    return false;
+    auto& store = Store::GetInstance();
+    bool ok = store.RemoveResource<ResourceT>(id);
+    return ok;
 }
 
 template <typename ResourceT, typename Derived>
@@ -85,24 +93,6 @@ template <typename ResourceT, typename Derived>
 bool ResourceHolder<ResourceT, Derived>::Add(typename ResourceHolder<ResourceT, Derived>::ResourcePtr resource) {
     std::unique_lock<std::mutex> lock(mutex_);
     return AddNoLock(resource);
-}
-
-CollectionsHolder::ResourcePtr
-CollectionsHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<Collection>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-CollectionsHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<Collection>(id);
-    return ok;
 }
 
 CollectionsHolder::ResourcePtr
@@ -156,184 +146,4 @@ bool CollectionsHolder::Release(ID_TYPE id) {
     BaseT::id_map_.erase(it);
     name_map_.erase(it->second->GetName());
     return true;
-}
-
-SchemaCommitsHolder::ResourcePtr
-SchemaCommitsHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<SchemaCommit>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-SchemaCommitsHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<SchemaCommit>(id);
-    return ok;
-}
-
-FieldCommitsHolder::ResourcePtr
-FieldCommitsHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<FieldCommit>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-FieldCommitsHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<FieldCommit>(id);
-    return ok;
-}
-
-FieldsHolder::ResourcePtr
-FieldsHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<Field>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-FieldsHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<Field>(id);
-    return ok;
-}
-
-FieldElementsHolder::ResourcePtr
-FieldElementsHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<FieldElement>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-FieldElementsHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<FieldElement>(id);
-    return ok;
-}
-
-CollectionCommitsHolder::ResourcePtr
-CollectionCommitsHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<CollectionCommit>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-CollectionCommitsHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<CollectionCommit>(id);
-    return ok;
-}
-
-PartitionsHolder::ResourcePtr
-PartitionsHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<Partition>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-PartitionsHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<Partition>(id);
-    return ok;
-}
-
-PartitionCommitsHolder::ResourcePtr
-PartitionCommitsHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<PartitionCommit>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-PartitionCommitsHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<PartitionCommit>(id);
-    return ok;
-}
-
-SegmentsHolder::ResourcePtr
-SegmentsHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<Segment>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-SegmentsHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<Segment>(id);
-    return ok;
-}
-
-SegmentCommitsHolder::ResourcePtr
-SegmentCommitsHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<SegmentCommit>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-SegmentCommitsHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<SegmentCommit>(id);
-    return ok;
-}
-
-SegmentFilesHolder::ResourcePtr
-SegmentFilesHolder::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<SegmentFile>(id);
-    if (c) {
-        AddNoLock(c);
-        return c;
-    }
-    return nullptr;
-}
-
-bool
-SegmentFilesHolder::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<SegmentFile>(id);
-    return ok;
 }

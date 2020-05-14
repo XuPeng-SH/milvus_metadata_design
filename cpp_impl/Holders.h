@@ -62,111 +62,29 @@ public:
     bool Release(const std::string& name);
 
 private:
-    ResourcePtr Load(ID_TYPE id) override;
     ResourcePtr Load(const std::string& name) override;
-    bool HardDelete(ID_TYPE id) override;
 
     NameMapT name_map_;
 };
 
-class SchemaCommitsHolder : public ResourceHolder<SchemaCommit, SchemaCommitsHolder> {
-public:
-    using BaseT = ResourceHolder<SchemaCommit, SchemaCommitsHolder>;
-    using ResourcePtr = typename BaseT::ResourcePtr;
+class SchemaCommitsHolder : public ResourceHolder<SchemaCommit, SchemaCommitsHolder> {};
 
-private:
-    ResourcePtr Load(ID_TYPE id) override;
-    bool HardDelete(ID_TYPE id) override;
-};
+class FieldCommitsHolder : public ResourceHolder<FieldCommit, FieldCommitsHolder> {};
 
-class FieldCommitsHolder : public ResourceHolder<FieldCommit, FieldCommitsHolder> {
-public:
-    using BaseT = ResourceHolder<FieldCommit, FieldCommitsHolder>;
-    using ResourcePtr = typename BaseT::ResourcePtr;
+class FieldsHolder : public ResourceHolder<Field, FieldsHolder> {};
 
-private:
-    ResourcePtr Load(ID_TYPE id) override;
-    bool HardDelete(ID_TYPE id) override;
-};
+class FieldElementsHolder : public ResourceHolder<FieldElement, FieldElementsHolder> {};
 
-class FieldsHolder : public ResourceHolder<Field, FieldsHolder> {
-public:
-    using BaseT = ResourceHolder<Field, FieldsHolder>;
-    using ResourcePtr = typename BaseT::ResourcePtr;
+class CollectionCommitsHolder : public ResourceHolder<CollectionCommit, CollectionCommitsHolder> {};
 
-private:
-    ResourcePtr Load(ID_TYPE id) override;
-    bool HardDelete(ID_TYPE id) override;
-};
+class PartitionsHolder : public ResourceHolder<Partition, PartitionsHolder> {};
 
-class FieldElementsHolder : public ResourceHolder<FieldElement, FieldElementsHolder> {
-public:
-    using BaseT = ResourceHolder<FieldElement, FieldElementsHolder>;
-    using ResourcePtr = typename BaseT::ResourcePtr;
+class PartitionCommitsHolder : public ResourceHolder<PartitionCommit, PartitionCommitsHolder> {};
 
-private:
-    ResourcePtr Load(ID_TYPE id) override;
-    bool HardDelete(ID_TYPE id) override;
-};
+class SegmentsHolder : public ResourceHolder<Segment, SegmentsHolder> {};
 
-class CollectionCommitsHolder : public ResourceHolder<CollectionCommit, CollectionCommitsHolder> {
-public:
-    using BaseT = ResourceHolder<CollectionCommit, CollectionCommitsHolder>;
-    using ResourcePtr = typename BaseT::ResourcePtr;
+class SegmentCommitsHolder : public ResourceHolder<SegmentCommit, SegmentCommitsHolder> {};
 
-private:
-    ResourcePtr Load(ID_TYPE id) override;
-    bool HardDelete(ID_TYPE id) override;
-};
-
-class PartitionsHolder : public ResourceHolder<Partition, PartitionsHolder> {
-public:
-    using BaseT = ResourceHolder<Partition, PartitionsHolder>;
-    using ResourcePtr = typename BaseT::ResourcePtr;
-
-private:
-    ResourcePtr Load(ID_TYPE id) override;
-    bool HardDelete(ID_TYPE id) override;
-};
-
-class PartitionCommitsHolder : public ResourceHolder<PartitionCommit, PartitionCommitsHolder> {
-public:
-    using BaseT = ResourceHolder<PartitionCommit, PartitionCommitsHolder>;
-    using ResourcePtr = typename BaseT::ResourcePtr;
-
-private:
-    ResourcePtr Load(ID_TYPE id) override;
-    bool HardDelete(ID_TYPE id) override;
-};
-
-class SegmentsHolder : public ResourceHolder<Segment, SegmentsHolder> {
-public:
-    using BaseT = ResourceHolder<Segment, SegmentsHolder>;
-    using ResourcePtr = typename BaseT::ResourcePtr;
-
-private:
-    ResourcePtr Load(ID_TYPE id) override;
-    bool HardDelete(ID_TYPE id) override;
-};
-
-class SegmentCommitsHolder : public ResourceHolder<SegmentCommit, SegmentCommitsHolder> {
-public:
-    using BaseT = ResourceHolder<SegmentCommit, SegmentCommitsHolder>;
-    using ResourcePtr = typename BaseT::ResourcePtr;
-
-private:
-    ResourcePtr Load(ID_TYPE id) override;
-    bool HardDelete(ID_TYPE id) override;
-};
-
-class SegmentFilesHolder : public ResourceHolder<SegmentFile, SegmentFilesHolder> {
-public:
-    using BaseT = ResourceHolder<SegmentFile, SegmentFilesHolder>;
-    using ResourcePtr = typename BaseT::ResourcePtr;
-
-private:
-    ResourcePtr Load(ID_TYPE id) override;
-    bool HardDelete(ID_TYPE id) override;
-};
+class SegmentFilesHolder : public ResourceHolder<SegmentFile, SegmentFilesHolder> {};
 
 #include "Holders.inl"
