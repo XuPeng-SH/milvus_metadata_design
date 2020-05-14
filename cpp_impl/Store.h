@@ -38,7 +38,9 @@ using SegmentFileMap = std::map<ID_TYPE, SegmentFilePtr>;
 
 class Store {
 public:
-    using ResourcesT = std::tuple<CollectionCommit::MapT,
+    using MockIDST = std::tuple<ID_TYPE, ID_TYPE, ID_TYPE, ID_TYPE, ID_TYPE, ID_TYPE, ID_TYPE,
+                                ID_TYPE, ID_TYPE, ID_TYPE, ID_TYPE>;
+    using MockResourcesT = std::tuple<CollectionCommit::MapT,
                                   Collection::MapT,
                                   SchemaCommit::MapT,
                                   FieldCommit::MapT,
@@ -71,7 +73,7 @@ public:
     template<typename ResourceT>
     std::shared_ptr<ResourceT>
     GetResource(ID_TYPE id) {
-        auto& resources = std::get<Index<typename ResourceT::MapT, ResourcesT>::value>(resources_);
+        auto& resources = std::get<Index<typename ResourceT::MapT, MockResourcesT>::value>(resources_);
         auto it = resources.find(id);
         if (it== resources.end()) {
             return nullptr;
@@ -109,7 +111,7 @@ public:
 
     template<typename ResourceT>
     bool RemoveResource(ID_TYPE id) {
-        auto& resources = std::get<Index<typename ResourceT::MapT, ResourcesT>::value>(resources_);
+        auto& resources = std::get<Index<typename ResourceT::MapT, MockResourcesT>::value>(resources_);
         auto it = resources.find(id);
         if (it == resources.end()) {
             return false;
@@ -137,7 +139,7 @@ public:
 
     IDS_TYPE AllActiveCollectionCommitIds(ID_TYPE collection_id, bool reversed = true) const {
         IDS_TYPE ids;
-        auto& resources = std::get<0>(resources_);
+        auto& resources = std::get<CollectionCommit::MapT>(resources_);
         if (!reversed) {
             for (auto& kv : resources) {
                 if (kv.second->GetCollectionId() == collection_id) {
@@ -363,7 +365,7 @@ private:
     ID_TYPE seg_c_id_ = 0;
     ID_TYPE seg_f_id_ = 0;
 
-    ResourcesT resources_;
-
+    MockResourcesT resources_;
+    MockIDST ids_;
     std::map<std::string, CollectionPtr> name_collections_;
 };
