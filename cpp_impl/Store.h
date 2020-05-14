@@ -108,17 +108,6 @@ public:
         return true;
     }
 
-    bool RemoveSchemaCommit(ID_TYPE id) {
-        auto it = schema_commits_.find(id);
-        if (it == schema_commits_.end()) {
-            return false;
-        }
-
-        schema_commits_.erase(it);
-        std::cout << ">>> [Remove] SchemaCommit " << id << std::endl;
-        return true;
-    }
-
     FieldCommitPtr GetFieldCommit(ID_TYPE id) {
         auto it = field_commits_.find(id);
         if (it == field_commits_.end()) {
