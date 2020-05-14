@@ -176,6 +176,8 @@ class SchemaCommit : public DBBaseResource<CollectionIdField,
                                            CreatedOnField>
 {
 public:
+    using Ptr = std::shared_ptr<SchemaCommit>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     using BaseT = DBBaseResource<CollectionIdField, MappingsField, IdField, StatusField, CreatedOnField>;
     static constexpr const char* Name = "SchemaCommit";
 
@@ -183,7 +185,7 @@ public:
             State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
-using SchemaCommitPtr = std::shared_ptr<SchemaCommit>;
+using SchemaCommitPtr = SchemaCommit::Ptr;
 
 class Field : public DBBaseResource<NameField,
                                     NumField,
@@ -246,13 +248,15 @@ class CollectionCommit : public DBBaseResource<CollectionIdField,
 {
 public:
     static constexpr const char* Name = "CollectionCommit";
+    using Ptr = std::shared_ptr<CollectionCommit>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     using BaseT = DBBaseResource<CollectionIdField, SchemaIdField, MappingsField,
           IdField, StatusField, CreatedOnField>;
     CollectionCommit(ID_TYPE collection_id, ID_TYPE schema_id, const MappingT& mappings = {}, ID_TYPE id = 0,
             State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
-using CollectionCommitPtr = std::shared_ptr<CollectionCommit>;
+using CollectionCommitPtr = CollectionCommit::Ptr;
 
 class Partition : public DBBaseResource<NameField,
                                         CollectionIdField,
@@ -312,6 +316,8 @@ class SegmentCommit : public DBBaseResource<SchemaIdField,
                                             CreatedOnField>
 {
 public:
+    using Ptr = std::shared_ptr<SegmentCommit>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     static constexpr const char* Name = "SegmentCommit";
     using BaseT = DBBaseResource<SchemaIdField, PartitionIdField, SegmentIdField,
           MappingsField, IdField, StatusField, CreatedOnField>;
@@ -320,7 +326,7 @@ public:
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
-using SegmentCommitPtr = std::shared_ptr<SegmentCommit>;
+using SegmentCommitPtr = SegmentCommit::Ptr;
 
 class SegmentFile : public DBBaseResource<PartitionIdField,
                                           SegmentIdField,

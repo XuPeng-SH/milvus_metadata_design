@@ -161,7 +161,7 @@ bool CollectionsHolder::Release(ID_TYPE id) {
 SchemaCommitsHolder::ResourcePtr
 SchemaCommitsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetSchemaCommit(id);
+    auto c = store.GetResource<SchemaCommit>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -172,7 +172,7 @@ SchemaCommitsHolder::Load(ID_TYPE id) {
 bool
 SchemaCommitsHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemoveSchemaCommit(id);
+    bool ok = store.RemoveResource<SchemaCommit>(id);
     return ok;
 }
 

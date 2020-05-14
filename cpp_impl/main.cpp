@@ -107,5 +107,17 @@ int main() {
     seg.SetID(222);
     Store::GetInstance().DoCommit(ccc, seg);
 
+    using TT = std::tuple<int, string>;
+    static constexpr size_t C_I = Index<int, TT>::value;
+    cout << "C_I " << C_I << endl;
+    static constexpr size_t S_I = Index<string, TT>::value;
+    cout << "S_I " << S_I << endl;
+
+    TT a(1, "one");
+    cout << std::get<Index<int, TT>::value>(a) << endl;
+    /* using ResourcesT = std::tuple<CollectionCommitMap, SchemaCommitMap>; */
+    /* cout << "XXX " << Index<CollectionCommit, ResourcesT>::value << endl; */
+
+
     return 0;
 }

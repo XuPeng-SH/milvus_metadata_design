@@ -7,8 +7,21 @@
 #include <time.h>
 #include <sstream>
 
-using CollectionMap = std::map<ID_TYPE, CollectionPtr>;
+template <class T, class Tuple>
+struct Index;
+
+template <class T, class... Types>
+struct Index<T, std::tuple<T, Types...>> {
+    static const std::size_t value = 0;
+};
+
+template <class T, class U, class... Types>
+struct Index<T, std::tuple<U, Types...>> {
+    static const std::size_t value = 1 + Index<T, std::tuple<Types...>>::value;
+};
     /* std::map<std::string, CollectionPtr> name_collections_; */
+
+using CollectionMap = std::map<ID_TYPE, CollectionPtr>;
 using SchemaCommitMap = std::map<ID_TYPE, SchemaCommitPtr>;
 using FieldCommitMap = std::map<ID_TYPE, FieldCommitPtr>;
 using FieldMap = std::map<ID_TYPE, FieldPtr>;
@@ -26,6 +39,8 @@ using SegmentFileMap = std::map<ID_TYPE, SegmentFilePtr>;
 
 class Store {
 public:
+    using ResourcesT = std::tuple<CollectionCommit::MapT, SchemaCommit::MapT>;
+
     static Store& GetInstance() {
         static Store store;
         return store;
@@ -47,7 +62,7 @@ public:
     template<typename ResourceT>
     std::shared_ptr<ResourceT>
     GetResource(ID_TYPE id) {
-        auto& resources = std::get<0>(resources_);
+        auto& resources = std::get<Index<typename ResourceT::MapT, ResourcesT>::value>(resources_);
         auto it = resources.find(id);
         if (it== resources.end()) {
             return nullptr;
@@ -180,7 +195,7 @@ public:
 
     template<typename ResourceT>
     bool RemoveResource(ID_TYPE id) {
-        auto& resources = std::get<0>(resources_);
+        auto& resources = std::get<Index<typename ResourceT::MapT, ResourcesT>::value>(resources_);
         auto it = resources.find(id);
         if (it == resources.end()) {
             return false;
@@ -385,10 +400,11 @@ public:
     }
 
     SchemaCommitPtr CreateSchemaCommit(SchemaCommit&& schema_commit) {
+        auto& resources = std::get<1>(resources_);
         auto sc = std::make_shared<SchemaCommit>(schema_commit);
         sc->SetID(++s_c_id_);
-        schema_commits_[sc->GetID()] = sc;
-        return GetSchemaCommit(sc->GetID());
+        resources[sc->GetID()] = sc;
+        return GetResource<SchemaCommit>(sc->GetID());
     }
 
     PartitionPtr CreatePartition(Partition&& partition) {
@@ -559,7 +575,7 @@ private:
     ID_TYPE seg_c_id_ = 0;
     ID_TYPE seg_f_id_ = 0;
 
-    std::tuple<CollectionCommitMap, SchemaCommitMap> resources_;
+    ResourcesT resources_;
 
     std::map<ID_TYPE, CollectionPtr> id_collections_;
     std::map<std::string, CollectionPtr> name_collections_;
