@@ -168,9 +168,9 @@ public:
     template <typename ResourceT>
     typename ResourceT::Ptr
     CreateResource(ResourceT&& resource) {
-        auto& resources = std::get<ResourceT::MapT>(resources_);
+        auto& resources = std::get<typename ResourceT::MapT>(resources_);
         auto res = std::make_shared<ResourceT>(resource);
-        auto& id = std::get<ResourceT::MapT>(ids_);
+        auto& id = std::get<Index<typename ResourceT::MapT, MockResourcesT>::value>(ids_);
         res->SetID(++id);
         resources[res->GetID()] = res;
         return GetResource<ResourceT>(res->GetID());
@@ -182,14 +182,6 @@ public:
         f->SetID(++f_id_);
         resources[f->GetID()] = f;
         return GetResource<Field>(f->GetID());
-    }
-
-    FieldElementPtr CreateFieldElement(FieldElement&& field_element) {
-        auto& resources = std::get<FieldElement::MapT>(resources_);
-        auto fe = std::make_shared<FieldElement>(field_element);
-        fe->SetID(++f_e_id_);
-        resources[fe->GetID()] = fe;
-        return GetResource<FieldElement>(fe->GetID());
     }
 
     FieldCommitPtr CreateFieldCommit(FieldCommit&& field_commit) {
@@ -266,7 +258,7 @@ public:
             auto field_type = field_info.type();
             auto field = CreateField(Field(field_name, i));
             IDS_TYPE element_ids = {};
-            auto raw_element = CreateFieldElement(FieldElement(collection->GetID(),
+            auto raw_element = CreateResource<FieldElement>(FieldElement(collection->GetID(),
                         field->GetID(), "RAW", 1));
             element_ids.push_back(raw_element->GetID());
             for(auto j=0; j<field_schema.elements_size(); ++j) {
@@ -274,7 +266,7 @@ public:
                 auto& element_name = element_schema.name();
                 auto& element_info = element_schema.info();
                 auto element_type = element_info.type();
-                auto element = CreateFieldElement(FieldElement(collection->GetID(), field->GetID(),
+                auto element = CreateResource<FieldElement>(FieldElement(collection->GetID(), field->GetID(),
                             element_name, element_type));
                 element_ids.push_back(element->GetID());
             }
@@ -321,7 +313,7 @@ private:
                     std::stringstream fename;
                     fename << "fe_" << fei << "_" << f_e_id_ + 1;
 
-                    auto element = CreateFieldElement(FieldElement(c->GetID(), field->GetID(), fename.str(), fei));
+                    auto element = CreateResource<FieldElement>(FieldElement(c->GetID(), field->GetID(), fename.str(), fei));
                     f_c_m.push_back(element->GetID());
                 }
                 auto f_c = CreateFieldCommit(FieldCommit(c->GetID(), field->GetID(), f_c_m));
