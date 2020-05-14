@@ -90,7 +90,7 @@ bool ResourceHolder<ResourceT, Derived>::Add(typename ResourceHolder<ResourceT, 
 CollectionsHolder::ResourcePtr
 CollectionsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetCollection(id);
+    auto c = store.GetResource<Collection>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -101,7 +101,7 @@ CollectionsHolder::Load(ID_TYPE id) {
 bool
 CollectionsHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemoveCollection(id);
+    bool ok = store.RemoveResource<Collection>(id);
     return ok;
 }
 
@@ -197,7 +197,7 @@ FieldCommitsHolder::HardDelete(ID_TYPE id) {
 FieldsHolder::ResourcePtr
 FieldsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetField(id);
+    auto c = store.GetResource<Field>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -208,14 +208,14 @@ FieldsHolder::Load(ID_TYPE id) {
 bool
 FieldsHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemoveField(id);
+    bool ok = store.RemoveResource<Field>(id);
     return ok;
 }
 
 FieldElementsHolder::ResourcePtr
 FieldElementsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetFieldElement(id);
+    auto c = store.GetResource<FieldElement>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -226,7 +226,7 @@ FieldElementsHolder::Load(ID_TYPE id) {
 bool
 FieldElementsHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemoveFieldElement(id);
+    bool ok = store.RemoveResource<FieldElement>(id);
     return ok;
 }
 
@@ -251,7 +251,7 @@ CollectionCommitsHolder::HardDelete(ID_TYPE id) {
 PartitionsHolder::ResourcePtr
 PartitionsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetPartition(id);
+    auto c = store.GetResource<Partition>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -262,14 +262,14 @@ PartitionsHolder::Load(ID_TYPE id) {
 bool
 PartitionsHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemovePartition(id);
+    bool ok = store.RemoveResource<Partition>(id);
     return ok;
 }
 
 PartitionCommitsHolder::ResourcePtr
 PartitionCommitsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetPartitionCommit(id);
+    auto c = store.GetResource<PartitionCommit>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -280,14 +280,14 @@ PartitionCommitsHolder::Load(ID_TYPE id) {
 bool
 PartitionCommitsHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemovePartitionCommit(id);
+    bool ok = store.RemoveResource<PartitionCommit>(id);
     return ok;
 }
 
 SegmentsHolder::ResourcePtr
 SegmentsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetSegment(id);
+    auto c = store.GetResource<Segment>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -298,14 +298,14 @@ SegmentsHolder::Load(ID_TYPE id) {
 bool
 SegmentsHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemoveSegment(id);
+    bool ok = store.RemoveResource<Segment>(id);
     return ok;
 }
 
 SegmentCommitsHolder::ResourcePtr
 SegmentCommitsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetSegmentCommit(id);
+    auto c = store.GetResource<SegmentCommit>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -316,14 +316,14 @@ SegmentCommitsHolder::Load(ID_TYPE id) {
 bool
 SegmentCommitsHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemoveSegmentCommit(id);
+    bool ok = store.RemoveResource<SegmentCommit>(id);
     return ok;
 }
 
 SegmentFilesHolder::ResourcePtr
 SegmentFilesHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetSegmentFile(id);
+    auto c = store.GetResource<SegmentFile>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -334,6 +334,6 @@ SegmentFilesHolder::Load(ID_TYPE id) {
 bool
 SegmentFilesHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemoveSegmentFile(id);
+    bool ok = store.RemoveResource<SegmentFile>(id);
     return ok;
 }

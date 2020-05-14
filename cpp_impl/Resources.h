@@ -159,6 +159,8 @@ protected:
 class Collection : public DBBaseResource<NameField, IdField, StatusField, CreatedOnField>
 {
 public:
+    using Ptr = std::shared_ptr<Collection>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     using BaseT = DBBaseResource<NameField, IdField, StatusField, CreatedOnField>;
     static constexpr const char* Name = "Collection";
 
@@ -167,7 +169,7 @@ public:
 
 };
 
-using CollectionPtr = std::shared_ptr<Collection>;
+using CollectionPtr = Collection::Ptr;
 
 class SchemaCommit : public DBBaseResource<CollectionIdField,
                                            MappingsField,

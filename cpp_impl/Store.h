@@ -40,9 +40,16 @@ using SegmentFileMap = std::map<ID_TYPE, SegmentFilePtr>;
 class Store {
 public:
     using ResourcesT = std::tuple<CollectionCommit::MapT,
+                                  Collection::MapT,
                                   SchemaCommit::MapT,
                                   FieldCommit::MapT,
-                                  Field::MapT>;
+                                  Field::MapT,
+                                  FieldElement::MapT,
+                                  PartitionCommit::MapT,
+                                  Partition::MapT,
+                                  SegmentCommit::MapT,
+                                  Segment::MapT,
+                                  SegmentFile::MapT>;
 
     static Store& GetInstance() {
         static Store store;
@@ -76,17 +83,6 @@ public:
         return ret;
     }
 
-    CollectionPtr GetCollection(ID_TYPE id) {
-        auto it = id_collections_.find(id);
-        if (it == id_collections_.end()) {
-            return nullptr;
-        }
-        std::cout << "<<< [Load] Collection " << id << std::endl;
-        auto& c = it->second;
-        auto ret = std::make_shared<Collection>(*c);
-        return ret;
-    }
-
     CollectionPtr GetCollection(const std::string& name) {
         auto it = name_collections_.find(name);
         if (it == name_collections_.end()) {
@@ -99,57 +95,16 @@ public:
     }
 
     bool RemoveCollection(ID_TYPE id) {
-        auto it = id_collections_.find(id);
-        if (it == id_collections_.end()) {
+        auto& resources = std::get<Collection::MapT>(resources_);
+        auto it = resources.find(id);
+        if (it == resources.end()) {
             return false;
         }
 
         auto name = it->second->GetName();
-        id_collections_.erase(it);
+        resources.erase(it);
         name_collections_.erase(name);
         std::cout << ">>> [Remove] Collection " << id << std::endl;
-        return true;
-    }
-
-    FieldPtr GetField(ID_TYPE id) {
-        auto it = fields_.find(id);
-        if (it == fields_.end()) {
-            return nullptr;
-        }
-        std::cout << "<<< [Load] Field " << id << std::endl;
-        auto& c = it->second;
-        return std::make_shared<Field>(*c);
-    }
-
-    bool RemoveField(ID_TYPE id) {
-        auto it = fields_.find(id);
-        if (it == fields_.end()) {
-            return false;
-        }
-
-        fields_.erase(it);
-        std::cout << ">>> [Remove] Field " << id << std::endl;
-        return true;
-    }
-
-    FieldElementPtr GetFieldElement(ID_TYPE id) {
-        auto it = field_elements_.find(id);
-        if (it == field_elements_.end()) {
-            return nullptr;
-        }
-        std::cout << "<<< [Load] FieldElement " << id << std::endl;
-        auto& c = it->second;
-        return std::make_shared<FieldElement>(*c);
-    }
-
-    bool RemoveFieldElement(ID_TYPE id) {
-        auto it = field_elements_.find(id);
-        if (it == field_elements_.end()) {
-            return false;
-        }
-
-        field_elements_.erase(it);
-        std::cout << ">>> [Remove] FieldElement " << id << std::endl;
         return true;
     }
 
@@ -166,137 +121,15 @@ public:
         return true;
     }
 
-
-    bool RemoveCollectionCommit(ID_TYPE id) {
-        auto& resources = std::get<0>(resources_);
-        auto it = resources.find(id);
-        if (it == resources.end()) {
-            return false;
-        }
-
-        resources.erase(it);
-        std::cout << ">>> [Remove] CollectionCommit " << id << std::endl;
-        return true;
-    }
-
-    PartitionPtr GetPartition(ID_TYPE id) {
-        auto it = partitions_.find(id);
-        if (it == partitions_.end()) {
-            return nullptr;
-        }
-        std::cout << "<<< [Load] Partition " << id << std::endl;
-        auto& c = it->second;
-        auto ret = std::make_shared<Partition>(*c);
-        return ret;
-    }
-
-    bool RemovePartition(ID_TYPE id) {
-        auto it = partitions_.find(id);
-        if (it == partitions_.end()) {
-            return false;
-        }
-
-        partitions_.erase(id);
-        std::cout << ">>> [Remove] Partition " << id << std::endl;
-        return true;
-    }
-
-    PartitionCommitPtr GetPartitionCommit(ID_TYPE id) {
-        auto it = partition_commits_.find(id);
-        if (it == partition_commits_.end()) {
-            return nullptr;
-        }
-        std::cout << "<<< [Load] PartitionCommit " << id << std::endl;
-        auto& c = it->second;
-        auto ret = std::make_shared<PartitionCommit>(*c);
-        return ret;
-    }
-
-    bool RemovePartitionCommit(ID_TYPE id) {
-        auto it = partition_commits_.find(id);
-        if (it == partition_commits_.end()) {
-            return false;
-        }
-
-        partition_commits_.erase(id);
-        std::cout << ">>> [Remove] PartitionCommit " << id << std::endl;
-        return true;
-    }
-
-    SegmentPtr GetSegment(ID_TYPE id) {
-        auto it = segments_.find(id);
-        if (it == segments_.end()) {
-            return nullptr;
-        }
-        std::cout << "<<< [Load] Segment " << id << std::endl;
-        auto& c = it->second;
-        auto ret = std::make_shared<Segment>(*c);
-        return ret;
-    }
-
-    bool RemoveSegment(ID_TYPE id) {
-        auto it = segments_.find(id);
-        if (it == segments_.end()) {
-            return false;
-        }
-
-        segments_.erase(id);
-        std::cout << ">>> [Remove] Segment " << id << std::endl;
-        return true;
-    }
-
-    SegmentCommitPtr GetSegmentCommit(ID_TYPE id) {
-        auto it = segment_commits_.find(id);
-        if (it == segment_commits_.end()) {
-            return nullptr;
-        }
-        std::cout << "<<< [Load] SegmentCommit " << id << std::endl;
-        auto& c = it->second;
-        auto ret = std::make_shared<SegmentCommit>(*c);
-        return ret;
-    }
-
-    bool RemoveSegmentCommit(ID_TYPE id) {
-        auto it = segment_commits_.find(id);
-        if (it == segment_commits_.end()) {
-            return false;
-        }
-
-        segment_commits_.erase(id);
-        std::cout << ">>> [Remove] SegmentCommit " << id << std::endl;
-        return true;
-    }
-
-    SegmentFilePtr GetSegmentFile(ID_TYPE id) {
-        auto it = segment_files_.find(id);
-        if (it == segment_files_.end()) {
-            return nullptr;
-        }
-        std::cout << "<<< [Load] SegmentFile " << id << std::endl;
-        auto& c = it->second;
-        auto ret = std::make_shared<SegmentFile>(*c);
-        return ret;
-    }
-
-    bool RemoveSegmentFile(ID_TYPE id) {
-        auto it = segment_files_.find(id);
-        if (it == segment_files_.end()) {
-            return false;
-        }
-
-        segment_files_.erase(id);
-        std::cout << ">>> [Remove] SegmentFile " << id << std::endl;
-        return true;
-    }
-
     IDS_TYPE AllActiveCollectionIds(bool reversed = true) const {
         IDS_TYPE ids;
+        auto& resources = std::get<Collection::MapT>(resources_);
         if (!reversed) {
-            for (auto& kv : id_collections_) {
+            for (auto& kv : resources) {
                 ids.push_back(kv.first);
             }
         } else {
-            for (auto kv = id_collections_.rbegin(); kv != id_collections_.rend(); ++kv) {
+            for (auto kv = resources.rbegin(); kv != resources.rend(); ++kv) {
                 ids.push_back(kv->first);
             }
         }
@@ -323,33 +156,36 @@ public:
     }
 
     CollectionPtr CreateCollection(Collection&& collection) {
+        auto& resources = std::get<Collection::MapT>(resources_);
         auto c = std::make_shared<Collection>(collection);
         c->SetID(++c_id_);
-        id_collections_[c->GetID()] = c;
+        resources[c->GetID()] = c;
         name_collections_[c->GetName()] = c;
-        return GetCollection(c->GetID());
+        return GetResource<Collection>(c->GetID());
     }
 
-    CollectionPtr CreateCollection(const Collection& collection) {
-        auto ret = std::make_shared<Collection>(collection);
-        ret->SetID(++c_id_);
-        id_collections_[ret->GetID()] = ret;
-        name_collections_[ret->GetName()] = ret;
-        return GetCollection(ret->GetID());
-    }
+    /* CollectionPtr CreateCollection(const Collection& collection) { */
+    /*     auto ret = std::make_shared<Collection>(collection); */
+    /*     ret->SetID(++c_id_); */
+    /*     id_collections_[ret->GetID()] = ret; */
+    /*     name_collections_[ret->GetName()] = ret; */
+    /*     return GetCollection(ret->GetID()); */
+    /* } */
 
     FieldPtr CreateField(Field&& field) {
+        auto& resources = std::get<Field::MapT>(resources_);
         auto f = std::make_shared<Field>(field);
         f->SetID(++f_id_);
-        fields_[f->GetID()] = f;
-        return GetField(f->GetID());
+        resources[f->GetID()] = f;
+        return GetResource<Field>(f->GetID());
     }
 
     FieldElementPtr CreateFieldElement(FieldElement&& field_element) {
+        auto& resources = std::get<FieldElement::MapT>(resources_);
         auto fe = std::make_shared<FieldElement>(field_element);
         fe->SetID(++f_e_id_);
-        field_elements_[fe->GetID()] = fe;
-        return GetFieldElement(fe->GetID());
+        resources[fe->GetID()] = fe;
+        return GetResource<FieldElement>(fe->GetID());
     }
 
     FieldCommitPtr CreateFieldCommit(FieldCommit&& field_commit) {
@@ -369,17 +205,19 @@ public:
     }
 
     PartitionPtr CreatePartition(Partition&& partition) {
+        auto& resources = std::get<Partition::MapT>(resources_);
         auto p = std::make_shared<Partition>(partition);
         p->SetID(++p_id_);
-        partitions_[p->GetID()] = p;
-        return GetPartition(p->GetID());
+        resources[p->GetID()] = p;
+        return GetResource<Partition>(p->GetID());
     }
 
     PartitionCommitPtr CreatePartitionCommit(PartitionCommit&& partition_commit) {
+        auto& resources = std::get<PartitionCommit::MapT>(resources_);
         auto pc = std::make_shared<PartitionCommit>(partition_commit);
         pc->SetID(++p_c_id_);
-        partition_commits_[pc->GetID()] = pc;
-        return GetPartitionCommit(pc->GetID());
+        resources[pc->GetID()] = pc;
+        return GetResource<PartitionCommit>(pc->GetID());
     }
 
     CollectionCommitPtr CreateCollectionCommit(CollectionCommit&& collection_commit) {
@@ -391,24 +229,27 @@ public:
     }
 
     SegmentFilePtr CreateSegmentFile(SegmentFile&& segment_file) {
+        auto& resources = std::get<SegmentFile::MapT>(resources_);
         auto sf = std::make_shared<SegmentFile>(segment_file);
         sf->SetID(++seg_f_id_);
-        segment_files_[sf->GetID()] = sf;
-        return GetSegmentFile(sf->GetID());
+        resources[sf->GetID()] = sf;
+        return GetResource<SegmentFile>(sf->GetID());
     }
 
     SegmentPtr CreateSegment(Segment&& segment) {
+        auto& resources = std::get<Segment::MapT>(resources_);
         auto s = std::make_shared<Segment>(segment);
         s->SetID(++seg_id_);
-        segments_[s->GetID()] = s;
-        return GetSegment(s->GetID());
+        resources[s->GetID()] = s;
+        return GetResource<Segment>(s->GetID());
     }
 
     SegmentCommitPtr CreateSegmentCommit(SegmentCommit&& segment_commit) {
+        auto& resources = std::get<SegmentCommit::MapT>(resources_);
         auto sc = std::make_shared<SegmentCommit>(segment_commit);
         sc->SetID(++seg_c_id_);
-        segment_commits_[sc->GetID()] = sc;
-        return GetSegmentCommit(sc->GetID());
+        resources[sc->GetID()] = sc;
+        return GetResource<SegmentCommit>(sc->GetID());
     }
 
     CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
@@ -485,9 +326,6 @@ private:
             }
 
             auto schema = CreateSchemaCommit(SchemaCommit(c->GetID(), schema_c_m));
-            /* for (auto ii : schema_c_m) { */
-            /*     std::cout << "CID=" << c->GetID() << " SCID=" << schema->GetID() << " FCID=" << ii << std::endl; */
-            /* } */
 
             auto c_c = CreateCollectionCommit(CollectionCommit(c->GetID(), schema->GetID(), empty_mappings));
 
@@ -538,7 +376,6 @@ private:
 
     ResourcesT resources_;
 
-    std::map<ID_TYPE, CollectionPtr> id_collections_;
     std::map<std::string, CollectionPtr> name_collections_;
 
     std::map<ID_TYPE, SchemaCommitPtr> schema_commits_;
