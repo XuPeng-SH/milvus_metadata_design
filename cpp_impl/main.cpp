@@ -74,7 +74,7 @@ int main() {
         /* gc_thread.join(); */
     /* } */
 
-    /* Store::GetInstance().Mock(); */
+    Store::GetInstance().Mock();
     auto& sss = Snapshots::GetInstance();
     auto ss_holder = sss.GetHolder("c_1");
     if (ss_holder)
@@ -87,11 +87,11 @@ int main() {
 
     sss.Close(2);
 
-    auto collection_schema = proto_lab();
-    cout << collection_schema.fields_size() << endl;
-    cout << collection_schema.fields(0).name() << endl;
-    auto c = Store::GetInstance().CreateCollection(collection_schema);
-    auto holder = sss.GetHolder(c->GetID());
+    /* auto collection_schema = proto_lab(); */
+    /* cout << collection_schema.fields_size() << endl; */
+    /* cout << collection_schema.fields(0).name() << endl; */
+    /* auto c = Store::GetInstance().CreateCollection(collection_schema); */
+    /* auto holder = sss.GetHolder(c->GetID()); */
 
     /* cout << element.info().params_size() << endl; */
     collection_ids = sss.GetCollectionIds();
@@ -99,7 +99,7 @@ int main() {
         std::cout << "CID=" << id << " CNAME=" << sss.GetSnapshot(id)->GetName() << std::endl;
     }
 
-    holder->GetSnapshot()->GetPartitionNames();
+    /* holder->GetSnapshot()->GetPartitionNames(); */
 
     return 0;
 }

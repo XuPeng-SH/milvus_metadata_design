@@ -363,6 +363,13 @@ public:
         return GetCollectionCommit(cc->GetID());
     }
 
+    SegmentFilePtr CreateSegmentFile(SegmentFile&& segment_file) {
+        auto sf = std::make_shared<SegmentFile>(segment_file);
+        sf->SetID(++seg_f_id_);
+        segment_files_[sf->GetID()] = sf;
+        return GetSegmentFile(sf->GetID());
+    }
+
     CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
         auto collection = CreateCollection(Collection(collection_schema.name()));
         IDS_TYPE field_commit_ids = {};
@@ -422,10 +429,8 @@ private:
                 std::stringstream fname;
                 fname << "f_" << fi << "_" << f_id_ + 1;
                 auto field = CreateField(Field(fname.str(), fi));
-                auto f_c = CreateFieldCommit(FieldCommit(c->GetID(), field->GetID(), empty_mappings));
-                schema_c_m.push_back(f_c->GetID());
+                IDS_TYPE f_c_m = {};
 
-                auto& f_c_m = f_c->GetMappings();
                 int random_elements = rand() % 2 + 2;
                 for (auto fei=1; fei<=random_elements; ++fei) {
                     std::stringstream fename;
@@ -434,9 +439,14 @@ private:
                     auto element = CreateFieldElement(FieldElement(c->GetID(), field->GetID(), fename.str(), fei));
                     f_c_m.push_back(element->GetID());
                 }
+                auto f_c = CreateFieldCommit(FieldCommit(c->GetID(), field->GetID(), f_c_m));
+                schema_c_m.push_back(f_c->GetID());
             }
 
             auto schema = CreateSchemaCommit(SchemaCommit(c->GetID(), schema_c_m));
+            /* for (auto ii : schema_c_m) { */
+            /*     std::cout << "CID=" << c->GetID() << " SCID=" << schema->GetID() << " FCID=" << ii << std::endl; */
+            /* } */
 
             auto c_c = CreateCollectionCommit(CollectionCommit(c->GetID(), schema->GetID(), empty_mappings));
 
@@ -460,15 +470,13 @@ private:
                     segment_commits_[s_c->GetID()] = s_c;
                     auto& p_c_m = p_c->GetMappings();
                     p_c_m.push_back(s_c->GetID());
-                    int random_seg_files = rand() % 2 + 1;
                     auto& schema_m = schema->GetMappings();
                     for (auto field_commit_id : schema_m) {
                         auto& field_commit = field_commits_[field_commit_id];
                         auto& f_c_m = field_commit->GetMappings();
                         for (auto field_element_id : f_c_m) {
-                            seg_f_id_++;
-                            auto sf = std::make_shared<SegmentFile>(p->GetID(), s->GetID(), field_element_id, seg_f_id_);
-                            segment_files_[sf->GetID()] = sf;
+                            auto sf = CreateSegmentFile(SegmentFile(p->GetID(), s->GetID(), field_commit_id));
+                            /* std::cout << "\tP=" << p->GetID() << " FID=" << field_commit->GetFieldId() <<  " FEI=" << field_element_id << " SEG=" << s->GetID() << " SF=" << sf->GetID() << std::endl; */
 
                             auto& s_c_m = s_c->GetMappings();
                             s_c_m.push_back(sf->GetID());
