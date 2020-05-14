@@ -179,7 +179,7 @@ SchemaCommitsHolder::HardDelete(ID_TYPE id) {
 FieldCommitsHolder::ResourcePtr
 FieldCommitsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetFieldCommit(id);
+    auto c = store.GetResource<FieldCommit>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -190,7 +190,7 @@ FieldCommitsHolder::Load(ID_TYPE id) {
 bool
 FieldCommitsHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemoveFieldCommit(id);
+    bool ok = store.RemoveResource<FieldCommit>(id);
     return ok;
 }
 

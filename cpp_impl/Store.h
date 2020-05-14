@@ -39,7 +39,7 @@ using SegmentFileMap = std::map<ID_TYPE, SegmentFilePtr>;
 
 class Store {
 public:
-    using ResourcesT = std::tuple<CollectionCommit::MapT, SchemaCommit::MapT>;
+    using ResourcesT = std::tuple<CollectionCommit::MapT, SchemaCommit::MapT, FieldCommit::MapT>;
 
     static Store& GetInstance() {
         static Store store;
@@ -105,27 +105,6 @@ public:
         id_collections_.erase(it);
         name_collections_.erase(name);
         std::cout << ">>> [Remove] Collection " << id << std::endl;
-        return true;
-    }
-
-    FieldCommitPtr GetFieldCommit(ID_TYPE id) {
-        auto it = field_commits_.find(id);
-        if (it == field_commits_.end()) {
-            return nullptr;
-        }
-        std::cout << "<<< [Load] FieldCommit " << id << std::endl;
-        auto& c = it->second;
-        return std::make_shared<FieldCommit>(*c);
-    }
-
-    bool RemoveFieldCommit(ID_TYPE id) {
-        auto it = field_commits_.find(id);
-        if (it == field_commits_.end()) {
-            return false;
-        }
-
-        field_commits_.erase(it);
-        std::cout << ">>> [Remove] FieldCommit " << id << std::endl;
         return true;
     }
 
@@ -371,14 +350,15 @@ public:
     }
 
     FieldCommitPtr CreateFieldCommit(FieldCommit&& field_commit) {
+        auto& resources = std::get<FieldCommit::MapT>(resources_);
         auto fc = std::make_shared<FieldCommit>(field_commit);
         fc->SetID(++f_c_id_);
-        field_commits_[fc->GetID()] = fc;
-        return GetFieldCommit(fc->GetID());
+        resources[fc->GetID()] = fc;
+        return GetResource<FieldCommit>(fc->GetID());
     }
 
     SchemaCommitPtr CreateSchemaCommit(SchemaCommit&& schema_commit) {
-        auto& resources = std::get<1>(resources_);
+        auto& resources = std::get<SchemaCommit::MapT>(resources_);
         auto sc = std::make_shared<SchemaCommit>(schema_commit);
         sc->SetID(++s_c_id_);
         resources[sc->GetID()] = sc;
@@ -400,7 +380,7 @@ public:
     }
 
     CollectionCommitPtr CreateCollectionCommit(CollectionCommit&& collection_commit) {
-        auto& resources = std::get<0>(resources_);
+        auto& resources = std::get<CollectionCommit::MapT>(resources_);
         auto cc = std::make_shared<CollectionCommit>(collection_commit);
         cc->SetID(++c_c_id_);
         resources[cc->GetID()] = cc;
@@ -526,7 +506,7 @@ private:
                     p_c_m.push_back(s_c->GetID());
                     auto& schema_m = schema->GetMappings();
                     for (auto field_commit_id : schema_m) {
-                        auto& field_commit = field_commits_[field_commit_id];
+                        auto& field_commit = std::get<FieldCommit::MapT>(resources_)[field_commit_id];
                         auto& f_c_m = field_commit->GetMappings();
                         for (auto field_element_id : f_c_m) {
                             auto sf = CreateSegmentFile(SegmentFile(p->GetID(), s->GetID(), field_commit_id));

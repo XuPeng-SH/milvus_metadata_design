@@ -211,6 +211,8 @@ class FieldCommit : public DBBaseResource<CollectionIdField,
                                           CreatedOnField>
 {
 public:
+    using Ptr = std::shared_ptr<FieldCommit>;
+    using MapT = std::map<ID_TYPE, Ptr>;
     using BaseT = DBBaseResource<CollectionIdField, FieldIdField, MappingsField,
           IdField, StatusField, CreatedOnField>;
     static constexpr const char* Name = "FieldCommit";
@@ -219,7 +221,7 @@ public:
             State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
-using FieldCommitPtr = std::shared_ptr<FieldCommit>;
+using FieldCommitPtr = FieldCommit::Ptr;
 
 class FieldElement : public DBBaseResource<CollectionIdField,
                                            FieldIdField,
