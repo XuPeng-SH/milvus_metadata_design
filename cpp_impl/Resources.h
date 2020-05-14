@@ -52,6 +52,12 @@ public:
     bool IsActive() const {return status_ == ACTIVE;}
     bool IsDeactive() const {return status_ == DEACTIVE;}
 
+    bool Activate() {
+        if (IsDeactive()) return false;
+        status_ = ACTIVE;
+        return true;
+    }
+
 protected:
     State status_;
 };
@@ -70,6 +76,7 @@ public:
     IdField(ID_TYPE id) : id_(id) {}
     ID_TYPE GetID() const { return id_; };
     void SetID(ID_TYPE id) {id_ = id;}
+    bool IsFromStore() { return id_ > 0; }
 
 protected:
     ID_TYPE id_;

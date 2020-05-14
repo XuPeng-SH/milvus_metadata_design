@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sstream>
+#include <any>
 
 template <class T, class Tuple>
 struct Index;
@@ -217,11 +218,13 @@ private:
         int random;
         random = rand() % 2 + 4;
         IDS_TYPE empty_mappings = {};
+        std::vector<std::any> all_records;
         for (auto i=1; i<=random; i++) {
             std::stringstream name;
             name << "c_" << std::get<Index<Collection::MapT, MockResourcesT>::value>(ids_) + 1;
 
             auto c = CreateCollection(Collection(name.str()));
+            all_records.push_back(c);
 
             IDS_TYPE schema_c_m;
             int random_fields = rand() % 2 + 1;
@@ -229,6 +232,7 @@ private:
                 std::stringstream fname;
                 fname << "f_" << fi << "_" << std::get<Index<Field::MapT, MockResourcesT>::value>(ids_) + 1;
                 auto field = CreateResource<Field>(Field(fname.str(), fi));
+                all_records.push_back(field);
                 IDS_TYPE f_c_m = {};
 
                 int random_elements = rand() % 2 + 2;
@@ -237,30 +241,38 @@ private:
                     fename << "fe_" << fei << "_" << std::get<Index<FieldElement::MapT, MockResourcesT>::value>(ids_) + 1;
 
                     auto element = CreateResource<FieldElement>(FieldElement(c->GetID(), field->GetID(), fename.str(), fei));
+                    all_records.push_back(element);
                     f_c_m.push_back(element->GetID());
                 }
                 auto f_c = CreateResource<FieldCommit>(FieldCommit(c->GetID(), field->GetID(), f_c_m));
+                all_records.push_back(f_c);
                 schema_c_m.push_back(f_c->GetID());
             }
 
             auto schema = CreateResource<SchemaCommit>(SchemaCommit(c->GetID(), schema_c_m));
+            all_records.push_back(schema);
 
             auto c_c = CreateResource<CollectionCommit>(CollectionCommit(c->GetID(), schema->GetID(), empty_mappings));
+            all_records.push_back(c_c);
 
             int random_partitions = rand() % 2 + 1;
             for (auto pi=1; pi<=random_partitions; ++pi) {
                 std::stringstream pname;
                 pname << "p_" << i << "_" << std::get<Index<Partition::MapT, MockResourcesT>::value>(ids_) + 1;
                 auto p = CreateResource<Partition>(Partition(pname.str(), c->GetID()));
+                all_records.push_back(p);
 
                 auto p_c = CreateResource<PartitionCommit>(PartitionCommit(c->GetID(), p->GetID(), empty_mappings));
+                all_records.push_back(p_c);
                 auto& c_c_m = c_c->GetMappings();
                 c_c_m.push_back(p_c->GetID());
 
                 int random_segments = rand() % 2 + 1;
                 for (auto si=1; si<=random_segments; ++si) {
                     auto s = CreateResource<Segment>(Segment(p->GetID()));
+                    all_records.push_back(s);
                     auto s_c = CreateResource<SegmentCommit>(SegmentCommit(schema->GetID(), p->GetID(), s->GetID(), empty_mappings));
+                    all_records.push_back(s_c);
                     auto& p_c_m = p_c->GetMappings();
                     p_c_m.push_back(s_c->GetID());
                     auto& schema_m = schema->GetMappings();
@@ -269,12 +281,22 @@ private:
                         auto& f_c_m = field_commit->GetMappings();
                         for (auto field_element_id : f_c_m) {
                             auto sf = CreateResource<SegmentFile>(SegmentFile(p->GetID(), s->GetID(), field_commit_id));
+                            all_records.push_back(sf);
 
                             auto& s_c_m = s_c->GetMappings();
                             s_c_m.push_back(sf->GetID());
                         }
                     }
                 }
+            }
+        }
+        for (auto& record : all_records) {
+            if (record.type() == typeid(std::shared_ptr<Collection>)) {
+                const auto& r = std::any_cast<std::shared_ptr<Collection>>(record);
+                r->Activate();
+            } else if (record.type() == typeid(std::shared_ptr<CollectionCommit>)) {
+                const auto& r = std::any_cast<std::shared_ptr<CollectionCommit>>(record);
+                r->Activate();
             }
         }
     }
