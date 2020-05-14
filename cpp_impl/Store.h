@@ -108,17 +108,6 @@ public:
         return true;
     }
 
-    SchemaCommitPtr GetSchemaCommit(ID_TYPE id) {
-        auto it = schema_commits_.find(id);
-        if (it == schema_commits_.end()) {
-            return nullptr;
-        }
-        std::cout << "<<< [Load] SchemaCommit " << id << std::endl;
-        auto& c = it->second;
-        auto ret = std::make_shared<SchemaCommit>(*c);
-        return ret;
-    }
-
     bool RemoveSchemaCommit(ID_TYPE id) {
         auto it = schema_commits_.find(id);
         if (it == schema_commits_.end()) {
