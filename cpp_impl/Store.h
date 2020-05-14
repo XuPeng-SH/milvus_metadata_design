@@ -7,6 +7,23 @@
 #include <time.h>
 #include <sstream>
 
+using CollectionMap = std::map<ID_TYPE, CollectionPtr>;
+    /* std::map<std::string, CollectionPtr> name_collections_; */
+using SchemaCommitMap = std::map<ID_TYPE, SchemaCommitPtr>;
+using FieldCommitMap = std::map<ID_TYPE, FieldCommitPtr>;
+using FieldMap = std::map<ID_TYPE, FieldPtr>;
+using FieldElementMap = std::map<ID_TYPE, FieldElementPtr>;
+
+using CollectionCommitMap = std::map<ID_TYPE, CollectionCommitPtr>;
+using PartitionMap = std::map<ID_TYPE, PartitionPtr>;
+using PartitionCommitMap = std::map<ID_TYPE, PartitionCommitPtr>;
+
+using SegmentMap = std::map<ID_TYPE, SegmentPtr>;
+using SegmentCommitMap = std::map<ID_TYPE, SegmentCommitPtr>;
+
+using SegmentFileMap = std::map<ID_TYPE, SegmentFilePtr>;
+
+
 class Store {
 public:
     static Store& GetInstance() {
@@ -15,9 +32,16 @@ public:
     }
 
     template<typename ...ResourceT>
-    void DoCommit(ResourceT&&... resources) {
+    bool DoCommit(ResourceT&&... resources) {
         auto t = std::make_tuple(resources...);
-        std::apply([](auto&&... resource) {((std::cout << resource.GetID() << "\n"), ...);}, t);
+        std::apply([this](auto&&... resource) {((std::cout << CommitResource(resource) << "\n"), ...);}, t);
+        return true;
+    }
+
+    template<typename ResourceT>
+    bool CommitResource(ResourceT&& resource) {
+        std::cout << "Commit " << resource.GetID() << std::endl;
+        return true;
     }
 
     CollectionPtr GetCollection(ID_TYPE id) {
@@ -141,8 +165,9 @@ public:
     }
 
     CollectionCommitPtr GetCollectionCommit(ID_TYPE id) {
-        auto it = collection_commit_.find(id);
-        if (it == collection_commit_.end()) {
+        auto& resources = std::get<0>(resources_);
+        auto it = resources.find(id);
+        if (it == resources.end()) {
             return nullptr;
         }
         std::cout << "<<< [Load] CollectionCommit " << id << std::endl;
@@ -152,12 +177,13 @@ public:
     }
 
     bool RemoveCollectionCommit(ID_TYPE id) {
-        auto it = collection_commit_.find(id);
-        if (it == collection_commit_.end()) {
+        auto& resources = std::get<0>(resources_);
+        auto it = resources.find(id);
+        if (it == resources.end()) {
             return false;
         }
 
-        collection_commit_.erase(it);
+        resources.erase(it);
         std::cout << ">>> [Remove] CollectionCommit " << id << std::endl;
         return true;
     }
@@ -288,14 +314,15 @@ public:
 
     IDS_TYPE AllActiveCollectionCommitIds(ID_TYPE collection_id, bool reversed = true) const {
         IDS_TYPE ids;
+        auto& resources = std::get<0>(resources_);
         if (!reversed) {
-            for (auto& kv : collection_commit_) {
+            for (auto& kv : resources) {
                 if (kv.second->GetCollectionId() == collection_id) {
                     ids.push_back(kv.first);
                 }
             }
         } else {
-            for (auto kv = collection_commit_.rbegin(); kv != collection_commit_.rend(); ++kv) {
+            for (auto kv = resources.rbegin(); kv != resources.rend(); ++kv) {
                 if (kv->second->GetCollectionId() == collection_id) {
                     ids.push_back(kv->first);
                 }
@@ -363,9 +390,10 @@ public:
     }
 
     CollectionCommitPtr CreateCollectionCommit(CollectionCommit&& collection_commit) {
+        auto& resources = std::get<0>(resources_);
         auto cc = std::make_shared<CollectionCommit>(collection_commit);
         cc->SetID(++c_c_id_);
-        collection_commit_[cc->GetID()] = cc;
+        resources[cc->GetID()] = cc;
         return GetCollectionCommit(cc->GetID());
     }
 
@@ -514,6 +542,9 @@ private:
     ID_TYPE seg_id_ = 0;
     ID_TYPE seg_c_id_ = 0;
     ID_TYPE seg_f_id_ = 0;
+
+    std::tuple<CollectionCommitMap> resources_;
+
     std::map<ID_TYPE, CollectionPtr> id_collections_;
     std::map<std::string, CollectionPtr> name_collections_;
 
@@ -522,7 +553,6 @@ private:
     std::map<ID_TYPE, FieldPtr> fields_;
     std::map<ID_TYPE, FieldElementPtr> field_elements_;
 
-    std::map<ID_TYPE, CollectionCommitPtr> collection_commit_;
     std::map<ID_TYPE, PartitionPtr> partitions_;
     std::map<ID_TYPE, PartitionCommitPtr> partition_commits_;
 
