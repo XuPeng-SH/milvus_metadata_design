@@ -20,21 +20,6 @@ struct Index<T, std::tuple<U, Types...>> {
     static const std::size_t value = 1 + Index<T, std::tuple<Types...>>::value;
 };
 
-using CollectionMap = std::map<ID_TYPE, CollectionPtr>;
-using SchemaCommitMap = std::map<ID_TYPE, SchemaCommitPtr>;
-using FieldCommitMap = std::map<ID_TYPE, FieldCommitPtr>;
-using FieldMap = std::map<ID_TYPE, FieldPtr>;
-using FieldElementMap = std::map<ID_TYPE, FieldElementPtr>;
-
-using CollectionCommitMap = std::map<ID_TYPE, CollectionCommitPtr>;
-using PartitionMap = std::map<ID_TYPE, PartitionPtr>;
-using PartitionCommitMap = std::map<ID_TYPE, PartitionCommitPtr>;
-
-using SegmentMap = std::map<ID_TYPE, SegmentPtr>;
-using SegmentCommitMap = std::map<ID_TYPE, SegmentCommitPtr>;
-
-using SegmentFileMap = std::map<ID_TYPE, SegmentFilePtr>;
-
 
 class Store {
 public:
