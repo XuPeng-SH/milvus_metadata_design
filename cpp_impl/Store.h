@@ -19,7 +19,6 @@ template <class T, class U, class... Types>
 struct Index<T, std::tuple<U, Types...>> {
     static const std::size_t value = 1 + Index<T, std::tuple<Types...>>::value;
 };
-    /* std::map<std::string, CollectionPtr> name_collections_; */
 
 using CollectionMap = std::map<ID_TYPE, CollectionPtr>;
 using SchemaCommitMap = std::map<ID_TYPE, SchemaCommitPtr>;
@@ -164,14 +163,6 @@ public:
         return GetResource<Collection>(c->GetID());
     }
 
-    /* CollectionPtr CreateCollection(const Collection& collection) { */
-    /*     auto ret = std::make_shared<Collection>(collection); */
-    /*     ret->SetID(++c_id_); */
-    /*     id_collections_[ret->GetID()] = ret; */
-    /*     name_collections_[ret->GetName()] = ret; */
-    /*     return GetCollection(ret->GetID()); */
-    /* } */
-
     FieldPtr CreateField(Field&& field) {
         auto& resources = std::get<Field::MapT>(resources_);
         auto f = std::make_shared<Field>(field);
@@ -298,7 +289,6 @@ private:
         int random;
         random = rand() % 2 + 4;
         IDS_TYPE empty_mappings = {};
-        /* int field_element_id = 1; */
         for (auto i=1; i<=random; i++) {
             std::stringstream name;
             name << "c_" << (c_id_ + 1);
@@ -351,7 +341,6 @@ private:
                         auto& f_c_m = field_commit->GetMappings();
                         for (auto field_element_id : f_c_m) {
                             auto sf = CreateSegmentFile(SegmentFile(p->GetID(), s->GetID(), field_commit_id));
-                            /* std::cout << "\tP=" << p->GetID() << " FID=" << field_commit->GetFieldId() <<  " FEI=" << field_element_id << " SEG=" << s->GetID() << " SF=" << sf->GetID() << std::endl; */
 
                             auto& s_c_m = s_c->GetMappings();
                             s_c_m.push_back(sf->GetID());
@@ -377,17 +366,4 @@ private:
     ResourcesT resources_;
 
     std::map<std::string, CollectionPtr> name_collections_;
-
-    std::map<ID_TYPE, SchemaCommitPtr> schema_commits_;
-    std::map<ID_TYPE, FieldCommitPtr> field_commits_;
-    std::map<ID_TYPE, FieldPtr> fields_;
-    std::map<ID_TYPE, FieldElementPtr> field_elements_;
-
-    std::map<ID_TYPE, PartitionPtr> partitions_;
-    std::map<ID_TYPE, PartitionCommitPtr> partition_commits_;
-
-    std::map<ID_TYPE, SegmentPtr> segments_;
-    std::map<ID_TYPE, SegmentCommitPtr> segment_commits_;
-
-    std::map<ID_TYPE, SegmentFilePtr> segment_files_;
 };
