@@ -44,7 +44,7 @@ public:
 
     template<typename ...ResourceT>
     bool DoCommit(ResourceT&&... resources) {
-        auto t = std::make_tuple(resources...);
+        auto t = std::make_tuple(std::forward<ResourceT>(resources)...);
         std::apply([this](auto&&... resource) {((std::cout << CommitResource(resource) << "\n"), ...);}, t);
         return true;
     }
@@ -52,6 +52,8 @@ public:
     template<typename ResourceT>
     bool CommitResource(ResourceT&& resource) {
         std::cout << "Commit " << resource.Name << " " << resource.GetID() << std::endl;
+        auto res = CreateResource<typename std::remove_reference<ResourceT>::type>(std::move(resource));
+        if (!res) return false;
         return true;
     }
 
