@@ -362,6 +362,9 @@ public:
 
     bool DropCollection(const std::string& name);
 
+    template<typename ...ResourceT>
+    bool Flush(ResourceT&&... resources);
+
 private:
     void SnapshotGCCallback(Snapshot::Ptr ss_ptr);
     Snapshots() {
@@ -378,6 +381,13 @@ private:
     std::map<std::string, ID_TYPE> name_id_map_;
     std::vector<Snapshot::Ptr> to_release_;
 };
+
+template<typename ...ResourceT>
+bool Snapshots::Flush(ResourceT&&... resources) {
+    auto t = std::make_tuple(resources...);
+    std::apply([](auto&&... args) {((std::cout << args << "\n"), ...);}, t);
+    return true;
+}
 
 bool
 Snapshots::DropCollection(const std::string& name) {

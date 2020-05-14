@@ -14,6 +14,12 @@ public:
         return store;
     }
 
+    template<typename ...ResourceT>
+    void DoCommit(ResourceT&&... resources) {
+        auto t = std::make_tuple(resources...);
+        std::apply([](auto&&... resource) {((std::cout << resource.GetID() << "\n"), ...);}, t);
+    }
+
     CollectionPtr GetCollection(ID_TYPE id) {
         auto it = id_collections_.find(id);
         if (it == id_collections_.end()) {
@@ -477,8 +483,6 @@ private:
                 int random_segments = rand() % 2 + 1;
                 for (auto si=1; si<=random_segments; ++si) {
                     auto s = CreateSegment(Segment(p->GetID()));
-                    /* auto s_c = std::make_shared<SegmentCommit>(schema->GetID(), p->GetID(), s->GetID(), empty_mappings, seg_c_id_); */
-                    /* segment_commits_[s_c->GetID()] = s_c; */
                     auto s_c = CreateSegmentCommit(SegmentCommit(schema->GetID(), p->GetID(), s->GetID(), empty_mappings));
                     auto& p_c_m = p_c->GetMappings();
                     p_c_m.push_back(s_c->GetID());

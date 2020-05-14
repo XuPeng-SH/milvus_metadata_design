@@ -100,6 +100,11 @@ int main() {
     }
 
     /* holder->GetSnapshot()->GetPartitionNames(); */
+    Collection ccc("CCC");
+    ccc.SetID(111);
+    Segment seg(1);
+    seg.SetID(222);
+    Store::GetInstance().DoCommit(ccc, seg);
 
     return 0;
 }
