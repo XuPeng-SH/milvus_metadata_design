@@ -184,14 +184,6 @@ public:
         return GetResource<Field>(f->GetID());
     }
 
-    PartitionPtr CreatePartition(Partition&& partition) {
-        auto& resources = std::get<Partition::MapT>(resources_);
-        auto p = std::make_shared<Partition>(partition);
-        p->SetID(++p_id_);
-        resources[p->GetID()] = p;
-        return GetResource<Partition>(p->GetID());
-    }
-
     PartitionCommitPtr CreatePartitionCommit(PartitionCommit&& partition_commit) {
         auto& resources = std::get<PartitionCommit::MapT>(resources_);
         auto pc = std::make_shared<PartitionCommit>(partition_commit);
@@ -260,7 +252,7 @@ public:
         auto schema_commit = CreateResource<SchemaCommit>(SchemaCommit(collection->GetID(), field_commit_ids));
 
         IDS_TYPE empty_mappings = {};
-        auto partition = CreatePartition(Partition("_default", collection->GetID()));
+        auto partition = CreateResource<Partition>(Partition("_default", collection->GetID()));
         auto partition_commit = CreatePartitionCommit(PartitionCommit(collection->GetID(), partition->GetID(),
                     empty_mappings));
         auto collection_commit = CreateCollectionCommit(CollectionCommit(collection->GetID(),
@@ -312,7 +304,7 @@ private:
             for (auto pi=1; pi<=random_partitions; ++pi) {
                 std::stringstream pname;
                 pname << "p_" << i << "_" << p_id_ + 1;
-                auto p = CreatePartition(Partition(pname.str(), c->GetID()));
+                auto p = CreateResource<Partition>(Partition(pname.str(), c->GetID()));
 
                 auto p_c = CreatePartitionCommit(PartitionCommit(c->GetID(), p->GetID(), empty_mappings));
                 auto& c_c_m = c_c->GetMappings();
