@@ -184,14 +184,6 @@ public:
         return GetResource<Field>(f->GetID());
     }
 
-    FieldCommitPtr CreateFieldCommit(FieldCommit&& field_commit) {
-        auto& resources = std::get<FieldCommit::MapT>(resources_);
-        auto fc = std::make_shared<FieldCommit>(field_commit);
-        fc->SetID(++f_c_id_);
-        resources[fc->GetID()] = fc;
-        return GetResource<FieldCommit>(fc->GetID());
-    }
-
     SchemaCommitPtr CreateSchemaCommit(SchemaCommit&& schema_commit) {
         auto& resources = std::get<SchemaCommit::MapT>(resources_);
         auto sc = std::make_shared<SchemaCommit>(schema_commit);
@@ -270,7 +262,7 @@ public:
                             element_name, element_type));
                 element_ids.push_back(element->GetID());
             }
-            auto field_commit = CreateFieldCommit(FieldCommit(collection->GetID(), field->GetID(), element_ids));
+            auto field_commit = CreateResource<FieldCommit>(FieldCommit(collection->GetID(), field->GetID(), element_ids));
             field_commit_ids.push_back(field_commit->GetID());
         }
         auto schema_commit = CreateSchemaCommit(SchemaCommit(collection->GetID(), field_commit_ids));
@@ -316,7 +308,7 @@ private:
                     auto element = CreateResource<FieldElement>(FieldElement(c->GetID(), field->GetID(), fename.str(), fei));
                     f_c_m.push_back(element->GetID());
                 }
-                auto f_c = CreateFieldCommit(FieldCommit(c->GetID(), field->GetID(), f_c_m));
+                auto f_c = CreateResource<FieldCommit>(FieldCommit(c->GetID(), field->GetID(), f_c_m));
                 schema_c_m.push_back(f_c->GetID());
             }
 
