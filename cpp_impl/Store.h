@@ -370,6 +370,13 @@ public:
         return GetSegmentFile(sf->GetID());
     }
 
+    SegmentPtr CreateSegment(Segment&& segment) {
+        auto s = std::make_shared<Segment>(segment);
+        s->SetID(++seg_id_);
+        segments_[s->GetID()] = s;
+        return GetSegment(s->GetID());
+    }
+
     CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
         auto collection = CreateCollection(Collection(collection_schema.name()));
         IDS_TYPE field_commit_ids = {};
@@ -462,10 +469,8 @@ private:
 
                 int random_segments = rand() % 2 + 1;
                 for (auto si=1; si<=random_segments; ++si) {
-                    seg_id_++;
                     seg_c_id_++;
-                    auto s = std::make_shared<Segment>(p->GetID(), seg_id_);
-                    segments_[seg_id_] = s;
+                    auto s = CreateSegment(Segment(p->GetID()));
                     auto s_c = std::make_shared<SegmentCommit>(schema->GetID(), p->GetID(), s->GetID(), empty_mappings, seg_c_id_);
                     segment_commits_[s_c->GetID()] = s_c;
                     auto& p_c_m = p_c->GetMappings();
