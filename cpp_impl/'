@@ -166,7 +166,7 @@ public:
     }
 
     template <typename ResourceT>
-    typename ResourceT::Ptr
+    ResourceT::Ptr
     CreateResource(ResourceT&& resource) {
         auto& resources = std::get<ResourceT::MapT>(resources_);
         auto res = std::make_shared<ResourceT>(resource);
