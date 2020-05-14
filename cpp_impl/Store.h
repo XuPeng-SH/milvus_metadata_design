@@ -176,54 +176,6 @@ public:
         return GetResource<ResourceT>(res->GetID());
     }
 
-    FieldPtr CreateField(Field&& field) {
-        auto& resources = std::get<Field::MapT>(resources_);
-        auto f = std::make_shared<Field>(field);
-        f->SetID(++f_id_);
-        resources[f->GetID()] = f;
-        return GetResource<Field>(f->GetID());
-    }
-
-    PartitionCommitPtr CreatePartitionCommit(PartitionCommit&& partition_commit) {
-        auto& resources = std::get<PartitionCommit::MapT>(resources_);
-        auto pc = std::make_shared<PartitionCommit>(partition_commit);
-        pc->SetID(++p_c_id_);
-        resources[pc->GetID()] = pc;
-        return GetResource<PartitionCommit>(pc->GetID());
-    }
-
-    CollectionCommitPtr CreateCollectionCommit(CollectionCommit&& collection_commit) {
-        auto& resources = std::get<CollectionCommit::MapT>(resources_);
-        auto cc = std::make_shared<CollectionCommit>(collection_commit);
-        cc->SetID(++c_c_id_);
-        resources[cc->GetID()] = cc;
-        return GetResource<CollectionCommit>(cc->GetID());
-    }
-
-    SegmentFilePtr CreateSegmentFile(SegmentFile&& segment_file) {
-        auto& resources = std::get<SegmentFile::MapT>(resources_);
-        auto sf = std::make_shared<SegmentFile>(segment_file);
-        sf->SetID(++seg_f_id_);
-        resources[sf->GetID()] = sf;
-        return GetResource<SegmentFile>(sf->GetID());
-    }
-
-    SegmentPtr CreateSegment(Segment&& segment) {
-        auto& resources = std::get<Segment::MapT>(resources_);
-        auto s = std::make_shared<Segment>(segment);
-        s->SetID(++seg_id_);
-        resources[s->GetID()] = s;
-        return GetResource<Segment>(s->GetID());
-    }
-
-    SegmentCommitPtr CreateSegmentCommit(SegmentCommit&& segment_commit) {
-        auto& resources = std::get<SegmentCommit::MapT>(resources_);
-        auto sc = std::make_shared<SegmentCommit>(segment_commit);
-        sc->SetID(++seg_c_id_);
-        resources[sc->GetID()] = sc;
-        return GetResource<SegmentCommit>(sc->GetID());
-    }
-
     CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
         auto collection = CreateCollection(Collection(collection_schema.name()));
         IDS_TYPE field_commit_ids = {};
@@ -232,7 +184,7 @@ public:
             auto& field_name = field_schema.name();
             auto& field_info = field_schema.info();
             auto field_type = field_info.type();
-            auto field = CreateField(Field(field_name, i));
+            auto field = CreateResource<Field>(Field(field_name, i));
             IDS_TYPE element_ids = {};
             auto raw_element = CreateResource<FieldElement>(FieldElement(collection->GetID(),
                         field->GetID(), "RAW", 1));
@@ -253,9 +205,9 @@ public:
 
         IDS_TYPE empty_mappings = {};
         auto partition = CreateResource<Partition>(Partition("_default", collection->GetID()));
-        auto partition_commit = CreatePartitionCommit(PartitionCommit(collection->GetID(), partition->GetID(),
+        auto partition_commit = CreateResource<PartitionCommit>(PartitionCommit(collection->GetID(), partition->GetID(),
                     empty_mappings));
-        auto collection_commit = CreateCollectionCommit(CollectionCommit(collection->GetID(),
+        auto collection_commit = CreateResource<CollectionCommit>(CollectionCommit(collection->GetID(),
                     schema_commit->GetID(), {partition_commit->GetID()}));
         return collection;
     }
@@ -281,7 +233,7 @@ private:
             for (auto fi=1; fi<=random_fields; ++fi) {
                 std::stringstream fname;
                 fname << "f_" << fi << "_" << f_id_ + 1;
-                auto field = CreateField(Field(fname.str(), fi));
+                auto field = CreateResource<Field>(Field(fname.str(), fi));
                 IDS_TYPE f_c_m = {};
 
                 int random_elements = rand() % 2 + 2;
@@ -298,7 +250,7 @@ private:
 
             auto schema = CreateResource<SchemaCommit>(SchemaCommit(c->GetID(), schema_c_m));
 
-            auto c_c = CreateCollectionCommit(CollectionCommit(c->GetID(), schema->GetID(), empty_mappings));
+            auto c_c = CreateResource<CollectionCommit>(CollectionCommit(c->GetID(), schema->GetID(), empty_mappings));
 
             int random_partitions = rand() % 2 + 1;
             for (auto pi=1; pi<=random_partitions; ++pi) {
@@ -306,14 +258,14 @@ private:
                 pname << "p_" << i << "_" << p_id_ + 1;
                 auto p = CreateResource<Partition>(Partition(pname.str(), c->GetID()));
 
-                auto p_c = CreatePartitionCommit(PartitionCommit(c->GetID(), p->GetID(), empty_mappings));
+                auto p_c = CreateResource<PartitionCommit>(PartitionCommit(c->GetID(), p->GetID(), empty_mappings));
                 auto& c_c_m = c_c->GetMappings();
                 c_c_m.push_back(p_c->GetID());
 
                 int random_segments = rand() % 2 + 1;
                 for (auto si=1; si<=random_segments; ++si) {
-                    auto s = CreateSegment(Segment(p->GetID()));
-                    auto s_c = CreateSegmentCommit(SegmentCommit(schema->GetID(), p->GetID(), s->GetID(), empty_mappings));
+                    auto s = CreateResource<Segment>(Segment(p->GetID()));
+                    auto s_c = CreateResource<SegmentCommit>(SegmentCommit(schema->GetID(), p->GetID(), s->GetID(), empty_mappings));
                     auto& p_c_m = p_c->GetMappings();
                     p_c_m.push_back(s_c->GetID());
                     auto& schema_m = schema->GetMappings();
@@ -321,7 +273,7 @@ private:
                         auto& field_commit = std::get<FieldCommit::MapT>(resources_)[field_commit_id];
                         auto& f_c_m = field_commit->GetMappings();
                         for (auto field_element_id : f_c_m) {
-                            auto sf = CreateSegmentFile(SegmentFile(p->GetID(), s->GetID(), field_commit_id));
+                            auto sf = CreateResource<SegmentFile>(SegmentFile(p->GetID(), s->GetID(), field_commit_id));
 
                             auto& s_c_m = s_c->GetMappings();
                             s_c_m.push_back(sf->GetID());
