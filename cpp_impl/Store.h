@@ -270,8 +270,6 @@ private:
         }
     }
 
-    ID_TYPE c_id_ = 0;
-
     MockResourcesT resources_;
     MockIDST ids_;
     std::map<std::string, CollectionPtr> name_collections_;
