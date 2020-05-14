@@ -44,6 +44,20 @@ public:
         return true;
     }
 
+    template<typename ResourceT>
+    std::shared_ptr<ResourceT>
+    GetResource(ID_TYPE id) {
+        auto& resources = std::get<0>(resources_);
+        auto it = resources.find(id);
+        if (it== resources.end()) {
+            return nullptr;
+        }
+        std::cout << "<<< [Load] " << ResourceT::Name << " " << id << std::endl;
+        auto& c = it->second;
+        auto ret = std::make_shared<ResourceT>(*c);
+        return ret;
+    }
+
     CollectionPtr GetCollection(ID_TYPE id) {
         auto it = id_collections_.find(id);
         if (it == id_collections_.end()) {
@@ -164,17 +178,19 @@ public:
         return true;
     }
 
-    CollectionCommitPtr GetCollectionCommit(ID_TYPE id) {
+    template<typename ResourceT>
+    bool RemoveResource(ID_TYPE id) {
         auto& resources = std::get<0>(resources_);
         auto it = resources.find(id);
         if (it == resources.end()) {
-            return nullptr;
+            return false;
         }
-        std::cout << "<<< [Load] CollectionCommit " << id << std::endl;
-        auto& c = it->second;
-        auto ret = std::make_shared<CollectionCommit>(*c);
-        return ret;
+
+        resources.erase(it);
+        std::cout << ">>> [Remove] " << ResourceT::Name << " " << id << std::endl;
+        return true;
     }
+
 
     bool RemoveCollectionCommit(ID_TYPE id) {
         auto& resources = std::get<0>(resources_);
@@ -394,7 +410,7 @@ public:
         auto cc = std::make_shared<CollectionCommit>(collection_commit);
         cc->SetID(++c_c_id_);
         resources[cc->GetID()] = cc;
-        return GetCollectionCommit(cc->GetID());
+        return GetResource<CollectionCommit>(cc->GetID());
     }
 
     SegmentFilePtr CreateSegmentFile(SegmentFile&& segment_file) {

@@ -233,7 +233,7 @@ FieldElementsHolder::HardDelete(ID_TYPE id) {
 CollectionCommitsHolder::ResourcePtr
 CollectionCommitsHolder::Load(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    auto c = store.GetCollectionCommit(id);
+    auto c = store.GetResource<CollectionCommit>(id);
     if (c) {
         AddNoLock(c);
         return c;
@@ -244,7 +244,7 @@ CollectionCommitsHolder::Load(ID_TYPE id) {
 bool
 CollectionCommitsHolder::HardDelete(ID_TYPE id) {
     auto& store = Store::GetInstance();
-    bool ok = store.RemoveCollectionCommit(id);
+    bool ok = store.RemoveResource<CollectionCommit>(id);
     return ok;
 }
 
