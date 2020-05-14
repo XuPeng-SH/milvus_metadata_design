@@ -160,6 +160,7 @@ class Collection : public DBBaseResource<NameField, IdField, StatusField, Create
 {
 public:
     using BaseT = DBBaseResource<NameField, IdField, StatusField, CreatedOnField>;
+    static constexpr const char* Name = "Collection";
 
     Collection(const std::string& name, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
@@ -176,6 +177,8 @@ class SchemaCommit : public DBBaseResource<CollectionIdField,
 {
 public:
     using BaseT = DBBaseResource<CollectionIdField, MappingsField, IdField, StatusField, CreatedOnField>;
+    static constexpr const char* Name = "SchemaCommit";
+
     SchemaCommit(ID_TYPE collection_id, const MappingT& mappings = {}, ID_TYPE id = 0,
             State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
@@ -190,6 +193,7 @@ class Field : public DBBaseResource<NameField,
 {
 public:
     using BaseT = DBBaseResource<NameField, NumField, IdField, StatusField, CreatedOnField>;
+    static constexpr const char* Name = "Field";
 
     Field(const std::string& name, NUM_TYPE num, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
@@ -207,6 +211,8 @@ class FieldCommit : public DBBaseResource<CollectionIdField,
 public:
     using BaseT = DBBaseResource<CollectionIdField, FieldIdField, MappingsField,
           IdField, StatusField, CreatedOnField>;
+    static constexpr const char* Name = "FieldCommit";
+
     FieldCommit(ID_TYPE collection_id, ID_TYPE field_id, const MappingT& mappings = {}, ID_TYPE id = 0,
             State status = PENDING, TS_TYPE created_on = GetMicroSecTimeStamp());
 };
@@ -222,6 +228,7 @@ class FieldElement : public DBBaseResource<CollectionIdField,
                                            CreatedOnField>
 {
 public:
+    static constexpr const char* Name = "FieldElement";
     using BaseT = DBBaseResource<CollectionIdField, FieldIdField, NameField,
           FtypeField, IdField, StatusField, CreatedOnField>;
     FieldElement(ID_TYPE collection_id, ID_TYPE field_id, const std::string& name, FTYPE_TYPE ftype,
@@ -238,6 +245,7 @@ class CollectionCommit : public DBBaseResource<CollectionIdField,
                                                CreatedOnField>
 {
 public:
+    static constexpr const char* Name = "CollectionCommit";
     using BaseT = DBBaseResource<CollectionIdField, SchemaIdField, MappingsField,
           IdField, StatusField, CreatedOnField>;
     CollectionCommit(ID_TYPE collection_id, ID_TYPE schema_id, const MappingT& mappings = {}, ID_TYPE id = 0,
@@ -253,6 +261,7 @@ class Partition : public DBBaseResource<NameField,
                                         CreatedOnField>
 {
 public:
+    static constexpr const char* Name = "Partition";
     using BaseT = DBBaseResource<NameField, CollectionIdField, IdField, StatusField, CreatedOnField>;
 
     Partition(const std::string& name, ID_TYPE collection_id, ID_TYPE id = 0, State status = PENDING,
@@ -269,6 +278,7 @@ class PartitionCommit : public DBBaseResource<CollectionIdField,
                                               CreatedOnField>
 {
 public:
+    static constexpr const char* Name = "PartitionCommit";
     using BaseT = DBBaseResource<CollectionIdField, PartitionIdField, MappingsField,
           IdField, StatusField, CreatedOnField>;
     PartitionCommit(ID_TYPE collection_id, ID_TYPE partition_id,
@@ -284,6 +294,7 @@ class Segment : public DBBaseResource<PartitionIdField,
                                       CreatedOnField>
 {
 public:
+    static constexpr const char* Name = "Segment";
     using BaseT = DBBaseResource<PartitionIdField, IdField, StatusField, CreatedOnField>;
 
     Segment(ID_TYPE partition_id, ID_TYPE id = 0, State status = PENDING,
@@ -301,6 +312,7 @@ class SegmentCommit : public DBBaseResource<SchemaIdField,
                                             CreatedOnField>
 {
 public:
+    static constexpr const char* Name = "SegmentCommit";
     using BaseT = DBBaseResource<SchemaIdField, PartitionIdField, SegmentIdField,
           MappingsField, IdField, StatusField, CreatedOnField>;
     SegmentCommit(ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE segment_id,
@@ -318,6 +330,7 @@ class SegmentFile : public DBBaseResource<PartitionIdField,
                                           CreatedOnField>
 {
 public:
+    static constexpr const char* Name = "SegmentFile";
     using BaseT = DBBaseResource<PartitionIdField, SegmentIdField, FieldElementIdField, IdField,
           StatusField, CreatedOnField>;
 

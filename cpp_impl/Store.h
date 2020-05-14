@@ -40,7 +40,7 @@ public:
 
     template<typename ResourceT>
     bool CommitResource(ResourceT&& resource) {
-        std::cout << "Commit " << resource.GetID() << std::endl;
+        std::cout << "Commit " << resource.Name << " " << resource.GetID() << std::endl;
         return true;
     }
 
@@ -543,7 +543,7 @@ private:
     ID_TYPE seg_c_id_ = 0;
     ID_TYPE seg_f_id_ = 0;
 
-    std::tuple<CollectionCommitMap> resources_;
+    std::tuple<CollectionCommitMap, SchemaCommitMap> resources_;
 
     std::map<ID_TYPE, CollectionPtr> id_collections_;
     std::map<std::string, CollectionPtr> name_collections_;
