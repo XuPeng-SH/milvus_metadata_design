@@ -75,15 +75,6 @@ public:
         }
     }
 
-    void ProcessOperationStep(const std::any& step_v) {
-        if (const auto it = any_vistors_.find(std::type_index(step_v.type()));
-                it != any_vistors_.cend()) {
-            it->second(step_v);
-        } else {
-            std::cerr << "Unregisted step type " << std::quoted(step_v.type().name());
-        }
-    }
-
     void StartTransanction() {}
     void FinishTransaction() {}
 
@@ -205,6 +196,9 @@ public:
     template <typename ResourceT>
     typename ResourceT::Ptr
     CreateResource(ResourceT&& resource) {
+        if (resource.HasAssigned()) {
+            return UpdateResource<ResourceT>(std::move(resource));
+        }
         auto& resources = std::get<typename ResourceT::MapT>(resources_);
         auto res = std::make_shared<ResourceT>(resource);
         auto& id = std::get<Index<typename ResourceT::MapT, MockResourcesT>::value>(ids_);
@@ -252,6 +246,16 @@ public:
     void Mock() { DoMock(); }
 
 private:
+
+    void ProcessOperationStep(const std::any& step_v) {
+        if (const auto it = any_vistors_.find(std::type_index(step_v.type()));
+                it != any_vistors_.cend()) {
+            it->second(step_v);
+        } else {
+            std::cerr << "Unregisted step type " << std::quoted(step_v.type().name());
+        }
+    }
+
     template<class T, class F>
     inline std::pair<const std::type_index, std::function<void(std::any const&)>>
         to_any_visitor(F const &f)
