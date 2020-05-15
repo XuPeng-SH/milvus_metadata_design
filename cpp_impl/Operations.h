@@ -157,5 +157,7 @@ BuildOperation::OnExecute() {
         return;
     }
 
+    std::any_cast<SegmentFile::Ptr>(new_segment_file)->Activate();
+
     BaseT::OnExecute();
 }

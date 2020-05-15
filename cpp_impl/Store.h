@@ -86,9 +86,9 @@ public:
         if (it== resources.end()) {
             return nullptr;
         }
-        std::cout << "<<< [Load] " << ResourceT::Name << " " << id << std::endl;
         auto& c = it->second;
         auto ret = std::make_shared<ResourceT>(*c);
+        std::cout << "<<< [Load] " << ResourceT::Name << " " << id << " IsActive=" << ret->IsActive() << std::endl;
         return ret;
     }
 
@@ -97,9 +97,9 @@ public:
         if (it == name_collections_.end()) {
             return nullptr;
         }
-        std::cout << "<<< [Load] Collection " << name << std::endl;
         auto& c = it->second;
         auto ret = std::make_shared<Collection>(*c);
+        std::cout << "<<< [Load] Collection " << name << std::endl;
         return ret;
     }
 
