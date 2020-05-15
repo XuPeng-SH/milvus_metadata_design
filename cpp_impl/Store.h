@@ -59,7 +59,12 @@ public:
         for(auto& step_v : op.GetSteps()) {
             if (step_v.type() == typeid(Collection::Ptr)) {
                 const auto& r = std::any_cast<Collection::Ptr>(step_v);
-                auto c = CreateResource<Collection>(Collection(*r));
+                if (!r->HasAssigned())
+                {
+                    auto c = CreateResource<Collection>(Collection(*r));
+                } else {
+                    auto c = UpdateResource<Collection>(Collection(*r));
+                }
             }
         }
     }
@@ -170,6 +175,17 @@ public:
         name_collections_[c->GetName()] = c;
         return GetResource<Collection>(c->GetID());
     }
+
+    template <typename ResourceT>
+    typename ResourceT::Ptr
+    UpdateResource(ResourceT&& resource) {
+        auto& resources = std::get<typename ResourceT::MapT>(resources_);
+        auto res = std::make_shared<ResourceT>(resource);
+        auto& id = std::get<Index<typename ResourceT::MapT, MockResourcesT>::value>(ids_);
+        resources[res->GetID()] = res;
+        return GetResource<ResourceT>(res->GetID());
+    }
+
 
     template <typename ResourceT>
     typename ResourceT::Ptr
