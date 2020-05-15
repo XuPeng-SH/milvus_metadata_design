@@ -6,5 +6,6 @@
 struct BuildContext {
     std::string field_name;
     std::string field_element_name;
+    ID_TYPE partition_id;
     ID_TYPE segment_id;
 };

@@ -79,6 +79,36 @@ Operations::OnExecute() {
     if (!ok) status_ = OP_FAIL_FLUSH_META;
 }
 
+class NewSegmentFileOperation : public Operations {
+public:
+    using BaseT = Operations;
+    NewSegmentFileOperation(ScopedSnapshotT prev_ss, const BuildContext& context)
+        : BaseT(prev_ss), context_(context) {};
+    NewSegmentFileOperation(const BuildContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(collection_id, commit_id), context_(context) {};
+
+    void OnExecute() override;
+
+    SegmentFile::Ptr GetSegmentFile() const {
+        if (status_ == OP_PENDING) return nullptr;
+        if (ids_.size() == 0) return nullptr;
+        auto r = std::make_shared<SegmentFile>(*std::any_cast<SegmentFile::Ptr>(steps_[0]));
+        r->SetID(ids_[0]);
+        return r;
+    }
+
+protected:
+    BuildContext context_;
+};
+
+void
+NewSegmentFileOperation::OnExecute() {
+    auto field_element_id = prev_ss_->GetFieldElementId(context_.field_name, context_.field_element_name);
+    auto sf = SegmentFile(context_.partition_id, context_.segment_id, field_element_id);
+    AddStep(sf);
+    BaseT::OnExecute();
+}
+
 class BuildOperation : public Operations {
 public:
     static constexpr const char* Name = "Build";
@@ -116,7 +146,7 @@ BuildOperation::OnExecute() {
     /* } */
 
     auto& new_segment_file = steps_[0];
-    if (new_segment_file.type() == typeid(SegmentFile)) {
+    if (new_segment_file.type() != typeid(SegmentFile::Ptr)) {
         status_ = OP_FAIL_INVALID_PARAMS;
         return;
     }

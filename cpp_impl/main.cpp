@@ -115,6 +115,7 @@ int main() {
     context.field_name = "f_1_1";
     context.field_element_name = "fe_1_1";
     context.segment_id = 1;
+    context.partition_id = 1;
     BuildOperation b1(context, 1);
     auto prev_ss = b1.GetPrevSnapshot();
     cout << "Prev b1 SS " << prev_ss->GetName() << " RefCnt=" << prev_ss->RefCnt() << endl;
@@ -122,13 +123,18 @@ int main() {
         std::cout << "FieldName: " << name << std::endl;
     }
 
-    BuildOperation build(prev_ss, context);
-    cout << "Prev Build SS " << build.GetPrevSnapshot()->GetName() << " RefCnt=" << build.GetPrevSnapshot()->RefCnt() << endl;
-    auto ddd = make_shared<Collection>("DDD");
-    ddd->SetID(20);
-    build.AddStep(*ddd);
+    /* BuildOperation build(prev_ss, context); */
+    /* cout << "Prev Build SS " << build.GetPrevSnapshot()->GetName() << " RefCnt=" << build.GetPrevSnapshot()->RefCnt() << endl; */
 
-    build.OnExecute();
+    NewSegmentFileOperation new_sf_op(prev_ss, context);
+    new_sf_op.OnExecute();
+
+    auto segment_file = new_sf_op.GetSegmentFile();
+    b1.AddStep(*segment_file);
+    b1.OnExecute();
+
+
+    /* build.OnExecute(); */
 
     /* for(auto id : prev_ss->GetSegmentIds()) { */
     /*     std::cout << "Segment id=" << id << std::endl; */
@@ -145,6 +151,11 @@ int main() {
     /* for(auto name : prev_ss->GetFieldNames()) { */
     /*     std::cout << "Field name=" << name << std::endl; */
     /* } */
+
+    /* for(auto id : prev_ss->GetPartitionIds()) { */
+    /*     std::cout << "Partition id=" << id << std::endl; */
+    /* } */
+
 
     return 0;
 }

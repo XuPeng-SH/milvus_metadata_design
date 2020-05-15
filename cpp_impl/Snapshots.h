@@ -61,6 +61,14 @@ public:
         return names;
     }
 
+    IDS_TYPE GetPartitionIds() const {
+        IDS_TYPE ids;
+        for(auto& kv : partitions_) {
+            ids.push_back(kv.first);
+        }
+        return std::move(ids);
+    }
+
     std::vector<std::string> GetFieldNames() const {
         std::vector<std::string> names;
         for(auto& kv : field_names_map_) {
