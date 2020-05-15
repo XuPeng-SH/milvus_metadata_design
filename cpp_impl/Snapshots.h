@@ -78,14 +78,19 @@ public:
         return id > 0;
     }
 
-    bool HasSegmentFile(const std::string& field_name, const std::string& field_element_name) const {
-
+    ID_TYPE GetSegmentFileId(const std::string& field_name, const std::string& field_element_name) const {
+        auto field_element_id = GetFieldElementId(field_name, field_element_name);
+        auto it = element_segfiles_map_.find(field_element_id);
+        if (it == element_segfiles_map_.end()) {
+            return 0;
+        }
+        return it->second;
     }
 
-    void RefAll();
-    void UnRefAll();
-
-private:
+    bool HasSegmentFile(const std::string& field_name, const std::string& field_element_name) const {
+        auto id = GetSegmentFileId(field_name, field_element_name);
+        return id > 0;
+    }
 
     ID_TYPE GetFieldElementId(const std::string& field_name, const std::string& field_element_name) const {
         auto itf = field_element_names_map_.find(field_name);
@@ -97,6 +102,11 @@ private:
 
         return itfe->second;
     }
+
+    void RefAll();
+    void UnRefAll();
+
+private:
 
     CollectionScopedT collection_;
     ID_TYPE current_schema_id_;
@@ -112,6 +122,7 @@ private:
     SegmentFilesT segment_files_;
     std::map<std::string, ID_TYPE> field_names_map_;
     std::map<std::string, std::map<std::string, ID_TYPE>> field_element_names_map_;
+    std::map<ID_TYPE, ID_TYPE> element_segfiles_map_;
 };
 
 void Snapshot::RefAll() {
@@ -217,6 +228,7 @@ Snapshot::Snapshot(ID_TYPE id) {
                 auto field_element = field_elements_holder.GetResource(segment_file->GetFieldElementId(), false);
                 field_elements_[field_element->GetID()] = field_element;
                 segment_files_[s_f_id] = segment_file;
+                element_segfiles_map_[segment_file->GetFieldElementId()] = segment_file->GetID();
             }
         }
     }
