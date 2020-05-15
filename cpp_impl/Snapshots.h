@@ -68,6 +68,21 @@ public:
         return std::move(names);
     }
 
+    bool HasField(const std::string& name) const {
+        auto it = field_names_map_.find(name);
+        return it != field_names_map_.end();
+    }
+
+    bool HasFieldElement(const std::string& field_name, const std::string& field_element_name) const {
+        auto itf = field_element_names_map_.find(field_name);
+        if (itf == field_element_names_map_.end()) return false;
+        auto itfe = itf->second.find(field_element_name);
+        if (itfe == itf->second.end()) {
+            return false;
+        }
+        return true;
+    }
+
     void RefAll();
     void UnRefAll();
 
@@ -86,6 +101,7 @@ private:
     SegmentCommitsT segment_commits_;
     SegmentFilesT segment_files_;
     std::map<std::string, ID_TYPE> field_names_map_;
+    std::map<std::string, std::map<std::string, ID_TYPE>> field_element_names_map_;
 };
 
 void Snapshot::RefAll() {
@@ -208,6 +224,7 @@ Snapshot::Snapshot(ID_TYPE id) {
             for (auto field_element_id : f_c_m) {
                 auto field_element = field_elements_holder.GetResource(field_element_id, false);
                 field_elements_[field_element_id] = field_element;
+                field_element_names_map_[field->GetName()] = {{field_element->GetName(), field_element->GetID()}};
             }
         }
     }
