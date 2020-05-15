@@ -6,7 +6,17 @@
 #include <vector>
 #include <any>
 
-using StepsT = std::vector<std::any>;
+using StepsT = std::tuple<CollectionCommit::VecT,
+                                  Collection::VecT,
+                                  SchemaCommit::VecT,
+                                  FieldCommit::VecT,
+                                  Field::VecT,
+                                  FieldElement::VecT,
+                                  PartitionCommit::VecT,
+                                  Partition::VecT,
+                                  SegmentCommit::VecT,
+                                  Segment::VecT,
+                                  SegmentFile::VecT>;
 
 template <typename Derived>
 class Operations {
@@ -41,13 +51,15 @@ template <typename Derived>
 template<typename StepT>
 void
 Operations<Derived>::AddStep(const StepT& step) {
-    steps_.push_back(step);
+    auto& container = std::get<Index<typename StepT::VecT, StepsT>::value>(steps_);
+
+    container.push_back(std::make_shared<StepT>(step));
 }
 
 template <typename Derived>
 void
 Operations<Derived>::OnExecute() {
-    std::cout << "Operations " << Name << " is OnExecute with " << steps_.size() << " steps" << std::endl;
+    /* std::cout << "Operations " << Name << " is OnExecute with " << steps_.size() << " steps" << std::endl; */
     auto& store = Store::GetInstance();
     store.DoCommitOperation(*this);
 }

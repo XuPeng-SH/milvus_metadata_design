@@ -168,6 +168,7 @@ class Collection : public DBBaseResource<NameField, IdField, StatusField, Create
 public:
     using Ptr = std::shared_ptr<Collection>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     using BaseT = DBBaseResource<NameField, IdField, StatusField, CreatedOnField>;
     static constexpr const char* Name = "Collection";
 
@@ -187,6 +188,7 @@ class SchemaCommit : public DBBaseResource<CollectionIdField,
 public:
     using Ptr = std::shared_ptr<SchemaCommit>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     using BaseT = DBBaseResource<CollectionIdField, MappingsField, IdField, StatusField, CreatedOnField>;
     static constexpr const char* Name = "SchemaCommit";
 
@@ -205,6 +207,7 @@ class Field : public DBBaseResource<NameField,
 public:
     using Ptr = std::shared_ptr<Field>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     using BaseT = DBBaseResource<NameField, NumField, IdField, StatusField, CreatedOnField>;
     static constexpr const char* Name = "Field";
 
@@ -224,6 +227,7 @@ class FieldCommit : public DBBaseResource<CollectionIdField,
 public:
     using Ptr = std::shared_ptr<FieldCommit>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     using BaseT = DBBaseResource<CollectionIdField, FieldIdField, MappingsField,
           IdField, StatusField, CreatedOnField>;
     static constexpr const char* Name = "FieldCommit";
@@ -245,6 +249,7 @@ class FieldElement : public DBBaseResource<CollectionIdField,
 public:
     using Ptr = std::shared_ptr<FieldElement>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     static constexpr const char* Name = "FieldElement";
     using BaseT = DBBaseResource<CollectionIdField, FieldIdField, NameField,
           FtypeField, IdField, StatusField, CreatedOnField>;
@@ -265,6 +270,7 @@ public:
     static constexpr const char* Name = "CollectionCommit";
     using Ptr = std::shared_ptr<CollectionCommit>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     using BaseT = DBBaseResource<CollectionIdField, SchemaIdField, MappingsField,
           IdField, StatusField, CreatedOnField>;
     CollectionCommit(ID_TYPE collection_id, ID_TYPE schema_id, const MappingT& mappings = {}, ID_TYPE id = 0,
@@ -282,6 +288,7 @@ class Partition : public DBBaseResource<NameField,
 public:
     using Ptr = std::shared_ptr<Partition>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     static constexpr const char* Name = "Partition";
     using BaseT = DBBaseResource<NameField, CollectionIdField, IdField, StatusField, CreatedOnField>;
 
@@ -301,6 +308,7 @@ class PartitionCommit : public DBBaseResource<CollectionIdField,
 public:
     using Ptr = std::shared_ptr<PartitionCommit>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     static constexpr const char* Name = "PartitionCommit";
     using BaseT = DBBaseResource<CollectionIdField, PartitionIdField, MappingsField,
           IdField, StatusField, CreatedOnField>;
@@ -319,6 +327,7 @@ class Segment : public DBBaseResource<PartitionIdField,
 public:
     using Ptr = std::shared_ptr<Segment>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     static constexpr const char* Name = "Segment";
     using BaseT = DBBaseResource<PartitionIdField, IdField, StatusField, CreatedOnField>;
 
@@ -339,6 +348,7 @@ class SegmentCommit : public DBBaseResource<SchemaIdField,
 public:
     using Ptr = std::shared_ptr<SegmentCommit>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     static constexpr const char* Name = "SegmentCommit";
     using BaseT = DBBaseResource<SchemaIdField, PartitionIdField, SegmentIdField,
           MappingsField, IdField, StatusField, CreatedOnField>;
@@ -359,6 +369,7 @@ class SegmentFile : public DBBaseResource<PartitionIdField,
 public:
     using Ptr = std::shared_ptr<SegmentFile>;
     using MapT = std::map<ID_TYPE, Ptr>;
+    using VecT = std::vector<Ptr>;
     static constexpr const char* Name = "SegmentFile";
     using BaseT = DBBaseResource<PartitionIdField, SegmentIdField, FieldElementIdField, IdField,
           StatusField, CreatedOnField>;

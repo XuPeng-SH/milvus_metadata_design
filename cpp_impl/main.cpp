@@ -117,8 +117,8 @@ int main() {
 
     BuildOperation build(prev_ss);
     cout << "Prev Build SS " << build.GetPrevSnapshot()->GetName() << " RefCnt=" << build.GetPrevSnapshot()->RefCnt() << endl;
-    Collection ddd("DDD");
-    build.AddStep(ddd);
+    auto ddd = make_shared<Collection>("DDD");
+    build.AddStep(*ddd);
 
     build.OnExecute();
 
