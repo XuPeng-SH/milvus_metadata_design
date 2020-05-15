@@ -61,6 +61,17 @@ public:
         return names;
     }
 
+    // PXU TODO: add const. Need to change Scopedxxxx::Get
+    SegmentCommitPtr GetSegmentCommit(ID_TYPE segment_id) {
+        auto it = seg_segc_map_.find(segment_id);
+        if (it == seg_segc_map_.end()) return nullptr;
+        auto itsc = segment_commits_.find(it->second);
+        if (itsc == segment_commits_.end()) {
+            return nullptr;
+        }
+        return itsc->second.Get();
+    }
+
     IDS_TYPE GetPartitionIds() const {
         IDS_TYPE ids;
         for(auto& kv : partitions_) {
@@ -163,6 +174,7 @@ private:
     std::map<std::string, ID_TYPE> field_names_map_;
     std::map<std::string, std::map<std::string, ID_TYPE>> field_element_names_map_;
     std::map<ID_TYPE, std::map<ID_TYPE, ID_TYPE>> element_segfiles_map_;
+    std::map<ID_TYPE, ID_TYPE> seg_segc_map_;
 };
 
 void Snapshot::RefAll() {
@@ -262,6 +274,7 @@ Snapshot::Snapshot(ID_TYPE id) {
             schema_commits_[schema->GetID()] = schema;
             segment_commits_[segment_commit->GetID()] = segment_commit;
             segments_[segment->GetID()] = segment;
+            seg_segc_map_[segment->GetID()] = segment_commit->GetID();
             auto& s_f_mappings = segment_commit->GetMappings();
             for (auto& s_f_id : s_f_mappings) {
                 auto segment_file = segment_files_holder.GetResource(s_f_id, false);

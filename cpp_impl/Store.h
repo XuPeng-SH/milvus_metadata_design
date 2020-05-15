@@ -302,9 +302,9 @@ private:
         /* register_any_visitor<Segment::Ptr>([this](auto c) { */
         /*     CreateResource<Segment>(Segment(*c)); */
         /* }); */
-        /* register_any_visitor<SegmentCommit::Ptr>([this](auto c) { */
-        /*     CreateResource<SegmentCommit>(SegmentCommit(*c)); */
-        /* }); */
+        register_any_visitor<SegmentCommit::Ptr>([this](auto c) {
+            return CreateResource<SegmentCommit>(SegmentCommit(*c))->GetID();
+        });
         register_any_visitor<SegmentFile::Ptr>([this](auto c) {
             auto n = CreateResource<SegmentFile>(SegmentFile(*c));
             return n->GetID();

@@ -130,7 +130,13 @@ int main() {
     new_sf_op.OnExecute();
 
     auto segment_file = new_sf_op.GetSegmentFile();
+
+    NewSegmentCommitOperation segc_op(prev_ss, segment_file);
+    segc_op.OnExecute();
+    auto segment_commit = segc_op.GetSegmentCommit();
+
     b1.AddStep(*segment_file);
+    b1.AddStep(*segment_commit);
     b1.OnExecute();
 
 

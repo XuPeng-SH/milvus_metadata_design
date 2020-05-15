@@ -79,6 +79,35 @@ Operations::OnExecute() {
     if (!ok) status_ = OP_FAIL_FLUSH_META;
 }
 
+class NewSegmentCommitOperation : public Operations {
+public:
+    using BaseT = Operations;
+    NewSegmentCommitOperation(ScopedSnapshotT prev_ss, SegmentFilePtr segment_file)
+        : BaseT(prev_ss), segment_file_(segment_file) {};
+    NewSegmentCommitOperation(SegmentFile::Ptr segment_file, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(collection_id, commit_id), segment_file_(segment_file) {};
+
+    void OnExecute() override {
+        auto prev_segment_commit = prev_ss_->GetSegmentCommit(segment_file_->GetSegmentId());
+        segment_commit_ = std::make_shared<SegmentCommit>(*prev_segment_commit);
+        segment_commit_->GetMappings().push_back(segment_file_->GetID());
+        segment_commit_->SetID(0);
+        AddStep(*segment_commit_);
+        BaseT::OnExecute();
+    }
+
+    SegmentCommitPtr GetSegmentCommit() const {
+        if (status_ == OP_PENDING) return nullptr;
+        if (ids_.size() == 0) return nullptr;
+        segment_commit_->SetID(ids_[0]);
+        return segment_commit_;
+    }
+
+protected:
+    SegmentFilePtr segment_file_;
+    SegmentCommitPtr segment_commit_;
+};
+
 class NewSegmentFileOperation : public Operations {
 public:
     using BaseT = Operations;
@@ -157,7 +186,8 @@ BuildOperation::OnExecute() {
         return;
     }
 
-    std::any_cast<SegmentFile::Ptr>(new_segment_file)->Activate();
+    std::any_cast<SegmentFilePtr>(new_segment_file)->Activate();
+    std::any_cast<SegmentCommitPtr>(steps_[1])->Activate();
 
     BaseT::OnExecute();
 }
