@@ -75,6 +75,13 @@ public:
     BuildOperation(const BuildContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), context_(context) {};
 
+    void OnExecute() override;
+
 protected:
     BuildContext context_;
 };
+
+void
+BuildOperation::OnExecute() {
+    BaseT::OnExecute();
+}
