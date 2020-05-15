@@ -2,6 +2,7 @@
 
 #include "Snapshots.h"
 #include "Store.h"
+#include "Context.h"
 #include <assert.h>
 #include <vector>
 #include <any>
@@ -69,6 +70,11 @@ public:
     static constexpr const char* Name = "Build";
     using BaseT = Operations;
 
-    BuildOperation(ScopedSnapshotT prev_ss) : BaseT(prev_ss) {};
-    BuildOperation(ID_TYPE collection_id, ID_TYPE commit_id = 0) : BaseT(collection_id, commit_id) {};
+    BuildOperation(ScopedSnapshotT prev_ss, const BuildContext& context)
+        : BaseT(prev_ss), context_(context) {};
+    BuildOperation(const BuildContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(collection_id, commit_id), context_(context) {};
+
+protected:
+    BuildContext context_;
 };
