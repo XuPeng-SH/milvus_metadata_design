@@ -53,6 +53,7 @@ protected:
     ScopedSnapshotT prev_ss_;
     StepsT steps_;
     std::vector<ID_TYPE> ids_;
+    OpStatus status_ = OP_PENDING;
 };
 
 Operations::Operations(ScopedSnapshotT prev_ss) : prev_ss_(prev_ss) {}
@@ -83,7 +84,8 @@ void
 Operations::OnExecute() {
     /* std::cout << "Operations " << Name << " is OnExecute with " << steps_.size() << " steps" << std::endl; */
     auto& store = Store::GetInstance();
-    store.DoCommitOperation(*this);
+    auto ok = store.DoCommitOperation(*this);
+    if (!ok) status_ = OP_FAIL;
 }
 
 class BuildOperation : public Operations {
@@ -104,6 +106,9 @@ protected:
 
 void
 BuildOperation::OnExecute() {
-    if (IsStale())
+    if (IsStale()) {
+        status_ = OP_STALE_CANCEL;
+        return;
+    }
     BaseT::OnExecute();
 }

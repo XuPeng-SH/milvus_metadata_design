@@ -60,7 +60,7 @@ public:
     }
 
     template <typename OpT>
-    void DoCommitOperation(OpT& op) {
+    bool DoCommitOperation(OpT& op) {
         for(auto& step_v : op.GetSteps()) {
             auto id = ProcessOperationStep(step_v);
             op.SetStepResult(id);
