@@ -30,6 +30,7 @@ public:
 
     template<typename StepT>
     void AddStep(const StepT& step);
+    void SetStepResult(ID_TYPE id) { ids_.push_back(id); }
 
     StepsT& GetSteps() { return steps_; }
 
@@ -38,6 +39,7 @@ public:
 protected:
     ScopedSnapshotT prev_ss_;
     StepsT steps_;
+    std::vector<ID_TYPE> ids_;
 };
 
 template <typename Derived>

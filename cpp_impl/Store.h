@@ -62,16 +62,8 @@ public:
     template <typename OpT>
     void DoCommitOperation(OpT& op) {
         for(auto& step_v : op.GetSteps()) {
-            ProcessOperationStep(step_v);
-            /* if (step_v.type() == typeid(Collection::Ptr)) { */
-            /*     const auto& r = std::any_cast<Collection::Ptr>(step_v); */
-            /*     if (!r->HasAssigned()) */
-            /*     { */
-            /*         auto c = CreateResource<Collection>(Collection(*r)); */
-            /*     } else { */
-            /*         auto c = UpdateResource<Collection>(Collection(*r)); */
-            /*     } */
-            /* } */
+            auto id = ProcessOperationStep(step_v);
+            op.SetStepResult(id);
         }
     }
 
@@ -247,27 +239,28 @@ public:
 
 private:
 
-    void ProcessOperationStep(const std::any& step_v) {
+    ID_TYPE ProcessOperationStep(const std::any& step_v) {
         if (const auto it = any_vistors_.find(std::type_index(step_v.type()));
                 it != any_vistors_.cend()) {
-            it->second(step_v);
+            return it->second(step_v);
         } else {
             std::cerr << "Unregisted step type " << std::quoted(step_v.type().name());
+            return 0;
         }
     }
 
     template<class T, class F>
-    inline std::pair<const std::type_index, std::function<void(std::any const&)>>
+    inline std::pair<const std::type_index, std::function<ID_TYPE(std::any const&)>>
         to_any_visitor(F const &f)
     {
         return {
             std::type_index(typeid(T)),
-            [g = f](std::any const &a)
+            [g = f](std::any const &a) -> ID_TYPE
             {
                 if constexpr (std::is_void_v<T>)
-                    g();
+                    return g();
                 else
-                    g(std::any_cast<T const&>(a));
+                    return g(std::any_cast<T const&>(a));
             }
         };
     }
@@ -282,38 +275,39 @@ private:
 
     Store() {
         register_any_visitor<Collection::Ptr>([this](auto c) {
-            CreateResource<Collection>(Collection(*c));
+            auto n = CreateResource<Collection>(Collection(*c));
+            return n->GetID();
         });
-        register_any_visitor<CollectionCommit::Ptr>([this](auto c) {
-            CreateResource<CollectionCommit>(CollectionCommit(*c));
-        });
-        register_any_visitor<SchemaCommit::Ptr>([this](auto c) {
-            CreateResource<SchemaCommit>(SchemaCommit(*c));
-        });
-        register_any_visitor<FieldCommit::Ptr>([this](auto c) {
-            CreateResource<FieldCommit>(FieldCommit(*c));
-        });
-        register_any_visitor<Field::Ptr>([this](auto c) {
-            CreateResource<Field>(Field(*c));
-        });
-        register_any_visitor<FieldElement::Ptr>([this](auto c) {
-            CreateResource<FieldElement>(FieldElement(*c));
-        });
-        register_any_visitor<PartitionCommit::Ptr>([this](auto c) {
-            CreateResource<PartitionCommit>(PartitionCommit(*c));
-        });
-        register_any_visitor<Partition::Ptr>([this](auto c) {
-            CreateResource<Partition>(Partition(*c));
-        });
-        register_any_visitor<Segment::Ptr>([this](auto c) {
-            CreateResource<Segment>(Segment(*c));
-        });
-        register_any_visitor<SegmentCommit::Ptr>([this](auto c) {
-            CreateResource<SegmentCommit>(SegmentCommit(*c));
-        });
-        register_any_visitor<SegmentFile::Ptr>([this](auto c) {
-            CreateResource<SegmentFile>(SegmentFile(*c));
-        });
+        /* register_any_visitor<CollectionCommit::Ptr>([this](auto c) { */
+        /*     CreateResource<CollectionCommit>(CollectionCommit(*c)); */
+        /* }); */
+        /* register_any_visitor<SchemaCommit::Ptr>([this](auto c) { */
+        /*     CreateResource<SchemaCommit>(SchemaCommit(*c)); */
+        /* }); */
+        /* register_any_visitor<FieldCommit::Ptr>([this](auto c) { */
+        /*     CreateResource<FieldCommit>(FieldCommit(*c)); */
+        /* }); */
+        /* register_any_visitor<Field::Ptr>([this](auto c) { */
+        /*     CreateResource<Field>(Field(*c)); */
+        /* }); */
+        /* register_any_visitor<FieldElement::Ptr>([this](auto c) { */
+        /*     CreateResource<FieldElement>(FieldElement(*c)); */
+        /* }); */
+        /* register_any_visitor<PartitionCommit::Ptr>([this](auto c) { */
+        /*     CreateResource<PartitionCommit>(PartitionCommit(*c)); */
+        /* }); */
+        /* register_any_visitor<Partition::Ptr>([this](auto c) { */
+        /*     CreateResource<Partition>(Partition(*c)); */
+        /* }); */
+        /* register_any_visitor<Segment::Ptr>([this](auto c) { */
+        /*     CreateResource<Segment>(Segment(*c)); */
+        /* }); */
+        /* register_any_visitor<SegmentCommit::Ptr>([this](auto c) { */
+        /*     CreateResource<SegmentCommit>(SegmentCommit(*c)); */
+        /* }); */
+        /* register_any_visitor<SegmentFile::Ptr>([this](auto c) { */
+        /*     CreateResource<SegmentFile>(SegmentFile(*c)); */
+        /* }); */
     }
 
     void DoMock() {
@@ -407,5 +401,5 @@ private:
     MockResourcesT resources_;
     MockIDST ids_;
     std::map<std::string, CollectionPtr> name_collections_;
-    std::unordered_map<std::type_index, std::function<void(std::any const&)>> any_vistors_;
+    std::unordered_map<std::type_index, std::function<ID_TYPE(std::any const&)>> any_vistors_;
 };
