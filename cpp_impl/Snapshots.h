@@ -117,6 +117,14 @@ public:
         return std::move(ids);
     }
 
+    IDS_TYPE GetSegmentFileIds() const {
+        IDS_TYPE ids;
+        for(auto& kv : segment_files_) {
+            ids.push_back(kv.first);
+        }
+        return std::move(ids);
+    }
+
     void RefAll();
     void UnRefAll();
 

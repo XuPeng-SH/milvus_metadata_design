@@ -130,6 +130,10 @@ int main() {
         std::cout << "Segment id=" << id << std::endl;
     }
 
+    for(auto id : prev_ss->GetSegmentFileIds()) {
+        std::cout << "SegmentFile id=" << id << std::endl;
+    }
+
 
     return 0;
 }

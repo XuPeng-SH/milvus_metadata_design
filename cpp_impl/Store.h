@@ -364,10 +364,8 @@ private:
                 for (auto si=1; si<=random_segments; ++si) {
                     auto s = CreateResource<Segment>(Segment(p->GetID()));
                     all_records.push_back(s);
-                    auto s_c = CreateResource<SegmentCommit>(SegmentCommit(schema->GetID(), p->GetID(), s->GetID(), empty_mappings));
-                    all_records.push_back(s_c);
-                    p_c_m.push_back(s_c->GetID());
                     auto& schema_m = schema->GetMappings();
+                    IDS_TYPE s_c_m;
                     for (auto field_commit_id : schema_m) {
                         auto& field_commit = std::get<FieldCommit::MapT>(resources_)[field_commit_id];
                         auto& f_c_m = field_commit->GetMappings();
@@ -375,10 +373,12 @@ private:
                             auto sf = CreateResource<SegmentFile>(SegmentFile(p->GetID(), s->GetID(), field_commit_id));
                             all_records.push_back(sf);
 
-                            auto& s_c_m = s_c->GetMappings();
                             s_c_m.push_back(sf->GetID());
                         }
                     }
+                    auto s_c = CreateResource<SegmentCommit>(SegmentCommit(schema->GetID(), p->GetID(), s->GetID(), s_c_m));
+                    all_records.push_back(s_c);
+                    p_c_m.push_back(s_c->GetID());
                 }
                 auto p_c = CreateResource<PartitionCommit>(PartitionCommit(c->GetID(), p->GetID(), p_c_m));
                 all_records.push_back(p_c);
