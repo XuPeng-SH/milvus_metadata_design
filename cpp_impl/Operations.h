@@ -8,17 +8,6 @@
 #include <any>
 
 using StepsT = std::vector<std::any>;
-/* using StepsT = std::tuple<CollectionCommit::VecT, */
-/*                                   Collection::VecT, */
-/*                                   SchemaCommit::VecT, */
-/*                                   FieldCommit::VecT, */
-/*                                   Field::VecT, */
-/*                                   FieldElement::VecT, */
-/*                                   PartitionCommit::VecT, */
-/*                                   Partition::VecT, */
-/*                                   SegmentCommit::VecT, */
-/*                                   Segment::VecT, */
-/*                                   SegmentFile::VecT>; */
 
 enum OpStatus {
     OP_PENDING = 0,
@@ -26,7 +15,9 @@ enum OpStatus {
     OP_STALE_OK,
     OP_STALE_CANCEL,
     OP_STALE_RESCHEDULE,
-    OP_FAIL
+    OP_FAIL_INVALID_PARAMS,
+    OP_FAIL_DUPLICATED,
+    OP_FAIL_FLUSH_META
 };
 
 class Operations {
@@ -85,7 +76,7 @@ Operations::OnExecute() {
     /* std::cout << "Operations " << Name << " is OnExecute with " << steps_.size() << " steps" << std::endl; */
     auto& store = Store::GetInstance();
     auto ok = store.DoCommitOperation(*this);
-    if (!ok) status_ = OP_FAIL;
+    if (!ok) status_ = OP_FAIL_FLUSH_META;
 }
 
 class BuildOperation : public Operations {
@@ -106,9 +97,35 @@ protected:
 
 void
 BuildOperation::OnExecute() {
+    if (status_ != OP_PENDING) {
+        return;
+    }
     if (IsStale()) {
         status_ = OP_STALE_CANCEL;
         return;
     }
+    if (!prev_ss_->HasFieldElement(context_.field_name, context_.field_element_name)) {
+        status_ = OP_FAIL_INVALID_PARAMS;
+        return;
+    }
+
+    // PXU TODO: Temp comment below check for test
+    /* if (prev_ss_->HasSegmentFile(context_.field_name, context_.field_element_name, context_.segment_id)) { */
+    /*     status_ = OP_FAIL_DUPLICATED; */
+    /*     return; */
+    /* } */
+
+    auto& new_segment_file = steps_[0];
+    if (new_segment_file.type() == typeid(SegmentFile)) {
+        status_ = OP_FAIL_INVALID_PARAMS;
+        return;
+    }
+
+    if (IsStale()) {
+        status_ = OP_STALE_CANCEL;
+        // PXU TODO: Produce cleanup job
+        return;
+    }
+
     BaseT::OnExecute();
 }

@@ -110,6 +110,15 @@ public:
         return itfe->second;
     }
 
+    std::vector<std::string> GetFieldElementNames() const {
+        std::vector<std::string> names;
+        for(auto& kv : field_elements_) {
+            names.emplace_back(kv.second->GetName());
+        }
+
+        return std::move(names);
+    }
+
     IDS_TYPE GetSegmentIds() const {
         IDS_TYPE ids;
         for(auto& kv : segments_) {

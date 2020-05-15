@@ -112,6 +112,9 @@ int main() {
     /* cout << "XXX " << Index<CollectionCommit, ResourcesT>::value << endl; */
 
     BuildContext context;
+    context.field_name = "f_1_1";
+    context.field_element_name = "fe_1_1";
+    context.segment_id = 1;
     BuildOperation b1(context, 1);
     auto prev_ss = b1.GetPrevSnapshot();
     cout << "Prev b1 SS " << prev_ss->GetName() << " RefCnt=" << prev_ss->RefCnt() << endl;
@@ -127,14 +130,21 @@ int main() {
 
     build.OnExecute();
 
-    for(auto id : prev_ss->GetSegmentIds()) {
-        std::cout << "Segment id=" << id << std::endl;
-    }
+    /* for(auto id : prev_ss->GetSegmentIds()) { */
+    /*     std::cout << "Segment id=" << id << std::endl; */
+    /* } */
 
-    for(auto id : prev_ss->GetSegmentFileIds()) {
-        std::cout << "SegmentFile id=" << id << std::endl;
-    }
+    /* for(auto id : prev_ss->GetSegmentFileIds()) { */
+    /*     std::cout << "SegmentFile id=" << id << std::endl; */
+    /* } */
 
+    /* for(auto name : prev_ss->GetFieldElementNames()) { */
+    /*     std::cout << "FieldElement name=" << name << std::endl; */
+    /* } */
+
+    /* for(auto name : prev_ss->GetFieldNames()) { */
+    /*     std::cout << "Field name=" << name << std::endl; */
+    /* } */
 
     return 0;
 }
