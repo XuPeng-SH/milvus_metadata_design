@@ -20,6 +20,8 @@ public:
     template<typename StepT>
     void AddStep(const StepT& step);
 
+    StepsT& GetSteps() { return steps_; }
+
     virtual void OnExecute();
 
 protected:
@@ -46,6 +48,8 @@ template <typename Derived>
 void
 Operations<Derived>::OnExecute() {
     std::cout << "Operations " << Name << " is OnExecute with " << steps_.size() << " steps" << std::endl;
+    auto& store = Store::GetInstance();
+    store.DoCommitOperation(*this);
 }
 
 class BuildOperation : public Operations<BuildOperation> {

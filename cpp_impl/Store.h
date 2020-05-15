@@ -54,6 +54,16 @@ public:
         return true;
     }
 
+    template <typename OpT>
+    void DoCommitOperation(OpT& op) {
+        for(auto& step_v : op.GetSteps()) {
+            if (step_v.type() == typeid(Collection)) {
+                const auto& r = std::any_cast<Collection>(step_v);
+                auto c = CreateResource<Collection>(Collection(r));
+            }
+        }
+    }
+
     void StartTransanction() {}
     void FinishTransaction() {}
 
