@@ -74,19 +74,29 @@ public:
     }
 
     bool HasFieldElement(const std::string& field_name, const std::string& field_element_name) const {
-        auto itf = field_element_names_map_.find(field_name);
-        if (itf == field_element_names_map_.end()) return false;
-        auto itfe = itf->second.find(field_element_name);
-        if (itfe == itf->second.end()) {
-            return false;
-        }
-        return true;
+        auto id = GetFieldElementId(field_name, field_element_name);
+        return id > 0;
+    }
+
+    bool HasSegmentFile(const std::string& field_name, const std::string& field_element_name) const {
+
     }
 
     void RefAll();
     void UnRefAll();
 
 private:
+
+    ID_TYPE GetFieldElementId(const std::string& field_name, const std::string& field_element_name) const {
+        auto itf = field_element_names_map_.find(field_name);
+        if (itf == field_element_names_map_.end()) return false;
+        auto itfe = itf->second.find(field_element_name);
+        if (itfe == itf->second.end()) {
+            return 0;
+        }
+
+        return itfe->second;
+    }
 
     CollectionScopedT collection_;
     ID_TYPE current_schema_id_;
