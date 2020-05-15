@@ -35,6 +35,8 @@ public:
 
     virtual void OnExecute();
 
+    virtual ~Operations() {}
+
 protected:
     ScopedSnapshotT prev_ss_;
     StepsT steps_;
