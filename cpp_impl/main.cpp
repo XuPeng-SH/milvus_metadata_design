@@ -114,6 +114,9 @@ int main() {
     BuildOperation b1(1);
     auto prev_ss = b1.GetPrevSnapshot();
     cout << "Prev b1 SS " << prev_ss->GetName() << " RefCnt=" << prev_ss->RefCnt() << endl;
+    for(auto name : prev_ss->GetFieldNames()) {
+        std::cout << "FieldName: " << name << std::endl;
+    }
 
     BuildOperation build(prev_ss);
     cout << "Prev Build SS " << build.GetPrevSnapshot()->GetName() << " RefCnt=" << build.GetPrevSnapshot()->RefCnt() << endl;

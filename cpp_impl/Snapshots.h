@@ -60,6 +60,10 @@ public:
         return names;
     }
 
+    const std::vector<std::string>& GetFieldNames() const {
+        return field_names_;
+    }
+
     void RefAll();
     void UnRefAll();
 
@@ -77,6 +81,7 @@ private:
     SegmentsT segments_;
     SegmentCommitsT segment_commits_;
     SegmentFilesT segment_files_;
+    std::vector<std::string> field_names_;
 };
 
 void Snapshot::RefAll() {
@@ -194,6 +199,7 @@ Snapshot::Snapshot(ID_TYPE id) {
             field_commits_[field_commit_id] = field_commit;
             auto field = fields_holder.GetResource(field_commit->GetFieldId(), false);
             fields_[field->GetID()] = field;
+            field_names_.push_back(field->GetName());
             auto& f_c_m = field_commit->GetMappings();
             for (auto field_element_id : f_c_m) {
                 auto field_element = field_elements_holder.GetResource(field_element_id, false);
