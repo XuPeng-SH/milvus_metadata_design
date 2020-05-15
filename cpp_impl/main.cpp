@@ -111,9 +111,17 @@ int main() {
     /* using ResourcesT = std::tuple<CollectionCommitMap, SchemaCommitMap>; */
     /* cout << "XXX " << Index<CollectionCommit, ResourcesT>::value << endl; */
 
-    Operations merge(1);
+    BuildOperation merge(1);
     auto prev_ss = merge.GetPrevSnapshot();
-    cout << "Prev SS " << prev_ss->GetName() << " RefCnt=" << prev_ss->RefCnt() << endl;
+    cout << "Prev Merge SS " << prev_ss->GetName() << " RefCnt=" << prev_ss->RefCnt() << endl;
+
+    BuildOperation build(prev_ss);
+    cout << "Prev Build SS " << build.GetPrevSnapshot()->GetName() << " RefCnt=" << build.GetPrevSnapshot()->RefCnt() << endl;
+    Collection ddd("DDD");
+    build.AddStep(ddd);
+
+    build.OnExecute();
+
 
     return 0;
 }
