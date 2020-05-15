@@ -78,17 +78,23 @@ public:
         return id > 0;
     }
 
-    ID_TYPE GetSegmentFileId(const std::string& field_name, const std::string& field_element_name) const {
+    ID_TYPE GetSegmentFileId(const std::string& field_name, const std::string& field_element_name,
+            ID_TYPE segment_id) const {
         auto field_element_id = GetFieldElementId(field_name, field_element_name);
         auto it = element_segfiles_map_.find(field_element_id);
         if (it == element_segfiles_map_.end()) {
             return 0;
         }
-        return it->second;
+        auto its = it->second.find(segment_id);
+        if (its == it->second.end()) {
+            return 0;
+        }
+        return its->second;
     }
 
-    bool HasSegmentFile(const std::string& field_name, const std::string& field_element_name) const {
-        auto id = GetSegmentFileId(field_name, field_element_name);
+    bool HasSegmentFile(const std::string& field_name, const std::string& field_element_name,
+            ID_TYPE segment_id) const {
+        auto id = GetSegmentFileId(field_name, field_element_name, segment_id);
         return id > 0;
     }
 
@@ -107,7 +113,7 @@ public:
     void UnRefAll();
 
 private:
-
+    // PXU TODO: Re-org below data structures to reduce memory usage
     CollectionScopedT collection_;
     ID_TYPE current_schema_id_;
     SchemaCommitsT schema_commits_;
@@ -122,7 +128,7 @@ private:
     SegmentFilesT segment_files_;
     std::map<std::string, ID_TYPE> field_names_map_;
     std::map<std::string, std::map<std::string, ID_TYPE>> field_element_names_map_;
-    std::map<ID_TYPE, ID_TYPE> element_segfiles_map_;
+    std::map<ID_TYPE, std::map<ID_TYPE, ID_TYPE>> element_segfiles_map_;
 };
 
 void Snapshot::RefAll() {
@@ -228,7 +234,14 @@ Snapshot::Snapshot(ID_TYPE id) {
                 auto field_element = field_elements_holder.GetResource(segment_file->GetFieldElementId(), false);
                 field_elements_[field_element->GetID()] = field_element;
                 segment_files_[s_f_id] = segment_file;
-                element_segfiles_map_[segment_file->GetFieldElementId()] = segment_file->GetID();
+                auto entry = element_segfiles_map_.find(segment_file->GetFieldElementId());
+                if (entry == element_segfiles_map_.end()) {
+                    element_segfiles_map_[segment_file->GetFieldElementId()] = {
+                        {segment_file->GetSegmentId(), segment_file->GetID()}
+                    };
+                } else {
+                    entry->second[segment_file->GetSegmentId()] = segment_file->GetID();
+                }
             }
         }
     }
@@ -246,7 +259,12 @@ Snapshot::Snapshot(ID_TYPE id) {
             for (auto field_element_id : f_c_m) {
                 auto field_element = field_elements_holder.GetResource(field_element_id, false);
                 field_elements_[field_element_id] = field_element;
-                field_element_names_map_[field->GetName()] = {{field_element->GetName(), field_element->GetID()}};
+                auto entry = field_element_names_map_.find(field->GetName());
+                if (entry == field_element_names_map_.end()) {
+                    field_element_names_map_[field->GetName()] = {{field_element->GetName(), field_element->GetID()}};
+                } else {
+                    entry->second[field_element->GetName()] = field_element->GetID();
+                }
             }
         }
     }
