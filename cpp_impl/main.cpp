@@ -7,6 +7,7 @@
 #include "Snapshots.h"
 #include "Proxy.h"
 #include "schema.pb.h"
+#include "Operations.h"
 
 using namespace std;
 
@@ -101,23 +102,18 @@ int main() {
     }
 
     /* holder->GetSnapshot()->GetPartitionNames(); */
-    Collection ccc("CCC");
-    ccc.SetID(111);
-    Segment seg(1);
-    seg.SetID(222);
-    Store::GetInstance().DoCommit(ccc, seg);
+    /* Collection ccc("CCC"); */
+    /* ccc.SetID(111); */
+    /* Segment seg(1); */
+    /* seg.SetID(222); */
+    /* Store::GetInstance().DoCommit(ccc, seg); */
 
-    using TT = std::tuple<int, string>;
-    static constexpr size_t C_I = Index<int, TT>::value;
-    cout << "C_I " << C_I << endl;
-    static constexpr size_t S_I = Index<string, TT>::value;
-    cout << "S_I " << S_I << endl;
-
-    TT a(1, "one");
-    cout << std::get<Index<int, TT>::value>(a) << endl;
     /* using ResourcesT = std::tuple<CollectionCommitMap, SchemaCommitMap>; */
     /* cout << "XXX " << Index<CollectionCommit, ResourcesT>::value << endl; */
 
+    Operations merge(1);
+    auto prev_ss = merge.GetPrevSnapshot();
+    cout << "Prev SS " << prev_ss->GetName() << " RefCnt=" << prev_ss->RefCnt() << endl;
 
     return 0;
 }

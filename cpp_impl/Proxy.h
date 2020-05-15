@@ -11,6 +11,8 @@ public:
     ScopedResource();
     ScopedResource(ResourcePtr res, bool scoped = true);
 
+    ScopedResource(const ScopedResource<ResourceT>& res);
+
     ResourcePtr Get() { return res_; }
 
     ResourceT operator*() const { return *res_; }
@@ -36,13 +38,24 @@ template <typename ResourceT>
 ScopedResource<ResourceT>::ScopedResource(ScopedResource<ResourceT>::ResourcePtr res,
         bool scoped) : res_(res), scoped_(scoped) {
     if (scoped) {
+        /* std::cout << "Do Ref" << std::endl; */
         res_->Ref();
     }
 }
 
 template <typename ResourceT>
+ScopedResource<ResourceT>::ScopedResource(const ScopedResource<ResourceT>& res) {
+    res_ = res.res_;
+    if (res.scoped_) {
+        res_->Ref();
+    }
+    scoped_ = res.scoped_;
+}
+
+template <typename ResourceT>
 ScopedResource<ResourceT>::~ScopedResource() {
     if (scoped_) {
+        /* std::cout << "Do UnRef" << std::endl; */
         res_->UnRef();
     }
 }

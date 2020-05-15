@@ -112,6 +112,7 @@ void Snapshot::RefAll() {
 }
 
 void Snapshot::UnRefAll() {
+    /* std::cout << "UnRefAll YYYYYYYYYYYY " << collection_->GetID() << " RefCnt=" << RefCnt() << std::endl; */
     collection_commit_->UnRef();
     for (auto& schema : schema_commits_) {
         schema.second->UnRef();
@@ -296,6 +297,8 @@ private:
 ScopedSnapshotT
 SnapshotsHolder::GetSnapshot(ID_TYPE id, bool scoped) {
     std::unique_lock<std::mutex> lock(mutex_);
+    /* std::cout << "Holder " << collection_id_ << " actives num=" << active_.size() */
+    /*     << " latest=" << active_[max_id_]->GetID() << " RefCnt=" << active_[max_id_]->RefCnt() <<  std::endl; */
     if (id == 0 || id == max_id_) {
         auto ss = active_[max_id_];
         return ScopedSnapshotT(ss, scoped);
