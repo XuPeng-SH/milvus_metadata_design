@@ -280,6 +280,36 @@ private:
         register_any_visitor<Collection::Ptr>([this](auto c) {
             CreateResource<Collection>(Collection(*c));
         });
+        register_any_visitor<CollectionCommit::Ptr>([this](auto c) {
+            CreateResource<CollectionCommit>(CollectionCommit(*c));
+        });
+        register_any_visitor<SchemaCommit::Ptr>([this](auto c) {
+            CreateResource<SchemaCommit>(SchemaCommit(*c));
+        });
+        register_any_visitor<FieldCommit::Ptr>([this](auto c) {
+            CreateResource<FieldCommit>(FieldCommit(*c));
+        });
+        register_any_visitor<Field::Ptr>([this](auto c) {
+            CreateResource<Field>(Field(*c));
+        });
+        register_any_visitor<FieldElement::Ptr>([this](auto c) {
+            CreateResource<FieldElement>(FieldElement(*c));
+        });
+        register_any_visitor<PartitionCommit::Ptr>([this](auto c) {
+            CreateResource<PartitionCommit>(PartitionCommit(*c));
+        });
+        register_any_visitor<Partition::Ptr>([this](auto c) {
+            CreateResource<Partition>(Partition(*c));
+        });
+        register_any_visitor<Segment::Ptr>([this](auto c) {
+            CreateResource<Segment>(Segment(*c));
+        });
+        register_any_visitor<SegmentCommit::Ptr>([this](auto c) {
+            CreateResource<SegmentCommit>(SegmentCommit(*c));
+        });
+        register_any_visitor<SegmentFile::Ptr>([this](auto c) {
+            CreateResource<SegmentFile>(SegmentFile(*c));
+        });
     }
 
     void DoMock() {
