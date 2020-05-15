@@ -7,6 +7,11 @@
 #include <time.h>
 #include <sstream>
 #include <any>
+#include <typeindex>
+#include <typeinfo>
+#include <unordered_map>
+#include <functional>
+#include <iomanip>
 
 template <class T, class Tuple>
 struct Index;
@@ -57,15 +62,25 @@ public:
     template <typename OpT>
     void DoCommitOperation(OpT& op) {
         for(auto& step_v : op.GetSteps()) {
-            if (step_v.type() == typeid(Collection::Ptr)) {
-                const auto& r = std::any_cast<Collection::Ptr>(step_v);
-                if (!r->HasAssigned())
-                {
-                    auto c = CreateResource<Collection>(Collection(*r));
-                } else {
-                    auto c = UpdateResource<Collection>(Collection(*r));
-                }
-            }
+            ProcessOperationStep(step_v);
+            /* if (step_v.type() == typeid(Collection::Ptr)) { */
+            /*     const auto& r = std::any_cast<Collection::Ptr>(step_v); */
+            /*     if (!r->HasAssigned()) */
+            /*     { */
+            /*         auto c = CreateResource<Collection>(Collection(*r)); */
+            /*     } else { */
+            /*         auto c = UpdateResource<Collection>(Collection(*r)); */
+            /*     } */
+            /* } */
+        }
+    }
+
+    void ProcessOperationStep(const std::any& step_v) {
+        if (const auto it = any_vistors_.find(std::type_index(step_v.type()));
+                it != any_vistors_.cend()) {
+            it->second(step_v);
+        } else {
+            std::cerr << "Unregisted step type " << std::quoted(step_v.type().name());
         }
     }
 
@@ -237,7 +252,35 @@ public:
     void Mock() { DoMock(); }
 
 private:
-    Store() { }
+    template<class T, class F>
+    inline std::pair<const std::type_index, std::function<void(std::any const&)>>
+        to_any_visitor(F const &f)
+    {
+        return {
+            std::type_index(typeid(T)),
+            [g = f](std::any const &a)
+            {
+                if constexpr (std::is_void_v<T>)
+                    g();
+                else
+                    g(std::any_cast<T const&>(a));
+            }
+        };
+    }
+
+    template<class T, class F>
+    inline void register_any_visitor(F const& f)
+    {
+        std::cout << "Register visitor for type "
+                  << std::quoted(typeid(T).name()) << '\n';
+        any_vistors_.insert(to_any_visitor<T>(f));
+    }
+
+    Store() {
+        register_any_visitor<Collection::Ptr>([this](auto c) {
+            CreateResource<Collection>(Collection(*c));
+        });
+    }
 
     void DoMock() {
         srand(time(0));
@@ -330,4 +373,5 @@ private:
     MockResourcesT resources_;
     MockIDST ids_;
     std::map<std::string, CollectionPtr> name_collections_;
+    std::unordered_map<std::type_index, std::function<void(std::any const&)>> any_vistors_;
 };
