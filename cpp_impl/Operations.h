@@ -20,6 +20,15 @@ using StepsT = std::vector<std::any>;
 /*                                   Segment::VecT, */
 /*                                   SegmentFile::VecT>; */
 
+enum OpStatus {
+    OP_PENDING = 0,
+    OP_OK,
+    OP_STALE_OK,
+    OP_STALE_CANCEL,
+    OP_STALE_RESCHEDULE,
+    OP_FAIL
+};
+
 class Operations {
 public:
     /* static constexpr const char* Name = Derived::Name; */
@@ -27,6 +36,8 @@ public:
     Operations(ID_TYPE collection_id, ID_TYPE commit_id = 0);
 
     const ScopedSnapshotT& GetPrevSnapshot() const {return prev_ss_;}
+
+    virtual bool IsStale() const;
 
     template<typename StepT>
     void AddStep(const StepT& step);
@@ -58,6 +69,16 @@ Operations::AddStep(const StepT& step) {
     /* container.push_back(std::make_shared<StepT>(step)); */
 }
 
+bool
+Operations::IsStale() const {
+    auto curr_ss = Snapshots::GetInstance().GetSnapshot(prev_ss_->GetCollectionId());
+    if (prev_ss_->GetID() == curr_ss->GetID()) {
+        return false;
+    }
+
+    return true;
+}
+
 void
 Operations::OnExecute() {
     /* std::cout << "Operations " << Name << " is OnExecute with " << steps_.size() << " steps" << std::endl; */
@@ -83,5 +104,6 @@ protected:
 
 void
 BuildOperation::OnExecute() {
+    if (IsStale())
     BaseT::OnExecute();
 }

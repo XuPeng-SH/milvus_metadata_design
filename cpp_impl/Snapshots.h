@@ -49,6 +49,7 @@ public:
     Snapshot(ID_TYPE id);
 
     ID_TYPE GetID() const { return collection_commit_->GetID();}
+    ID_TYPE GetCollectionId() const { return collection_->GetID(); }
     const std::string& GetName() const { return collection_->GetName(); }
     CollectionCommitPtr GetCollectionCommit() { return collection_commit_.Get(); }
     std::vector<std::string> GetPartitionNames() const {
