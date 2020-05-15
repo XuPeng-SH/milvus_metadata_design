@@ -349,28 +349,23 @@ private:
             auto schema = CreateResource<SchemaCommit>(SchemaCommit(c->GetID(), schema_c_m));
             all_records.push_back(schema);
 
-            auto c_c = CreateResource<CollectionCommit>(CollectionCommit(c->GetID(), schema->GetID(), empty_mappings));
-            all_records.push_back(c_c);
 
             int random_partitions = rand() % 2 + 1;
+            IDS_TYPE c_c_m;
             for (auto pi=1; pi<=random_partitions; ++pi) {
                 std::stringstream pname;
                 pname << "p_" << i << "_" << std::get<Index<Partition::MapT, MockResourcesT>::value>(ids_) + 1;
                 auto p = CreateResource<Partition>(Partition(pname.str(), c->GetID()));
                 all_records.push_back(p);
 
-                auto p_c = CreateResource<PartitionCommit>(PartitionCommit(c->GetID(), p->GetID(), empty_mappings));
-                all_records.push_back(p_c);
-                auto& c_c_m = c_c->GetMappings();
-                c_c_m.push_back(p_c->GetID());
 
                 int random_segments = rand() % 2 + 1;
+                IDS_TYPE p_c_m;
                 for (auto si=1; si<=random_segments; ++si) {
                     auto s = CreateResource<Segment>(Segment(p->GetID()));
                     all_records.push_back(s);
                     auto s_c = CreateResource<SegmentCommit>(SegmentCommit(schema->GetID(), p->GetID(), s->GetID(), empty_mappings));
                     all_records.push_back(s_c);
-                    auto& p_c_m = p_c->GetMappings();
                     p_c_m.push_back(s_c->GetID());
                     auto& schema_m = schema->GetMappings();
                     for (auto field_commit_id : schema_m) {
@@ -385,7 +380,12 @@ private:
                         }
                     }
                 }
+                auto p_c = CreateResource<PartitionCommit>(PartitionCommit(c->GetID(), p->GetID(), p_c_m));
+                all_records.push_back(p_c);
+                c_c_m.push_back(p_c->GetID());
             }
+            auto c_c = CreateResource<CollectionCommit>(CollectionCommit(c->GetID(), schema->GetID(), c_c_m));
+            all_records.push_back(c_c);
         }
         for (auto& record : all_records) {
             if (record.type() == typeid(std::shared_ptr<Collection>)) {

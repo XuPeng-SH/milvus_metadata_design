@@ -126,6 +126,10 @@ int main() {
 
     build.OnExecute();
 
+    for(auto id : prev_ss->GetSegmentIds()) {
+        std::cout << "Segment id=" << id << std::endl;
+    }
+
 
     return 0;
 }

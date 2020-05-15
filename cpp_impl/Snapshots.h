@@ -109,6 +109,14 @@ public:
         return itfe->second;
     }
 
+    IDS_TYPE GetSegmentIds() const {
+        IDS_TYPE ids;
+        for(auto& kv : segments_) {
+            ids.push_back(kv.first);
+        }
+        return std::move(ids);
+    }
+
     void RefAll();
     void UnRefAll();
 
