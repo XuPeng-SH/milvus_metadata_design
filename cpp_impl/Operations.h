@@ -246,6 +246,13 @@ public:
 
     bool DoExecute() override;
     bool PreExecute() override;
+
+    SegmentFilePtr NewSegmentFile(const SegmentFileContext& context) {
+        SegmentFileOperation new_sf_op(context, prev_ss_);
+        new_sf_op.OnExecute();
+        context_.new_segment_file = new_sf_op.GetResource();
+        return context_.new_segment_file;
+    }
 };
 
 bool
@@ -301,3 +308,6 @@ BuildOperation::DoExecute() {
     std::any_cast<CollectionCommitPtr>(steps_[3])->Activate();
     return true;
 }
+
+class SegmentFlushOperation : public Operations {
+};
