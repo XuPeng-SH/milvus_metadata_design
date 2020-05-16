@@ -141,19 +141,11 @@ protected:
     typename ResourceT::Ptr resource_;
 };
 
-template <typename ResourceT>
-class DeltaMappingsCommitOperation : public CommitOperation<ResourceT> {
-public:
-    using BaseT = CommitOperation<ResourceT>;
-    bool DoExecute() override {
-        auto prev_resource = BaseT::GetPrevResource();
-        if (!prev_resource) return false;
-        BaseT::resource_ = std::make_shared<ResourceT>(*prev_resource);
-        BaseT::resource_->SetID(0);
-        BaseT::AddStep(*BaseT::resource_);
-        return true;
-    }
-};
+/* template <typename ResourceT> */
+/* class DeltaMappingsCommitOperation : public CommitOperation<ResourceT> { */
+/* public: */
+/*     using BaseT = CommitOperation<ResourceT>; */
+/* }; */
 
 class PartitionCommitOperation : public CommitOperation<PartitionCommit> {
 public:
@@ -165,6 +157,18 @@ public:
 
     PartitionCommitPtr GetPrevResource() const override {
         return prev_ss_->GetPartitionCommit(segment_commit_->GetPartitionId());
+    }
+
+    bool DoExecute() override {
+        auto prev_resource = GetPrevResource();
+        if (!prev_resource) return false;
+        resource_ = std::make_shared<PartitionCommit>(*prev_resource);
+        auto prev_segment_commit = prev_ss_->GetSegmentCommit(segment_commit_->GetSegmentId());
+        resource_->GetMappings().erase(prev_segment_commit->GetID());
+        resource_->GetMappings().insert(segment_commit_->GetID());
+        resource_->SetID(0);
+        AddStep(*BaseT::resource_);
+        return true;
     }
 
 protected:
