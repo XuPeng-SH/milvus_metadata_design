@@ -14,3 +14,8 @@ struct BuildContext {
     SegmentFilePtr new_segment_file = nullptr;
     SegmentCommitPtr new_segment_commit = nullptr;
 };
+
+struct CollectionCommitContext {
+    PartitionCommitPtr new_partition_commit = nullptr;
+    SchemaCommitPtr new_schema_commit = nullptr;
+};

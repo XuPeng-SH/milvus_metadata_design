@@ -147,6 +147,39 @@ protected:
 /*     using BaseT = CommitOperation<ResourceT>; */
 /* }; */
 
+class CollectionCommitOperation : public CommitOperation<CollectionCommit> {
+public:
+    using BaseT = CommitOperation<CollectionCommit>;
+    CollectionCommitOperation(ScopedSnapshotT prev_ss, CollectionCommitContext context)
+        : BaseT(prev_ss), context_(context) {};
+    CollectionCommitOperation(CollectionCommitContext context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(collection_id, commit_id), context_(context) {};
+
+    CollectionCommitPtr GetPrevResource() const override {
+        return prev_ss_->GetCollectionCommit();
+    }
+
+    bool DoExecute() override {
+        auto prev_resource = GetPrevResource();
+        if (!prev_resource) return false;
+        resource_ = std::make_shared<CollectionCommit>(*prev_resource);
+        if (context_.new_partition_commit) {
+            auto prev_partition_commit = prev_ss_->GetPartitionCommit(
+                    context_.new_partition_commit->GetPartitionId());
+            resource_->GetMappings().erase(prev_partition_commit->GetID());
+            resource_->GetMappings().insert(context_.new_partition_commit->GetID());
+        } else if (context_.new_schema_commit) {
+            resource_->SetSchemaId(context_.new_schema_commit->GetID());
+        }
+        resource_->SetID(0);
+        AddStep(*BaseT::resource_);
+        return true;
+    }
+
+protected:
+    CollectionCommitContext context_;
+};
+
 class PartitionCommitOperation : public CommitOperation<PartitionCommit> {
 public:
     using BaseT = CommitOperation<PartitionCommit>;

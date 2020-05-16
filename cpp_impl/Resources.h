@@ -95,6 +95,7 @@ class SchemaIdField {
 public:
     SchemaIdField(ID_TYPE id) : schema_id_(id) {}
     ID_TYPE GetSchemaId() const { return schema_id_; };
+    void SetSchemaId(ID_TYPE schema_id) { schema_id_ = schema_id; };
 
 protected:
     ID_TYPE schema_id_;
