@@ -236,8 +236,13 @@ BuildOperation::PreExecute() {
     op.OnExecute();
     context_.new_segment_commit = op.GetResource();
     if (!context_.new_segment_commit) return false;
+
+    PartitionCommitOperation pc_op(prev_ss_, context_.new_segment_commit);
+    pc_op.OnExecute();
+
     AddStep(*context_.new_segment_file);
     AddStep(*context_.new_segment_commit);
+    AddStep(*pc_op.GetResource());
     return true;
 }
 
@@ -268,5 +273,6 @@ BuildOperation::DoExecute() {
     }
     std::any_cast<SegmentFilePtr>(steps_[0])->Activate();
     std::any_cast<SegmentCommitPtr>(steps_[1])->Activate();
+    std::any_cast<PartitionCommitPtr>(steps_[2])->Activate();
     return true;
 }

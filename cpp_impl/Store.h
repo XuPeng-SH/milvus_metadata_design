@@ -293,9 +293,9 @@ private:
         /* register_any_visitor<FieldElement::Ptr>([this](auto c) { */
         /*     CreateResource<FieldElement>(FieldElement(*c)); */
         /* }); */
-        /* register_any_visitor<PartitionCommit::Ptr>([this](auto c) { */
-        /*     CreateResource<PartitionCommit>(PartitionCommit(*c)); */
-        /* }); */
+        register_any_visitor<PartitionCommit::Ptr>([this](auto c) {
+            return CreateResource<PartitionCommit>(PartitionCommit(*c))->GetID();
+        });
         /* register_any_visitor<Partition::Ptr>([this](auto c) { */
         /*     CreateResource<Partition>(Partition(*c)); */
         /* }); */
