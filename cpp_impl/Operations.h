@@ -79,9 +79,29 @@ Operations::OnExecute() {
     if (!ok) status_ = OP_FAIL_FLUSH_META;
 }
 
-class NewSegmentCommitOperation : public Operations {
+template <typename ResourceT>
+class CommitOperation : public Operations {
 public:
     using BaseT = Operations;
+    CommitOperation(ScopedSnapshotT prev_ss)
+        : BaseT(prev_ss) {};
+    CommitOperation(ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(collection_id, commit_id) {};
+
+    typename ResourceT::Ptr GetResource() const  {
+        if (status_ == OP_PENDING) return nullptr;
+        if (ids_.size() == 0) return nullptr;
+        resource_->SetID(ids_[0]);
+        return resource_;
+    }
+
+protected:
+    typename ResourceT::Ptr resource_;
+};
+
+class NewSegmentCommitOperation : public CommitOperation<SegmentCommit> {
+public:
+    using BaseT = CommitOperation<SegmentCommit>;
     NewSegmentCommitOperation(ScopedSnapshotT prev_ss, SegmentFilePtr segment_file)
         : BaseT(prev_ss), segment_file_(segment_file) {};
     NewSegmentCommitOperation(SegmentFile::Ptr segment_file, ID_TYPE collection_id, ID_TYPE commit_id = 0)
@@ -89,23 +109,23 @@ public:
 
     void OnExecute() override {
         auto prev_segment_commit = prev_ss_->GetSegmentCommit(segment_file_->GetSegmentId());
-        segment_commit_ = std::make_shared<SegmentCommit>(*prev_segment_commit);
-        segment_commit_->GetMappings().push_back(segment_file_->GetID());
-        segment_commit_->SetID(0);
-        AddStep(*segment_commit_);
+        resource_ = std::make_shared<SegmentCommit>(*prev_segment_commit);
+        resource_->GetMappings().push_back(segment_file_->GetID());
+        resource_->SetID(0);
+        AddStep(*resource_);
         BaseT::OnExecute();
     }
 
-    SegmentCommitPtr GetSegmentCommit() const {
-        if (status_ == OP_PENDING) return nullptr;
-        if (ids_.size() == 0) return nullptr;
-        segment_commit_->SetID(ids_[0]);
-        return segment_commit_;
-    }
+    /* SegmentCommitPtr GetSegmentCommit() const { */
+    /*     if (status_ == OP_PENDING) return nullptr; */
+    /*     if (ids_.size() == 0) return nullptr; */
+    /*     segment_commit_->SetID(ids_[0]); */
+    /*     return segment_commit_; */
+    /* } */
 
 protected:
     SegmentFilePtr segment_file_;
-    SegmentCommitPtr segment_commit_;
+    /* SegmentCommitPtr segment_commit_; */
 };
 
 class NewSegmentFileOperation : public Operations {

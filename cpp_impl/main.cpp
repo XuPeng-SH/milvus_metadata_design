@@ -133,7 +133,7 @@ int main() {
 
     NewSegmentCommitOperation segc_op(prev_ss, segment_file);
     segc_op.OnExecute();
-    auto segment_commit = segc_op.GetSegmentCommit();
+    auto segment_commit = segc_op.GetResource();
 
     b1.AddStep(*segment_file);
     b1.AddStep(*segment_commit);
