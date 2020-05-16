@@ -117,6 +117,19 @@ public:
     CommitOperation(ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id) {};
 
+    virtual typename ResourceT::Ptr GetPrevResource() const {
+        return nullptr;
+    }
+
+    bool DoExecute() override {
+        auto prev_resource = GetPrevResource();
+        if (!prev_resource) return false;
+        resource_ = std::make_shared<ResourceT>(*prev_resource);
+        resource_->SetID(0);
+        AddStep(*resource_);
+        return true;
+    }
+
     typename ResourceT::Ptr GetResource() const  {
         if (status_ == OP_PENDING) return nullptr;
         if (ids_.size() == 0) return nullptr;
@@ -136,25 +149,12 @@ public:
     NewSegmentCommitOperation(SegmentFile::Ptr segment_file, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), segment_file_(segment_file) {};
 
-    bool DoExecute() override {
-        auto prev_segment_commit = prev_ss_->GetSegmentCommit(segment_file_->GetSegmentId());
-        resource_ = std::make_shared<SegmentCommit>(*prev_segment_commit);
-        resource_->GetMappings().push_back(segment_file_->GetID());
-        resource_->SetID(0);
-        AddStep(*resource_);
-        return true;
+    SegmentCommit::Ptr GetPrevResource() const override {
+        return prev_ss_->GetSegmentCommit(segment_file_->GetSegmentId());
     }
-
-    /* SegmentCommitPtr GetSegmentCommit() const { */
-    /*     if (status_ == OP_PENDING) return nullptr; */
-    /*     if (ids_.size() == 0) return nullptr; */
-    /*     segment_commit_->SetID(ids_[0]); */
-    /*     return segment_commit_; */
-    /* } */
 
 protected:
     SegmentFilePtr segment_file_;
-    /* SegmentCommitPtr segment_commit_; */
 };
 
 class NewSegmentFileOperation : public Operations {
