@@ -150,9 +150,9 @@ protected:
 class CollectionCommitOperation : public CommitOperation<CollectionCommit> {
 public:
     using BaseT = CommitOperation<CollectionCommit>;
-    CollectionCommitOperation(ScopedSnapshotT prev_ss, CollectionCommitContext context)
+    CollectionCommitOperation(ScopedSnapshotT prev_ss, OperationContext context)
         : BaseT(prev_ss), context_(context) {};
-    CollectionCommitOperation(CollectionCommitContext context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+    CollectionCommitOperation(OperationContext context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), context_(context) {};
 
     CollectionCommitPtr GetPrevResource() const override {
@@ -177,7 +177,7 @@ public:
     }
 
 protected:
-    CollectionCommitContext context_;
+    OperationContext context_;
 };
 
 class PartitionCommitOperation : public CommitOperation<PartitionCommit> {
@@ -211,17 +211,17 @@ protected:
 class SegmentCommitOperation : public CommitOperation<SegmentCommit> {
 public:
     using BaseT = CommitOperation<SegmentCommit>;
-    SegmentCommitOperation(ScopedSnapshotT prev_ss, SegmentFilePtr segment_file)
-        : BaseT(prev_ss), segment_file_(segment_file) {};
-    SegmentCommitOperation(SegmentFile::Ptr segment_file, ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(collection_id, commit_id), segment_file_(segment_file) {};
+    SegmentCommitOperation(ScopedSnapshotT prev_ss, OperationContext context)
+        : BaseT(prev_ss), context_(context) {};
+    SegmentCommitOperation(OperationContext context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(collection_id, commit_id), context_(context) {};
 
     SegmentCommit::Ptr GetPrevResource() const override {
-        return prev_ss_->GetSegmentCommit(segment_file_->GetSegmentId());
+        return prev_ss_->GetSegmentCommit(context_.new_segment_file->GetSegmentId());
     }
 
 protected:
-    SegmentFilePtr segment_file_;
+    OperationContext context_;
 };
 
 class SegmentFileOperation : public CommitOperation<SegmentFile> {
@@ -265,7 +265,7 @@ protected:
 
 bool
 BuildOperation::PreExecute() {
-    SegmentCommitOperation op(prev_ss_, context_.new_segment_file);
+    SegmentCommitOperation op(prev_ss_, context_);
     op.OnExecute();
     context_.new_segment_commit = op.GetResource();
     if (!context_.new_segment_commit) return false;
@@ -273,7 +273,7 @@ BuildOperation::PreExecute() {
     PartitionCommitOperation pc_op(prev_ss_, context_.new_segment_commit);
     pc_op.OnExecute();
 
-    CollectionCommitContext cc_context;
+    OperationContext cc_context;
     cc_context.new_partition_commit = pc_op.GetResource();
     CollectionCommitOperation cc_op(prev_ss_, cc_context);
     cc_op.OnExecute();
