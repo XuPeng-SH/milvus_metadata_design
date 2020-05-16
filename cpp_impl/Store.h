@@ -278,9 +278,9 @@ private:
             auto n = CreateResource<Collection>(Collection(*c));
             return n->GetID();
         });
-        /* register_any_visitor<CollectionCommit::Ptr>([this](auto c) { */
-        /*     CreateResource<CollectionCommit>(CollectionCommit(*c)); */
-        /* }); */
+        register_any_visitor<CollectionCommit::Ptr>([this](auto c) {
+            return CreateResource<CollectionCommit>(CollectionCommit(*c))->GetID();
+        });
         /* register_any_visitor<SchemaCommit::Ptr>([this](auto c) { */
         /*     CreateResource<SchemaCommit>(SchemaCommit(*c)); */
         /* }); */
