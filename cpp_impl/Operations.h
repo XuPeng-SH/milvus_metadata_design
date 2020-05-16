@@ -23,8 +23,8 @@ enum OpStatus {
 class Operations {
 public:
     /* static constexpr const char* Name = Derived::Name; */
-    Operations(ScopedSnapshotT prev_ss);
-    Operations(ID_TYPE collection_id, ID_TYPE commit_id = 0);
+    Operations(const OperationContext& context, ScopedSnapshotT prev_ss);
+    Operations(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0);
 
     const ScopedSnapshotT& GetPrevSnapshot() const {return prev_ss_;}
 
@@ -44,24 +44,24 @@ public:
     virtual ~Operations() {}
 
 protected:
+    OperationContext context_;
     ScopedSnapshotT prev_ss_;
     StepsT steps_;
     std::vector<ID_TYPE> ids_;
     OpStatus status_ = OP_PENDING;
 };
 
-Operations::Operations(ScopedSnapshotT prev_ss) : prev_ss_(prev_ss) {}
+Operations::Operations(const OperationContext& context, ScopedSnapshotT prev_ss)
+    : context_(context), prev_ss_(prev_ss) {}
 
-Operations::Operations(ID_TYPE collection_id, ID_TYPE commit_id) :
-    prev_ss_(Snapshots::GetInstance().GetSnapshot(collection_id, commit_id)) {
+Operations::Operations(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id) :
+    context_(context), prev_ss_(Snapshots::GetInstance().GetSnapshot(collection_id, commit_id)) {
 }
 
 template<typename StepT>
 void
 Operations::AddStep(const StepT& step) {
     steps_.push_back(std::make_shared<StepT>(step));
-    /* auto& container = std::get<Index<typename StepT::VecT, StepsT>::value>(steps_); */
-    /* container.push_back(std::make_shared<StepT>(step)); */
 }
 
 bool
@@ -112,10 +112,10 @@ template <typename ResourceT>
 class CommitOperation : public Operations {
 public:
     using BaseT = Operations;
-    CommitOperation(ScopedSnapshotT prev_ss)
-        : BaseT(prev_ss) {};
-    CommitOperation(ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(collection_id, commit_id) {};
+    CommitOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
+        : BaseT(context, prev_ss) {};
+    CommitOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(context, collection_id, commit_id) {};
 
     virtual typename ResourceT::Ptr GetPrevResource() const {
         return nullptr;
@@ -150,10 +150,10 @@ protected:
 class CollectionCommitOperation : public CommitOperation<CollectionCommit> {
 public:
     using BaseT = CommitOperation<CollectionCommit>;
-    CollectionCommitOperation(ScopedSnapshotT prev_ss, OperationContext context)
-        : BaseT(prev_ss), context_(context) {};
+    CollectionCommitOperation(OperationContext context, ScopedSnapshotT prev_ss)
+        : BaseT(context, prev_ss) {};
     CollectionCommitOperation(OperationContext context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(collection_id, commit_id), context_(context) {};
+        : BaseT(context, collection_id, commit_id) {};
 
     CollectionCommitPtr GetPrevResource() const override {
         return prev_ss_->GetCollectionCommit();
@@ -175,21 +175,20 @@ public:
         AddStep(*BaseT::resource_);
         return true;
     }
-
-protected:
-    OperationContext context_;
 };
 
 class PartitionCommitOperation : public CommitOperation<PartitionCommit> {
 public:
     using BaseT = CommitOperation<PartitionCommit>;
-    PartitionCommitOperation(ScopedSnapshotT prev_ss, OperationContext context)
-        : BaseT(prev_ss), context_(context) {};
-    PartitionCommitOperation(OperationContext context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(collection_id, commit_id), context_(context) {};
+    PartitionCommitOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
+        : BaseT(context, prev_ss) {};
+    PartitionCommitOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(context, collection_id, commit_id) {};
 
     PartitionCommitPtr GetPrevResource() const override {
-        return prev_ss_->GetPartitionCommit(context_.new_segment_commit->GetPartitionId());
+        auto& segment_commit = context_.new_segment_commit;
+        return prev_ss_->GetPartitionCommit(segment_commit->GetPartitionId());
+        /* return prev_ss_->GetPartitionCommit(context_.new_segment_commit->GetPartitionId()); */
     }
 
     bool DoExecute() override {
@@ -204,34 +203,29 @@ public:
         AddStep(*resource_);
         return true;
     }
-
-protected:
-    OperationContext context_;
 };
 
 class SegmentCommitOperation : public CommitOperation<SegmentCommit> {
 public:
     using BaseT = CommitOperation<SegmentCommit>;
-    SegmentCommitOperation(ScopedSnapshotT prev_ss, OperationContext context)
-        : BaseT(prev_ss), context_(context) {};
-    SegmentCommitOperation(OperationContext context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(collection_id, commit_id), context_(context) {};
+    SegmentCommitOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
+        : BaseT(context, prev_ss) {};
+    SegmentCommitOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(context, collection_id, commit_id) {};
 
     SegmentCommit::Ptr GetPrevResource() const override {
         return prev_ss_->GetSegmentCommit(context_.new_segment_file->GetSegmentId());
     }
-
-protected:
-    OperationContext context_;
 };
 
 class SegmentFileOperation : public CommitOperation<SegmentFile> {
 public:
     using BaseT = CommitOperation<SegmentFile>;
-    SegmentFileOperation(ScopedSnapshotT prev_ss, const SegmentFileContext& context)
-        : BaseT(prev_ss), context_(context) {};
-    SegmentFileOperation(const SegmentFileContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(collection_id, commit_id), context_(context) {};
+    SegmentFileOperation(const OperationContext& context, ScopedSnapshotT prev_ss, const SegmentFileContext& sc)
+    /* SegmentFileOperation(ScopedSnapshotT prev_ss, OperationContext context) */
+        : BaseT(context, prev_ss), context_(sc) {};
+    SegmentFileOperation(const OperationContext& context, const SegmentFileContext& sc, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(context, collection_id, commit_id), context_(sc) {};
 
     bool DoExecute() override;
 
@@ -241,8 +235,12 @@ protected:
 
 bool
 SegmentFileOperation::DoExecute() {
+
     auto field_element_id = prev_ss_->GetFieldElementId(context_.field_name, context_.field_element_name);
     resource_ = std::make_shared<SegmentFile>(context_.partition_id, context_.segment_id, field_element_id);
+    /* resource_ = std::make_shared<SegmentFile>(context_.prev_segment->GetPartitionId(), */
+    /*         context_.prev_segment->GetID(), */
+    /*         context_.prev_field_element->GetID()); */
     AddStep(*resource_);
     return true;
 }
@@ -252,31 +250,28 @@ public:
     static constexpr const char* Name = "Build";
     using BaseT = Operations;
 
-    BuildOperation(ScopedSnapshotT prev_ss, const OperationContext& context)
-        : BaseT(prev_ss), context_(context) {};
+    BuildOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
+        : BaseT(context, prev_ss) {};
     BuildOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(collection_id, commit_id), context_(context) {};
+        : BaseT(context, collection_id, commit_id) {};
 
     bool DoExecute() override;
     bool PreExecute() override;
-
-protected:
-    OperationContext context_;
 };
 
 bool
 BuildOperation::PreExecute() {
-    SegmentCommitOperation op(prev_ss_, context_);
+    SegmentCommitOperation op(context_, prev_ss_);
     op.OnExecute();
     context_.new_segment_commit = op.GetResource();
     if (!context_.new_segment_commit) return false;
 
-    PartitionCommitOperation pc_op(prev_ss_, context_);
+    PartitionCommitOperation pc_op(context_, prev_ss_);
     pc_op.OnExecute();
 
     OperationContext cc_context;
     cc_context.new_partition_commit = pc_op.GetResource();
-    CollectionCommitOperation cc_op(prev_ss_, cc_context);
+    CollectionCommitOperation cc_op(cc_context, prev_ss_);
     cc_op.OnExecute();
 
     AddStep(*context_.new_segment_file);

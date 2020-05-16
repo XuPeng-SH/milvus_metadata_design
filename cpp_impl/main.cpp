@@ -101,14 +101,14 @@ int main() {
         std::cout << "CID=" << id << " CNAME=" << sss.GetSnapshot(id)->GetName() << std::endl;
     }
 
-    SegmentFileContext context;
-    context.field_name = "f_1_1";
-    context.field_element_name = "fe_1_1";
-    context.segment_id = 1;
-    context.partition_id = 1;
+    SegmentFileContext sf_context;
+    sf_context.field_name = "f_1_1";
+    sf_context.field_element_name = "fe_1_1";
+    sf_context.segment_id = 1;
+    sf_context.partition_id = 1;
 
-
-    SegmentFileOperation new_sf_op(context, 1);
+    OperationContext context;
+    SegmentFileOperation new_sf_op(context, sf_context, 1);
     new_sf_op.OnExecute();
 
     auto prev_ss = new_sf_op.GetPrevSnapshot();
