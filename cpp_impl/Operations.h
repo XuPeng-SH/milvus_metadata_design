@@ -141,6 +141,22 @@ protected:
     typename ResourceT::Ptr resource_;
 };
 
+class PartitionCommitOperation : public CommitOperation<PartitionCommit> {
+public:
+    using BaseT = CommitOperation<PartitionCommit>;
+    PartitionCommitOperation(ScopedSnapshotT prev_ss, SegmentCommitPtr segment_commit)
+        : BaseT(prev_ss), segment_commit_(segment_commit) {};
+    PartitionCommitOperation(SegmentCommitPtr segment_commit, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(collection_id, commit_id), segment_commit_(segment_commit) {};
+
+    PartitionCommitPtr GetPrevResource() const override {
+        return prev_ss_->GetPartitionCommit(segment_commit_->GetPartitionId());
+    }
+
+protected:
+    SegmentCommitPtr segment_commit_;
+};
+
 class SegmentCommitOperation : public CommitOperation<SegmentCommit> {
 public:
     using BaseT = CommitOperation<SegmentCommit>;

@@ -72,6 +72,16 @@ public:
         return itsc->second.Get();
     }
 
+    PartitionCommitPtr GetPartitionCommit(ID_TYPE partition_id) {
+        auto it = p_pc_map_.find(partition_id);
+        if (it == p_pc_map_.end()) return nullptr;
+        auto itpc = partition_commits_.find(it->second);
+        if (itpc == partition_commits_.end()) {
+            return nullptr;
+        }
+        return itpc->second.Get();
+    }
+
     IDS_TYPE GetPartitionIds() const {
         IDS_TYPE ids;
         for(auto& kv : partitions_) {
@@ -175,6 +185,7 @@ private:
     std::map<std::string, std::map<std::string, ID_TYPE>> field_element_names_map_;
     std::map<ID_TYPE, std::map<ID_TYPE, ID_TYPE>> element_segfiles_map_;
     std::map<ID_TYPE, ID_TYPE> seg_segc_map_;
+    std::map<ID_TYPE, ID_TYPE> p_pc_map_;
 };
 
 void Snapshot::RefAll() {
@@ -265,6 +276,7 @@ Snapshot::Snapshot(ID_TYPE id) {
         auto partition_commit = partition_commits_holder.GetResource(id, false);
         auto partition = partitions_holder.GetResource(partition_commit->GetPartitionId(), false);
         partition_commits_[partition_commit->GetPartitionId()] = partition_commit;
+        p_pc_map_[partition_commit->GetPartitionId()] = partition_commit->GetID();
         partitions_[partition_commit->GetPartitionId()] = partition;
         auto& s_c_mappings = partition_commit->GetMappings();
         for (auto& s_c_id : s_c_mappings) {
