@@ -183,29 +183,30 @@ protected:
 class PartitionCommitOperation : public CommitOperation<PartitionCommit> {
 public:
     using BaseT = CommitOperation<PartitionCommit>;
-    PartitionCommitOperation(ScopedSnapshotT prev_ss, SegmentCommitPtr segment_commit)
-        : BaseT(prev_ss), segment_commit_(segment_commit) {};
-    PartitionCommitOperation(SegmentCommitPtr segment_commit, ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(collection_id, commit_id), segment_commit_(segment_commit) {};
+    PartitionCommitOperation(ScopedSnapshotT prev_ss, OperationContext context)
+        : BaseT(prev_ss), context_(context) {};
+    PartitionCommitOperation(OperationContext context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(collection_id, commit_id), context_(context) {};
 
     PartitionCommitPtr GetPrevResource() const override {
-        return prev_ss_->GetPartitionCommit(segment_commit_->GetPartitionId());
+        return prev_ss_->GetPartitionCommit(context_.new_segment_commit->GetPartitionId());
     }
 
     bool DoExecute() override {
         auto prev_resource = GetPrevResource();
         if (!prev_resource) return false;
         resource_ = std::make_shared<PartitionCommit>(*prev_resource);
-        auto prev_segment_commit = prev_ss_->GetSegmentCommit(segment_commit_->GetSegmentId());
+        auto prev_segment_commit = prev_ss_->GetSegmentCommit(
+                context_.new_segment_commit->GetSegmentId());
         resource_->GetMappings().erase(prev_segment_commit->GetID());
-        resource_->GetMappings().insert(segment_commit_->GetID());
+        resource_->GetMappings().insert(context_.new_segment_commit->GetID());
         resource_->SetID(0);
-        AddStep(*BaseT::resource_);
+        AddStep(*resource_);
         return true;
     }
 
 protected:
-    SegmentCommitPtr segment_commit_;
+    OperationContext context_;
 };
 
 class SegmentCommitOperation : public CommitOperation<SegmentCommit> {
@@ -270,7 +271,7 @@ BuildOperation::PreExecute() {
     context_.new_segment_commit = op.GetResource();
     if (!context_.new_segment_commit) return false;
 
-    PartitionCommitOperation pc_op(prev_ss_, context_.new_segment_commit);
+    PartitionCommitOperation pc_op(prev_ss_, context_);
     pc_op.OnExecute();
 
     OperationContext cc_context;
