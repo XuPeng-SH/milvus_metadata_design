@@ -37,6 +37,9 @@ public:
     StepsT& GetSteps() { return steps_; }
 
     virtual void OnExecute();
+    virtual bool PreExecute();
+    virtual bool DoExecute();
+    virtual bool PostExecute();
 
     virtual ~Operations() {}
 
@@ -73,10 +76,36 @@ Operations::IsStale() const {
 
 void
 Operations::OnExecute() {
+    auto r = PreExecute();
+    if (!r) {
+        status_ = OP_FAIL_FLUSH_META;
+        return;
+    }
+    r = DoExecute();
+    if (!r) {
+        status_ = OP_FAIL_FLUSH_META;
+        return;
+    }
+    PostExecute();
+}
+
+bool
+Operations::PreExecute() {
+    return true;
+}
+
+bool
+Operations::DoExecute() {
+    return true;
+}
+
+bool
+Operations::PostExecute() {
     /* std::cout << "Operations " << Name << " is OnExecute with " << steps_.size() << " steps" << std::endl; */
     auto& store = Store::GetInstance();
     auto ok = store.DoCommitOperation(*this);
     if (!ok) status_ = OP_FAIL_FLUSH_META;
+    return ok;
 }
 
 template <typename ResourceT>
@@ -107,13 +136,13 @@ public:
     NewSegmentCommitOperation(SegmentFile::Ptr segment_file, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), segment_file_(segment_file) {};
 
-    void OnExecute() override {
+    bool DoExecute() override {
         auto prev_segment_commit = prev_ss_->GetSegmentCommit(segment_file_->GetSegmentId());
         resource_ = std::make_shared<SegmentCommit>(*prev_segment_commit);
         resource_->GetMappings().push_back(segment_file_->GetID());
         resource_->SetID(0);
         AddStep(*resource_);
-        BaseT::OnExecute();
+        return true;
     }
 
     /* SegmentCommitPtr GetSegmentCommit() const { */
@@ -136,7 +165,7 @@ public:
     NewSegmentFileOperation(const BuildContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), context_(context) {};
 
-    void OnExecute() override;
+    bool DoExecute() override;
 
     SegmentFile::Ptr GetSegmentFile() const {
         if (status_ == OP_PENDING) return nullptr;
@@ -150,12 +179,12 @@ protected:
     BuildContext context_;
 };
 
-void
-NewSegmentFileOperation::OnExecute() {
+bool
+NewSegmentFileOperation::DoExecute() {
     auto field_element_id = prev_ss_->GetFieldElementId(context_.field_name, context_.field_element_name);
     auto sf = SegmentFile(context_.partition_id, context_.segment_id, field_element_id);
     AddStep(sf);
-    BaseT::OnExecute();
+    return true;
 }
 
 class BuildOperation : public Operations {
@@ -168,24 +197,24 @@ public:
     BuildOperation(const BuildContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), context_(context) {};
 
-    void OnExecute() override;
+    bool DoExecute() override;
 
 protected:
     BuildContext context_;
 };
 
-void
-BuildOperation::OnExecute() {
+bool
+BuildOperation::DoExecute() {
     if (status_ != OP_PENDING) {
-        return;
+        return false;
     }
     if (IsStale()) {
         status_ = OP_STALE_CANCEL;
-        return;
+        return false;
     }
     if (!prev_ss_->HasFieldElement(context_.field_name, context_.field_element_name)) {
         status_ = OP_FAIL_INVALID_PARAMS;
-        return;
+        return false;
     }
 
     // PXU TODO: Temp comment below check for test
@@ -197,17 +226,16 @@ BuildOperation::OnExecute() {
     auto& new_segment_file = steps_[0];
     if (new_segment_file.type() != typeid(SegmentFile::Ptr)) {
         status_ = OP_FAIL_INVALID_PARAMS;
-        return;
+        return false;
     }
 
     if (IsStale()) {
         status_ = OP_STALE_CANCEL;
         // PXU TODO: Produce cleanup job
-        return;
+        return false;
     }
 
     std::any_cast<SegmentFilePtr>(new_segment_file)->Activate();
     std::any_cast<SegmentCommitPtr>(steps_[1])->Activate();
-
-    BaseT::OnExecute();
+    return true;
 }
