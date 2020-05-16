@@ -141,12 +141,12 @@ protected:
     typename ResourceT::Ptr resource_;
 };
 
-class NewSegmentCommitOperation : public CommitOperation<SegmentCommit> {
+class SegmentCommitOperation : public CommitOperation<SegmentCommit> {
 public:
     using BaseT = CommitOperation<SegmentCommit>;
-    NewSegmentCommitOperation(ScopedSnapshotT prev_ss, SegmentFilePtr segment_file)
+    SegmentCommitOperation(ScopedSnapshotT prev_ss, SegmentFilePtr segment_file)
         : BaseT(prev_ss), segment_file_(segment_file) {};
-    NewSegmentCommitOperation(SegmentFile::Ptr segment_file, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+    SegmentCommitOperation(SegmentFile::Ptr segment_file, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), segment_file_(segment_file) {};
 
     SegmentCommit::Ptr GetPrevResource() const override {
@@ -157,12 +157,12 @@ protected:
     SegmentFilePtr segment_file_;
 };
 
-class NewSegmentFileOperation : public CommitOperation<SegmentFile> {
+class SegmentFileOperation : public CommitOperation<SegmentFile> {
 public:
     using BaseT = CommitOperation<SegmentFile>;
-    NewSegmentFileOperation(ScopedSnapshotT prev_ss, const SegmentFileContext& context)
+    SegmentFileOperation(ScopedSnapshotT prev_ss, const SegmentFileContext& context)
         : BaseT(prev_ss), context_(context) {};
-    NewSegmentFileOperation(const SegmentFileContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+    SegmentFileOperation(const SegmentFileContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), context_(context) {};
 
     bool DoExecute() override;
@@ -172,7 +172,7 @@ protected:
 };
 
 bool
-NewSegmentFileOperation::DoExecute() {
+SegmentFileOperation::DoExecute() {
     auto field_element_id = prev_ss_->GetFieldElementId(context_.field_name, context_.field_element_name);
     resource_ = std::make_shared<SegmentFile>(context_.partition_id, context_.segment_id, field_element_id);
     AddStep(*resource_);
@@ -198,7 +198,7 @@ protected:
 
 bool
 BuildOperation::PreExecute() {
-    NewSegmentCommitOperation op(prev_ss_, context_.new_segment_file);
+    SegmentCommitOperation op(prev_ss_, context_.new_segment_file);
     op.OnExecute();
     context_.new_segment_commit = op.GetResource();
     if (!context_.new_segment_commit) return false;

@@ -108,7 +108,7 @@ int main() {
     context.partition_id = 1;
 
 
-    NewSegmentFileOperation new_sf_op(context, 1);
+    SegmentFileOperation new_sf_op(context, 1);
     new_sf_op.OnExecute();
 
     auto prev_ss = new_sf_op.GetPrevSnapshot();
