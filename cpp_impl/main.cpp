@@ -107,22 +107,14 @@ int main() {
     sf_context.segment_id = 1;
     sf_context.partition_id = 1;
 
-    OperationContext context;
-    SegmentFileOperation new_sf_op(context, sf_context, 1);
+    SegmentFileOperation new_sf_op(sf_context, 1);
     new_sf_op.OnExecute();
 
     auto prev_ss = new_sf_op.GetPrevSnapshot();
-    /* cout << "Prev b1 SS " << prev_ss->GetName() << " RefCnt=" << prev_ss->RefCnt() << endl; */
-    /* for(auto name : prev_ss->GetFieldNames()) { */
-    /*     std::cout << "FieldName: " << name << std::endl; */
-    /* } */
-
-    OperationContext ocontext;
-    ocontext.new_segment_file = new_sf_op.GetResource();
-    BuildOperation b1(ocontext, prev_ss);
-    b1.OnExecute();
-
-    /* build.OnExecute(); */
+    OperationContext context;
+    context.new_segment_file = new_sf_op.GetResource();
+    BuildOperation build(context, prev_ss);
+    build.OnExecute();
 
     /* for(auto id : prev_ss->GetSegmentIds()) { */
     /*     std::cout << "Segment id=" << id << std::endl; */

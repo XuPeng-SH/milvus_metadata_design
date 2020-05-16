@@ -221,11 +221,11 @@ public:
 class SegmentFileOperation : public CommitOperation<SegmentFile> {
 public:
     using BaseT = CommitOperation<SegmentFile>;
-    SegmentFileOperation(const OperationContext& context, ScopedSnapshotT prev_ss, const SegmentFileContext& sc)
+    SegmentFileOperation(const SegmentFileContext& sc, ScopedSnapshotT prev_ss)
     /* SegmentFileOperation(ScopedSnapshotT prev_ss, OperationContext context) */
-        : BaseT(context, prev_ss), context_(sc) {};
-    SegmentFileOperation(const OperationContext& context, const SegmentFileContext& sc, ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(context, collection_id, commit_id), context_(sc) {};
+        : BaseT(OperationContext(), prev_ss), context_(sc) {};
+    SegmentFileOperation(const SegmentFileContext& sc, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(OperationContext(), collection_id, commit_id), context_(sc) {};
 
     bool DoExecute() override;
 
