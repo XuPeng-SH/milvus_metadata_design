@@ -129,7 +129,7 @@ int main() {
     NewSegmentFileOperation new_sf_op(prev_ss, context);
     new_sf_op.OnExecute();
 
-    auto segment_file = new_sf_op.GetSegmentFile();
+    auto segment_file = new_sf_op.GetResource();
 
     NewSegmentCommitOperation segc_op(prev_ss, segment_file);
     segc_op.OnExecute();

@@ -157,23 +157,15 @@ protected:
     SegmentFilePtr segment_file_;
 };
 
-class NewSegmentFileOperation : public Operations {
+class NewSegmentFileOperation : public CommitOperation<SegmentFile> {
 public:
-    using BaseT = Operations;
+    using BaseT = CommitOperation<SegmentFile>;
     NewSegmentFileOperation(ScopedSnapshotT prev_ss, const BuildContext& context)
         : BaseT(prev_ss), context_(context) {};
     NewSegmentFileOperation(const BuildContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), context_(context) {};
 
     bool DoExecute() override;
-
-    SegmentFile::Ptr GetSegmentFile() const {
-        if (status_ == OP_PENDING) return nullptr;
-        if (ids_.size() == 0) return nullptr;
-        auto r = std::make_shared<SegmentFile>(*std::any_cast<SegmentFile::Ptr>(steps_[0]));
-        r->SetID(ids_[0]);
-        return r;
-    }
 
 protected:
     BuildContext context_;
@@ -182,8 +174,8 @@ protected:
 bool
 NewSegmentFileOperation::DoExecute() {
     auto field_element_id = prev_ss_->GetFieldElementId(context_.field_name, context_.field_element_name);
-    auto sf = SegmentFile(context_.partition_id, context_.segment_id, field_element_id);
-    AddStep(sf);
+    resource_ = std::make_shared<SegmentFile>(context_.partition_id, context_.segment_id, field_element_id);
+    AddStep(*resource_);
     return true;
 }
 
