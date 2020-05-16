@@ -101,16 +101,6 @@ int main() {
         std::cout << "CID=" << id << " CNAME=" << sss.GetSnapshot(id)->GetName() << std::endl;
     }
 
-    /* holder->GetSnapshot()->GetPartitionNames(); */
-    /* Collection ccc("CCC"); */
-    /* ccc.SetID(111); */
-    /* Segment seg(1); */
-    /* seg.SetID(222); */
-    /* Store::GetInstance().DoCommit(ccc, seg); */
-
-    /* using ResourcesT = std::tuple<CollectionCommitMap, SchemaCommitMap>; */
-    /* cout << "XXX " << Index<CollectionCommit, ResourcesT>::value << endl; */
-
     SegmentFileContext context;
     context.field_name = "f_1_1";
     context.field_element_name = "fe_1_1";
@@ -127,19 +117,10 @@ int main() {
     /*     std::cout << "FieldName: " << name << std::endl; */
     /* } */
 
-    auto segment_file = new_sf_op.GetResource();
-
-    /* NewSegmentCommitOperation segc_op(prev_ss, segment_file); */
-    /* segc_op.OnExecute(); */
-    /* auto segment_commit = segc_op.GetResource(); */
-
     BuildContext bcontext;
     bcontext.new_segment_file = new_sf_op.GetResource();
     BuildOperation b1(bcontext, prev_ss);
-    /* b1.AddStep(*segment_file); */
-    /* b1.AddStep(*segment_commit); */
     b1.OnExecute();
-
 
     /* build.OnExecute(); */
 
