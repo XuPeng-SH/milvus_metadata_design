@@ -141,12 +141,6 @@ protected:
     typename ResourceT::Ptr resource_;
 };
 
-/* template <typename ResourceT> */
-/* class DeltaMappingsCommitOperation : public CommitOperation<ResourceT> { */
-/* public: */
-/*     using BaseT = CommitOperation<ResourceT>; */
-/* }; */
-
 class CollectionCommitOperation : public CommitOperation<CollectionCommit> {
 public:
     using BaseT = CommitOperation<CollectionCommit>;
@@ -222,7 +216,6 @@ class SegmentFileOperation : public CommitOperation<SegmentFile> {
 public:
     using BaseT = CommitOperation<SegmentFile>;
     SegmentFileOperation(const SegmentFileContext& sc, ScopedSnapshotT prev_ss)
-    /* SegmentFileOperation(ScopedSnapshotT prev_ss, OperationContext context) */
         : BaseT(OperationContext(), prev_ss), context_(sc) {};
     SegmentFileOperation(const SegmentFileContext& sc, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(OperationContext(), collection_id, commit_id), context_(sc) {};
@@ -235,12 +228,8 @@ protected:
 
 bool
 SegmentFileOperation::DoExecute() {
-
     auto field_element_id = prev_ss_->GetFieldElementId(context_.field_name, context_.field_element_name);
     resource_ = std::make_shared<SegmentFile>(context_.partition_id, context_.segment_id, field_element_id);
-    /* resource_ = std::make_shared<SegmentFile>(context_.prev_segment->GetPartitionId(), */
-    /*         context_.prev_segment->GetID(), */
-    /*         context_.prev_field_element->GetID()); */
     AddStep(*resource_);
     return true;
 }
