@@ -117,9 +117,9 @@ int main() {
     /*     std::cout << "FieldName: " << name << std::endl; */
     /* } */
 
-    BuildContext bcontext;
-    bcontext.new_segment_file = new_sf_op.GetResource();
-    BuildOperation b1(bcontext, prev_ss);
+    OperationContext ocontext;
+    ocontext.new_segment_file = new_sf_op.GetResource();
+    BuildOperation b1(ocontext, prev_ss);
     b1.OnExecute();
 
     /* build.OnExecute(); */

@@ -251,16 +251,16 @@ public:
     static constexpr const char* Name = "Build";
     using BaseT = Operations;
 
-    BuildOperation(ScopedSnapshotT prev_ss, const BuildContext& context)
+    BuildOperation(ScopedSnapshotT prev_ss, const OperationContext& context)
         : BaseT(prev_ss), context_(context) {};
-    BuildOperation(const BuildContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+    BuildOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), context_(context) {};
 
     bool DoExecute() override;
     bool PreExecute() override;
 
 protected:
-    BuildContext context_;
+    OperationContext context_;
 };
 
 bool
