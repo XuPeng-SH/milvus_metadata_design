@@ -160,15 +160,15 @@ protected:
 class NewSegmentFileOperation : public CommitOperation<SegmentFile> {
 public:
     using BaseT = CommitOperation<SegmentFile>;
-    NewSegmentFileOperation(ScopedSnapshotT prev_ss, const BuildContext& context)
+    NewSegmentFileOperation(ScopedSnapshotT prev_ss, const SegmentFileContext& context)
         : BaseT(prev_ss), context_(context) {};
-    NewSegmentFileOperation(const BuildContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+    NewSegmentFileOperation(const SegmentFileContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(collection_id, commit_id), context_(context) {};
 
     bool DoExecute() override;
 
 protected:
-    BuildContext context_;
+    SegmentFileContext context_;
 };
 
 bool
@@ -190,10 +190,22 @@ public:
         : BaseT(collection_id, commit_id), context_(context) {};
 
     bool DoExecute() override;
+    bool PreExecute() override;
 
 protected:
     BuildContext context_;
 };
+
+bool
+BuildOperation::PreExecute() {
+    NewSegmentCommitOperation op(prev_ss_, context_.new_segment_file);
+    op.OnExecute();
+    context_.new_segment_commit = op.GetResource();
+    if (!context_.new_segment_commit) return false;
+    AddStep(*context_.new_segment_file);
+    AddStep(*context_.new_segment_commit);
+    return true;
+}
 
 bool
 BuildOperation::DoExecute() {
@@ -204,10 +216,10 @@ BuildOperation::DoExecute() {
         status_ = OP_STALE_CANCEL;
         return false;
     }
-    if (!prev_ss_->HasFieldElement(context_.field_name, context_.field_element_name)) {
-        status_ = OP_FAIL_INVALID_PARAMS;
-        return false;
-    }
+    /* if (!prev_ss_->HasFieldElement(context_.field_name, context_.field_element_name)) { */
+    /*     status_ = OP_FAIL_INVALID_PARAMS; */
+    /*     return false; */
+    /* } */
 
     // PXU TODO: Temp comment below check for test
     /* if (prev_ss_->HasSegmentFile(context_.field_name, context_.field_element_name, context_.segment_id)) { */
@@ -215,19 +227,12 @@ BuildOperation::DoExecute() {
     /*     return; */
     /* } */
 
-    auto& new_segment_file = steps_[0];
-    if (new_segment_file.type() != typeid(SegmentFile::Ptr)) {
-        status_ = OP_FAIL_INVALID_PARAMS;
-        return false;
-    }
-
     if (IsStale()) {
         status_ = OP_STALE_CANCEL;
         // PXU TODO: Produce cleanup job
         return false;
     }
-
-    std::any_cast<SegmentFilePtr>(new_segment_file)->Activate();
+    std::any_cast<SegmentFilePtr>(steps_[0])->Activate();
     std::any_cast<SegmentCommitPtr>(steps_[1])->Activate();
     return true;
 }

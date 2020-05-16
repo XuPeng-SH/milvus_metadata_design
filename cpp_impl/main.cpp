@@ -111,32 +111,33 @@ int main() {
     /* using ResourcesT = std::tuple<CollectionCommitMap, SchemaCommitMap>; */
     /* cout << "XXX " << Index<CollectionCommit, ResourcesT>::value << endl; */
 
-    BuildContext context;
+    SegmentFileContext context;
     context.field_name = "f_1_1";
     context.field_element_name = "fe_1_1";
     context.segment_id = 1;
     context.partition_id = 1;
-    BuildOperation b1(context, 1);
-    auto prev_ss = b1.GetPrevSnapshot();
-    cout << "Prev b1 SS " << prev_ss->GetName() << " RefCnt=" << prev_ss->RefCnt() << endl;
-    for(auto name : prev_ss->GetFieldNames()) {
-        std::cout << "FieldName: " << name << std::endl;
-    }
 
-    /* BuildOperation build(prev_ss, context); */
-    /* cout << "Prev Build SS " << build.GetPrevSnapshot()->GetName() << " RefCnt=" << build.GetPrevSnapshot()->RefCnt() << endl; */
 
-    NewSegmentFileOperation new_sf_op(prev_ss, context);
+    NewSegmentFileOperation new_sf_op(context, 1);
     new_sf_op.OnExecute();
+
+    auto prev_ss = new_sf_op.GetPrevSnapshot();
+    /* cout << "Prev b1 SS " << prev_ss->GetName() << " RefCnt=" << prev_ss->RefCnt() << endl; */
+    /* for(auto name : prev_ss->GetFieldNames()) { */
+    /*     std::cout << "FieldName: " << name << std::endl; */
+    /* } */
 
     auto segment_file = new_sf_op.GetResource();
 
-    NewSegmentCommitOperation segc_op(prev_ss, segment_file);
-    segc_op.OnExecute();
-    auto segment_commit = segc_op.GetResource();
+    /* NewSegmentCommitOperation segc_op(prev_ss, segment_file); */
+    /* segc_op.OnExecute(); */
+    /* auto segment_commit = segc_op.GetResource(); */
 
-    b1.AddStep(*segment_file);
-    b1.AddStep(*segment_commit);
+    BuildContext bcontext;
+    bcontext.new_segment_file = new_sf_op.GetResource();
+    BuildOperation b1(bcontext, prev_ss);
+    /* b1.AddStep(*segment_file); */
+    /* b1.AddStep(*segment_commit); */
     b1.OnExecute();
 
 
