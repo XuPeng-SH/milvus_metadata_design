@@ -201,17 +201,17 @@ public:
 
     CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
         auto collection = CreateCollection(Collection(collection_schema.name()));
-        IDS_TYPE field_commit_ids = {};
+        MappingT field_commit_ids = {};
         for (auto i=0; i<collection_schema.fields_size(); ++i) {
             auto field_schema = collection_schema.fields(i);
             auto& field_name = field_schema.name();
             auto& field_info = field_schema.info();
             auto field_type = field_info.type();
             auto field = CreateResource<Field>(Field(field_name, i));
-            IDS_TYPE element_ids = {};
+            MappingT element_ids = {};
             auto raw_element = CreateResource<FieldElement>(FieldElement(collection->GetID(),
                         field->GetID(), "RAW", 1));
-            element_ids.push_back(raw_element->GetID());
+            element_ids.insert(raw_element->GetID());
             for(auto j=0; j<field_schema.elements_size(); ++j) {
                 auto element_schema = field_schema.elements(j);
                 auto& element_name = element_schema.name();
@@ -219,14 +219,14 @@ public:
                 auto element_type = element_info.type();
                 auto element = CreateResource<FieldElement>(FieldElement(collection->GetID(), field->GetID(),
                             element_name, element_type));
-                element_ids.push_back(element->GetID());
+                element_ids.insert(element->GetID());
             }
             auto field_commit = CreateResource<FieldCommit>(FieldCommit(collection->GetID(), field->GetID(), element_ids));
-            field_commit_ids.push_back(field_commit->GetID());
+            field_commit_ids.insert(field_commit->GetID());
         }
         auto schema_commit = CreateResource<SchemaCommit>(SchemaCommit(collection->GetID(), field_commit_ids));
 
-        IDS_TYPE empty_mappings = {};
+        MappingT empty_mappings = {};
         auto partition = CreateResource<Partition>(Partition("_default", collection->GetID()));
         auto partition_commit = CreateResource<PartitionCommit>(PartitionCommit(collection->GetID(), partition->GetID(),
                     empty_mappings));
@@ -315,7 +315,6 @@ private:
         srand(time(0));
         int random;
         random = rand() % 2 + 4;
-        IDS_TYPE empty_mappings = {};
         std::vector<std::any> all_records;
         for (auto i=1; i<=random; i++) {
             std::stringstream name;
@@ -324,14 +323,14 @@ private:
             auto c = CreateCollection(Collection(name.str()));
             all_records.push_back(c);
 
-            IDS_TYPE schema_c_m;
+            MappingT schema_c_m;
             int random_fields = rand() % 2 + 1;
             for (auto fi=1; fi<=random_fields; ++fi) {
                 std::stringstream fname;
                 fname << "f_" << fi << "_" << std::get<Index<Field::MapT, MockResourcesT>::value>(ids_) + 1;
                 auto field = CreateResource<Field>(Field(fname.str(), fi));
                 all_records.push_back(field);
-                IDS_TYPE f_c_m = {};
+                MappingT f_c_m = {};
 
                 int random_elements = rand() % 2 + 2;
                 for (auto fei=1; fei<=random_elements; ++fei) {
@@ -340,11 +339,11 @@ private:
 
                     auto element = CreateResource<FieldElement>(FieldElement(c->GetID(), field->GetID(), fename.str(), fei));
                     all_records.push_back(element);
-                    f_c_m.push_back(element->GetID());
+                    f_c_m.insert(element->GetID());
                 }
                 auto f_c = CreateResource<FieldCommit>(FieldCommit(c->GetID(), field->GetID(), f_c_m));
                 all_records.push_back(f_c);
-                schema_c_m.push_back(f_c->GetID());
+                schema_c_m.insert(f_c->GetID());
             }
 
             auto schema = CreateResource<SchemaCommit>(SchemaCommit(c->GetID(), schema_c_m));
@@ -352,7 +351,7 @@ private:
 
 
             int random_partitions = rand() % 2 + 1;
-            IDS_TYPE c_c_m;
+            MappingT c_c_m;
             for (auto pi=1; pi<=random_partitions; ++pi) {
                 std::stringstream pname;
                 pname << "p_" << i << "_" << std::get<Index<Partition::MapT, MockResourcesT>::value>(ids_) + 1;
@@ -361,12 +360,12 @@ private:
 
 
                 int random_segments = rand() % 2 + 1;
-                IDS_TYPE p_c_m;
+                MappingT p_c_m;
                 for (auto si=1; si<=random_segments; ++si) {
                     auto s = CreateResource<Segment>(Segment(p->GetID()));
                     all_records.push_back(s);
                     auto& schema_m = schema->GetMappings();
-                    IDS_TYPE s_c_m;
+                    MappingT s_c_m;
                     for (auto field_commit_id : schema_m) {
                         auto& field_commit = std::get<FieldCommit::MapT>(resources_)[field_commit_id];
                         auto& f_c_m = field_commit->GetMappings();
@@ -374,16 +373,16 @@ private:
                             auto sf = CreateResource<SegmentFile>(SegmentFile(p->GetID(), s->GetID(), field_commit_id));
                             all_records.push_back(sf);
 
-                            s_c_m.push_back(sf->GetID());
+                            s_c_m.insert(sf->GetID());
                         }
                     }
                     auto s_c = CreateResource<SegmentCommit>(SegmentCommit(schema->GetID(), p->GetID(), s->GetID(), s_c_m));
                     all_records.push_back(s_c);
-                    p_c_m.push_back(s_c->GetID());
+                    p_c_m.insert(s_c->GetID());
                 }
                 auto p_c = CreateResource<PartitionCommit>(PartitionCommit(c->GetID(), p->GetID(), p_c_m));
                 all_records.push_back(p_c);
-                c_c_m.push_back(p_c->GetID());
+                c_c_m.insert(p_c->GetID());
             }
             auto c_c = CreateResource<CollectionCommit>(CollectionCommit(c->GetID(), schema->GetID(), c_c_m));
             all_records.push_back(c_c);

@@ -141,6 +141,20 @@ protected:
     typename ResourceT::Ptr resource_;
 };
 
+template <typename ResourceT>
+class DeltaMappingsCommitOperation : public CommitOperation<ResourceT> {
+public:
+    using BaseT = CommitOperation<ResourceT>;
+    bool DoExecute() override {
+        auto prev_resource = BaseT::GetPrevResource();
+        if (!prev_resource) return false;
+        BaseT::resource_ = std::make_shared<ResourceT>(*prev_resource);
+        BaseT::resource_->SetID(0);
+        BaseT::AddStep(*BaseT::resource_);
+        return true;
+    }
+};
+
 class PartitionCommitOperation : public CommitOperation<PartitionCommit> {
 public:
     using BaseT = CommitOperation<PartitionCommit>;

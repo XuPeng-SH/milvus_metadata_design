@@ -2,12 +2,14 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 using ID_TYPE = int64_t;
 using NUM_TYPE = int8_t;
 using FTYPE_TYPE = int16_t;
 using TS_TYPE = int64_t;
-using MappingT = std::vector<ID_TYPE>;
+using MappingT = std::set<ID_TYPE>;
+/* using MappingT = std::vector<ID_TYPE>; */
 
 using IDS_TYPE = std::vector<ID_TYPE>;
 
