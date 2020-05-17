@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BaseResource.h"
 #include "Helper.h"
 #include "Schema.h"
 #include "Proxy.h"
@@ -10,18 +11,6 @@
 #include <condition_variable>
 #include <mutex>
 #include <thread>
-
-
-template <typename ...Fields>
-class DBBaseResource : public ReferenceProxy,
-                       public Fields... {
-public:
-    DBBaseResource(const Fields&... fields);
-
-    virtual std::string ToString() const;
-
-    virtual ~DBBaseResource() {}
-};
 
 class MappingsField {
 public:
@@ -370,5 +359,3 @@ public:
 };
 
 using SegmentFilePtr = SegmentFile::Ptr;
-
-#include "Resources.inl"
