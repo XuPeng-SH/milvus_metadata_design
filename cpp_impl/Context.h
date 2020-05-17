@@ -3,6 +3,7 @@
 #include "Resources.h"
 #include <string>
 #include <iostream>
+#include <vector>
 
 struct SegmentFileContext {
     std::string field_name;
@@ -42,4 +43,6 @@ struct OperationContext {
     PartitionPtr prev_partition = nullptr;
     PartitionCommitPtr prev_partition_commit = nullptr;
     CollectionCommitPtr prev_collection_commit = nullptr;
+
+    SegmentFile::VecT new_segment_files;
 };

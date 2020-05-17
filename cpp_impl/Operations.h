@@ -346,4 +346,14 @@ public:
         return context_.new_segment;
     }
 
+    SegmentFilePtr NewSegmentFile(const SegmentFileContext& context) {
+        auto c = context;
+        c.segment_id = context_.new_segment->GetID();
+        c.partition_id = context_.new_segment->GetPartitionId();
+        SegmentFileOperation new_sf_op(c, prev_ss_);
+        new_sf_op.OnExecute();
+        context_.new_segment_files.push_back(new_sf_op.GetResource());
+        return new_sf_op.GetResource();
+    }
+
 };

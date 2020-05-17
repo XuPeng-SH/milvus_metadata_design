@@ -120,6 +120,7 @@ int main() {
     n_seg_context.prev_partition = prev_ss->GetPartition(1);
     NewSegmentOperation n_seg_op(n_seg_context, prev_ss);
     n_seg_op.NewSegment();
+    n_seg_op.NewSegmentFile(sf_context);
 
     /* for(auto id : prev_ss->GetSegmentIds()) { */
     /*     std::cout << "Segment id=" << id << std::endl; */
