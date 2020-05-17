@@ -212,6 +212,23 @@ public:
     }
 };
 
+class SegmentOperation : public CommitOperation<Segment> {
+public:
+    using BaseT = CommitOperation<Segment>;
+    SegmentOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
+        : BaseT(context, prev_ss) {};
+    SegmentOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(context, collection_id, commit_id) {};
+
+    bool DoExecute() override {
+        if (!context_.prev_partition) {
+            return false;
+        }
+        resource_ = std::make_shared<Segment>(context_.prev_partition->GetID());
+        AddStep(*resource_);
+    }
+};
+
 class SegmentFileOperation : public CommitOperation<SegmentFile> {
 public:
     using BaseT = CommitOperation<SegmentFile>;
@@ -309,5 +326,23 @@ BuildOperation::DoExecute() {
     return true;
 }
 
-class SegmentFlushOperation : public Operations {
+class NewSegmentOperation : public Operations {
+public:
+    using BaseT = Operations;
+
+    NewSegmentOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
+        : BaseT(context, prev_ss) {};
+    NewSegmentOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
+        : BaseT(context, collection_id, commit_id) {};
+
+    bool DoExecute() override;
+    bool PreExecute() override;
+
+    SegmentPtr NewSegment() {
+        SegmentOperation op(context_, prev_ss_);
+        op.OnExecute();
+        context_.new_segment = op.GetResource();
+        return context_.new_segment;
+    }
+
 };
