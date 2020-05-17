@@ -1,6 +1,7 @@
 #pragma once
 #include "Resources.h"
 #include "Holders.h"
+#include "Store.h"
 #include "schema.pb.h"
 #include <map>
 #include <memory>
