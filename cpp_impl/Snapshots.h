@@ -1,9 +1,9 @@
 #pragma once
+#include "Snapshot.h"
 #include "Resources.h"
 #include "Holders.h"
 #include "Store.h"
 #include "schema.pb.h"
-#include "Snapshot.h"
 #include <map>
 #include <memory>
 #include <string>
