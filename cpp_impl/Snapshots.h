@@ -26,8 +26,8 @@ public:
         return sss;
     }
     bool Close(ID_TYPE collection_id);
-    SnapshotsHolderPtr GetHolder(ID_TYPE collection_id);
-    SnapshotsHolderPtr GetHolder(const std::string& name);
+    SnapshotHolderPtr GetHolder(ID_TYPE collection_id);
+    SnapshotHolderPtr GetHolder(const std::string& name);
 
     ScopedSnapshotT GetSnapshot(ID_TYPE collection_id, ID_TYPE id = 0, bool scoped = true);
     ScopedSnapshotT GetSnapshot(const std::string& name, ID_TYPE id = 0, bool scoped = true);
@@ -47,11 +47,11 @@ private:
     void Init();
 
     mutable std::shared_timed_mutex mutex_;
-    SnapshotsHolderPtr LoadNoLock(ID_TYPE collection_id);
-    SnapshotsHolderPtr Load(ID_TYPE collection_id);
-    SnapshotsHolderPtr GetHolderNoLock(ID_TYPE collection_id);
+    SnapshotHolderPtr LoadNoLock(ID_TYPE collection_id);
+    SnapshotHolderPtr Load(ID_TYPE collection_id);
+    SnapshotHolderPtr GetHolderNoLock(ID_TYPE collection_id);
 
-    std::map<ID_TYPE, SnapshotsHolderPtr> holders_;
+    std::map<ID_TYPE, SnapshotHolderPtr> holders_;
     std::map<std::string, ID_TYPE> name_id_map_;
     std::vector<Snapshot::Ptr> to_release_;
 };
@@ -112,13 +112,13 @@ Snapshots::Close(ID_TYPE collection_id) {
     return true;
 }
 
-SnapshotsHolderPtr
+SnapshotHolderPtr
 Snapshots::Load(ID_TYPE collection_id) {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     return LoadNoLock(collection_id);
 }
 
-SnapshotsHolderPtr
+SnapshotHolderPtr
 Snapshots::LoadNoLock(ID_TYPE collection_id) {
     auto& store = Store::GetInstance();
     auto collection_commit_ids = store.AllActiveCollectionCommitIds(collection_id, false);
@@ -144,7 +144,7 @@ Snapshots::Init() {
     }
 }
 
-SnapshotsHolderPtr
+SnapshotHolderPtr
 Snapshots::GetHolder(const std::string& name) {
     {
         std::unique_lock<std::shared_timed_mutex> lock(mutex_);
@@ -159,13 +159,13 @@ Snapshots::GetHolder(const std::string& name) {
     return Load(c->GetID());
 }
 
-SnapshotsHolderPtr
+SnapshotHolderPtr
 Snapshots::GetHolder(ID_TYPE collection_id) {
     std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     return GetHolderNoLock(collection_id);
 }
 
-SnapshotsHolderPtr
+SnapshotHolderPtr
 Snapshots::GetHolderNoLock(ID_TYPE collection_id) {
     auto it = holders_.find(collection_id);
     if (it == holders_.end()) {

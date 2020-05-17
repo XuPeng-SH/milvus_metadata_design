@@ -27,6 +27,48 @@ SnapshotHolder::GetSnapshot(ID_TYPE id, bool scoped) {
     return ScopedSnapshotT(it->second, scoped);
 }
 
+bool
+SnapshotHolder::Add(ID_TYPE id) {
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (active_.size() > 0 && id < max_id_) {
+            return false;
+        }
+    }
+    Snapshot::Ptr oldest_ss;
+    {
+        auto ss = std::make_shared<Snapshot>(id);
+
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (done_) { return false; };
+        ss->RegisterOnNoRefCB(std::bind(&Snapshot::UnRefAll, ss));
+        ss->Ref();
+        auto it = active_.find(id);
+        if (it != active_.end()) {
+            return false;
+        }
+
+        if (min_id_ > id) {
+            min_id_ = id;
+        }
+
+        if (max_id_ < id) {
+            max_id_ = id;
+        }
+
+        active_[id] = ss;
+        if (active_.size() <= num_versions_)
+            return true;
+
+        auto oldest_it = active_.find(min_id_);
+        oldest_ss = oldest_it->second;
+        active_.erase(oldest_it);
+        min_id_ = active_.begin()->first;
+    }
+    ReadyForRelease(oldest_ss); // TODO: Use different mutex
+    return true;
+}
+
 void
 SnapshotHolder::NotifyDone() {
     std::unique_lock<std::mutex> lock(gcmutex_);
