@@ -7,7 +7,7 @@
 #include "Snapshots.h"
 #include "Proxy.h"
 #include "schema.pb.h"
-#include "Operations.h"
+#include "CompoundOperations.h"
 
 using namespace std;
 
