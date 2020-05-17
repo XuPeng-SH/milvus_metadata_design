@@ -182,18 +182,23 @@ public:
     PartitionCommitPtr GetPrevResource() const override {
         auto& segment_commit = context_.new_segment_commit;
         return prev_ss_->GetPartitionCommit(segment_commit->GetPartitionId());
-        /* return prev_ss_->GetPartitionCommit(context_.new_segment_commit->GetPartitionId()); */
     }
 
     bool DoExecute() override {
         auto prev_resource = GetPrevResource();
-        if (!prev_resource) return false;
-        resource_ = std::make_shared<PartitionCommit>(*prev_resource);
-        auto prev_segment_commit = prev_ss_->GetSegmentCommit(
-                context_.new_segment_commit->GetSegmentId());
-        resource_->GetMappings().erase(prev_segment_commit->GetID());
+        if (prev_resource) {
+            resource_ = std::make_shared<PartitionCommit>(*prev_resource);
+            resource_->SetID(0);
+            auto prev_segment_commit = prev_ss_->GetSegmentCommit(
+                    context_.new_segment_commit->GetSegmentId());
+            if (prev_segment_commit)
+                resource_->GetMappings().erase(prev_segment_commit->GetID());
+        } else {
+            resource_ = std::make_shared<PartitionCommit>(prev_ss_->GetCollectionId(),
+                                                          context_.new_segment_commit->GetPartitionId());
+        }
+
         resource_->GetMappings().insert(context_.new_segment_commit->GetID());
-        resource_->SetID(0);
         AddStep(*resource_);
         return true;
     }
@@ -368,11 +373,11 @@ public:
         // 1. Check all requried field elements have related segment files
         SegmentCommitOperation op(context_, prev_ss_);
         op.OnExecute();
-        /* context_.new_segment_commit = op.GetResource(); */
-        /* if (!context_.new_segment_commit) return false; */
+        context_.new_segment_commit = op.GetResource();
+        if (!context_.new_segment_commit) return false;
 
-        /* PartitionCommitOperation pc_op(context_, prev_ss_); */
-        /* pc_op.OnExecute(); */
+        PartitionCommitOperation pc_op(context_, prev_ss_);
+        pc_op.OnExecute();
 
         /* OperationContext cc_context; */
         /* cc_context.new_partition_commit = pc_op.GetResource(); */
