@@ -48,34 +48,6 @@ schema::CollectionSchemaPB proto_lab() {
 }
 
 int main() {
-    /* { */
-    /*     auto ss_holder = make_shared<SnapshotsHolder>(1); */
-    /*     ss_holder->SetGCHandler(std::bind(&SnapshotsHolder::GCHandlerTestCallBack, ss_holder, std::placeholders::_1)); */
-    /*     thread gc_thread(&SnapshotsHolder::BackgroundGC, ss_holder); */
-    /*     ss_holder->Add(1); */
-    /*     ss_holder->Add(2); */
-    /*     ss_holder->Add(3); */
-
-    /*     { */
-    /*         auto ss = ss_holder->GetSnapshot(3); */
-    /*         if (!ss) cout << 3 << " ss is nullptr" << endl; */
-    /*         else { */
-    /*             cout << "3 ss refcnt = " << ss->RefCnt() << endl; */
-    /*         } */
-    /*     } */
-    /*     { */
-    /*         auto ss = ss_holder->GetSnapshot(3, false); */
-    /*         if (!ss) cout << 3 << " ss is nullptr" << endl; */
-    /*         else { */
-    /*             cout << "3 ss refcnt = " << ss->RefCnt() << endl; */
-    /*         } */
-    /*     } */
-
-    /*     ss_holder->NotifyDone(); */
-    /*     gc_thread.join(); */
-    /* } */
-    /* return 0; */
-
     Store::GetInstance().Mock();
     auto& sss = Snapshots::GetInstance();
     auto ss_holder = sss.GetHolder("c_1");
@@ -89,13 +61,6 @@ int main() {
 
     sss.Close(2);
 
-    /* auto collection_schema = proto_lab(); */
-    /* cout << collection_schema.fields_size() << endl; */
-    /* cout << collection_schema.fields(0).name() << endl; */
-    /* auto c = Store::GetInstance().CreateCollection(collection_schema); */
-    /* auto holder = sss.GetHolder(c->GetID()); */
-
-    /* cout << element.info().params_size() << endl; */
     collection_ids = sss.GetCollectionIds();
     for (auto id : collection_ids) {
         std::cout << "CID=" << id << " CNAME=" << sss.GetSnapshot(id)->GetName() << std::endl;
@@ -107,10 +72,7 @@ int main() {
     sf_context.segment_id = 1;
     sf_context.partition_id = 1;
 
-    /* SegmentFileOperation new_sf_op(sf_context, 1); */
-    /* new_sf_op.OnExecute(); */
     OperationContext context;
-    /* context.new_segment_file = new_sf_op.GetResource(); */
     BuildOperation build_op(context, 1);
     auto seg_file = build_op.NewSegmentFile(sf_context);
     build_op.OnExecute();
