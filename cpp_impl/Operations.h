@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Snapshots.h"
+#include "Snapshot.h"
 #include "Store.h"
 #include "Context.h"
 #include <assert.h>
@@ -51,61 +51,10 @@ protected:
     OpStatus status_ = OP_PENDING;
 };
 
-Operations::Operations(const OperationContext& context, ScopedSnapshotT prev_ss)
-    : context_(context), prev_ss_(prev_ss) {}
-
-Operations::Operations(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id) :
-    context_(context), prev_ss_(Snapshots::GetInstance().GetSnapshot(collection_id, commit_id)) {
-}
-
 template<typename StepT>
 void
 Operations::AddStep(const StepT& step) {
     steps_.push_back(std::make_shared<StepT>(step));
-}
-
-bool
-Operations::IsStale() const {
-    auto curr_ss = Snapshots::GetInstance().GetSnapshot(prev_ss_->GetCollectionId());
-    if (prev_ss_->GetID() == curr_ss->GetID()) {
-        return false;
-    }
-
-    return true;
-}
-
-void
-Operations::OnExecute() {
-    auto r = PreExecute();
-    if (!r) {
-        status_ = OP_FAIL_FLUSH_META;
-        return;
-    }
-    r = DoExecute();
-    if (!r) {
-        status_ = OP_FAIL_FLUSH_META;
-        return;
-    }
-    PostExecute();
-}
-
-bool
-Operations::PreExecute() {
-    return true;
-}
-
-bool
-Operations::DoExecute() {
-    return true;
-}
-
-bool
-Operations::PostExecute() {
-    /* std::cout << "Operations " << Name << " is OnExecute with " << steps_.size() << " steps" << std::endl; */
-    auto& store = Store::GetInstance();
-    auto ok = store.DoCommitOperation(*this);
-    if (!ok) status_ = OP_FAIL_FLUSH_META;
-    return ok;
 }
 
 template <typename ResourceT>
@@ -120,15 +69,6 @@ public:
     virtual typename ResourceT::Ptr GetPrevResource() const {
         return nullptr;
     }
-
-    /* bool DoExecute() override { */
-    /*     auto prev_resource = GetPrevResource(); */
-    /*     if (!prev_resource) return false; */
-    /*     resource_ = std::make_shared<ResourceT>(*prev_resource); */
-    /*     resource_->SetID(0); */
-    /*     AddStep(*resource_); */
-    /*     return true; */
-    /* } */
 
     typename ResourceT::Ptr GetResource() const  {
         if (status_ == OP_PENDING) return nullptr;
