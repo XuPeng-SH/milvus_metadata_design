@@ -363,28 +363,28 @@ public:
         : BaseT(context, collection_id, commit_id) {};
 
     /* bool DoExecute() override; */
-    /* bool PreExecute() override { */
-    /*     // PXU TODO: */
-    /*     // 1. Check all requried field elements have related segment files */
-    /*     SegmentCommitOperation op(context_, prev_ss_); */
-    /*     op.OnExecute(); */
-    /*     context_.new_segment_commit = op.GetResource(); */
-    /*     if (!context_.new_segment_commit) return false; */
+    bool PreExecute() override {
+        // PXU TODO:
+        // 1. Check all requried field elements have related segment files
+        SegmentCommitOperation op(context_, prev_ss_);
+        op.OnExecute();
+        /* context_.new_segment_commit = op.GetResource(); */
+        /* if (!context_.new_segment_commit) return false; */
 
-    /*     PartitionCommitOperation pc_op(context_, prev_ss_); */
-    /*     pc_op.OnExecute(); */
+        /* PartitionCommitOperation pc_op(context_, prev_ss_); */
+        /* pc_op.OnExecute(); */
 
-    /*     OperationContext cc_context; */
-    /*     cc_context.new_partition_commit = pc_op.GetResource(); */
-    /*     CollectionCommitOperation cc_op(cc_context, prev_ss_); */
-    /*     cc_op.OnExecute(); */
+        /* OperationContext cc_context; */
+        /* cc_context.new_partition_commit = pc_op.GetResource(); */
+        /* CollectionCommitOperation cc_op(cc_context, prev_ss_); */
+        /* cc_op.OnExecute(); */
 
-    /*     AddStep(*context_.new_segment_file); */
-    /*     AddStep(*context_.new_segment_commit); */
-    /*     AddStep(*pc_op.GetResource()); */
-    /*     AddStep(*cc_op.GetResource()); */
+        /* AddStep(*context_.new_segment_file); */
+        /* AddStep(*context_.new_segment_commit); */
+        /* AddStep(*pc_op.GetResource()); */
+        /* AddStep(*cc_op.GetResource()); */
 
-    /* } */
+    }
 
     SegmentPtr NewSegment() {
         SegmentOperation op(context_, prev_ss_);

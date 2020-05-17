@@ -121,6 +121,7 @@ int main() {
     NewSegmentOperation n_seg_op(n_seg_context, prev_ss);
     n_seg_op.NewSegment();
     n_seg_op.NewSegmentFile(sf_context);
+    n_seg_op.OnExecute();
 
     /* for(auto id : prev_ss->GetSegmentIds()) { */
     /*     std::cout << "Segment id=" << id << std::endl; */
