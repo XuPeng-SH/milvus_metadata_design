@@ -121,14 +121,14 @@ public:
         return nullptr;
     }
 
-    bool DoExecute() override {
-        auto prev_resource = GetPrevResource();
-        if (!prev_resource) return false;
-        resource_ = std::make_shared<ResourceT>(*prev_resource);
-        resource_->SetID(0);
-        AddStep(*resource_);
-        return true;
-    }
+    /* bool DoExecute() override { */
+    /*     auto prev_resource = GetPrevResource(); */
+    /*     if (!prev_resource) return false; */
+    /*     resource_ = std::make_shared<ResourceT>(*prev_resource); */
+    /*     resource_->SetID(0); */
+    /*     AddStep(*resource_); */
+    /*     return true; */
+    /* } */
 
     typename ResourceT::Ptr GetResource() const  {
         if (status_ == OP_PENDING) return nullptr;
