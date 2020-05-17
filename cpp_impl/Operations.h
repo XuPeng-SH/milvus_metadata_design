@@ -208,7 +208,31 @@ public:
         : BaseT(context, collection_id, commit_id) {};
 
     SegmentCommit::Ptr GetPrevResource() const override {
-        return prev_ss_->GetSegmentCommit(context_.new_segment_file->GetSegmentId());
+        if (context_.new_segment_files.size() > 0) {
+            return prev_ss_->GetSegmentCommit(context_.new_segment_files[0]->GetSegmentId());
+        }
+        return nullptr;
+    }
+
+    bool DoExecute() override {
+        auto prev_resource = GetPrevResource();
+
+        if (prev_resource) {
+            resource_ = std::make_shared<SegmentCommit>(*prev_resource);
+            resource_->SetID(0);
+            if (context_.stale_segment_file) {
+                resource_->GetMappings().erase(context_.stale_segment_file->GetID());
+            }
+        } else {
+            resource_ = std::make_shared<SegmentCommit>(prev_ss_->GetLatestSchemaCommitId(),
+                                                        context_.new_segment_files[0]->GetPartitionId(),
+                                                        context_.new_segment_files[0]->GetSegmentId());
+        }
+        for(auto& new_segment_file : context_.new_segment_files) {
+            resource_->GetMappings().insert(new_segment_file->GetID());
+        }
+        AddStep(*resource_);
+        return true;
     }
 };
 
@@ -268,8 +292,8 @@ public:
     SegmentFilePtr NewSegmentFile(const SegmentFileContext& context) {
         SegmentFileOperation new_sf_op(context, prev_ss_);
         new_sf_op.OnExecute();
-        context_.new_segment_file = new_sf_op.GetResource();
-        return context_.new_segment_file;
+        context_.new_segment_files.push_back(new_sf_op.GetResource());
+        return new_sf_op.GetResource();
     }
 };
 
@@ -288,7 +312,9 @@ BuildOperation::PreExecute() {
     CollectionCommitOperation cc_op(cc_context, prev_ss_);
     cc_op.OnExecute();
 
-    AddStep(*context_.new_segment_file);
+    for (auto& new_segment_file : context_.new_segment_files) {
+        AddStep(*new_segment_file);
+    }
     AddStep(*context_.new_segment_commit);
     AddStep(*pc_op.GetResource());
     AddStep(*cc_op.GetResource());
@@ -337,7 +363,28 @@ public:
         : BaseT(context, collection_id, commit_id) {};
 
     /* bool DoExecute() override; */
-    /* bool PreExecute() override; */
+    /* bool PreExecute() override { */
+    /*     // PXU TODO: */
+    /*     // 1. Check all requried field elements have related segment files */
+    /*     SegmentCommitOperation op(context_, prev_ss_); */
+    /*     op.OnExecute(); */
+    /*     context_.new_segment_commit = op.GetResource(); */
+    /*     if (!context_.new_segment_commit) return false; */
+
+    /*     PartitionCommitOperation pc_op(context_, prev_ss_); */
+    /*     pc_op.OnExecute(); */
+
+    /*     OperationContext cc_context; */
+    /*     cc_context.new_partition_commit = pc_op.GetResource(); */
+    /*     CollectionCommitOperation cc_op(cc_context, prev_ss_); */
+    /*     cc_op.OnExecute(); */
+
+    /*     AddStep(*context_.new_segment_file); */
+    /*     AddStep(*context_.new_segment_commit); */
+    /*     AddStep(*pc_op.GetResource()); */
+    /*     AddStep(*cc_op.GetResource()); */
+
+    /* } */
 
     SegmentPtr NewSegment() {
         SegmentOperation op(context_, prev_ss_);

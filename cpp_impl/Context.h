@@ -29,11 +29,12 @@ struct OperationContext {
 
     /* OperationContext() {} */
 
-    SegmentFilePtr new_segment_file = nullptr;
     SegmentPtr new_segment = nullptr;
     SegmentCommitPtr new_segment_commit = nullptr;
     PartitionCommitPtr new_partition_commit = nullptr;
     SchemaCommitPtr new_schema_commit = nullptr;
+
+    SegmentFilePtr stale_segment_file = nullptr;
 
     FieldPtr prev_field = nullptr;
     FieldElementPtr prev_field_element = nullptr;

@@ -61,6 +61,10 @@ public:
         return names;
     }
 
+    ID_TYPE GetLatestSchemaCommitId() const {
+        return latest_schema_commit_id_;
+    }
+
     PartitionPtr GetPartition(ID_TYPE partition_id) {
         auto it = partitions_.find(partition_id);
         if (it == partitions_.end()) {
@@ -194,6 +198,7 @@ private:
     std::map<ID_TYPE, std::map<ID_TYPE, ID_TYPE>> element_segfiles_map_;
     std::map<ID_TYPE, ID_TYPE> seg_segc_map_;
     std::map<ID_TYPE, ID_TYPE> p_pc_map_;
+    ID_TYPE latest_schema_commit_id_;
 };
 
 void Snapshot::RefAll() {
@@ -314,6 +319,7 @@ Snapshot::Snapshot(ID_TYPE id) {
     }
 
     for (auto& kv : schema_commits_) {
+        if (kv.first > latest_schema_commit_id_) latest_schema_commit_id_ = kv.first;
         auto& schema_commit = kv.second;
         auto& s_c_m =  current_schema->GetMappings();
         for (auto field_commit_id : s_c_m) {
