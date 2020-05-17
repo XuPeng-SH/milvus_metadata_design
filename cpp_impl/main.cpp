@@ -109,12 +109,17 @@ int main() {
 
     /* SegmentFileOperation new_sf_op(sf_context, 1); */
     /* new_sf_op.OnExecute(); */
-    /* auto prev_ss = new_sf_op.GetPrevSnapshot(); */
     OperationContext context;
     /* context.new_segment_file = new_sf_op.GetResource(); */
     BuildOperation build_op(context, 1);
     auto seg_file = build_op.NewSegmentFile(sf_context);
     build_op.OnExecute();
+
+    auto prev_ss = build_op.GetPrevSnapshot();
+    OperationContext n_seg_context;
+    n_seg_context.prev_partition = prev_ss->GetPartition(1);
+    NewSegmentOperation n_seg_op(n_seg_context, prev_ss);
+    n_seg_op.NewSegment();
 
     /* for(auto id : prev_ss->GetSegmentIds()) { */
     /*     std::cout << "Segment id=" << id << std::endl; */

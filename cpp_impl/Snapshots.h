@@ -61,6 +61,14 @@ public:
         return names;
     }
 
+    PartitionPtr GetPartition(ID_TYPE partition_id) {
+        auto it = partitions_.find(partition_id);
+        if (it == partitions_.end()) {
+            return nullptr;
+        }
+        return it->second.Get();
+    }
+
     // PXU TODO: add const. Need to change Scopedxxxx::Get
     SegmentCommitPtr GetSegmentCommit(ID_TYPE segment_id) {
         auto it = seg_segc_map_.find(segment_id);

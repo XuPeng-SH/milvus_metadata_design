@@ -226,6 +226,7 @@ public:
         }
         resource_ = std::make_shared<Segment>(context_.prev_partition->GetID());
         AddStep(*resource_);
+        return true;
     }
 };
 
@@ -335,8 +336,8 @@ public:
     NewSegmentOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(context, collection_id, commit_id) {};
 
-    bool DoExecute() override;
-    bool PreExecute() override;
+    /* bool DoExecute() override; */
+    /* bool PreExecute() override; */
 
     SegmentPtr NewSegment() {
         SegmentOperation op(context_, prev_ss_);

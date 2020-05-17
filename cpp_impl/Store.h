@@ -299,9 +299,9 @@ private:
         /* register_any_visitor<Partition::Ptr>([this](auto c) { */
         /*     CreateResource<Partition>(Partition(*c)); */
         /* }); */
-        /* register_any_visitor<Segment::Ptr>([this](auto c) { */
-        /*     CreateResource<Segment>(Segment(*c)); */
-        /* }); */
+        register_any_visitor<Segment::Ptr>([this](auto c) {
+            return CreateResource<Segment>(Segment(*c))->GetID();
+        });
         register_any_visitor<SegmentCommit::Ptr>([this](auto c) {
             return CreateResource<SegmentCommit>(SegmentCommit(*c))->GetID();
         });
