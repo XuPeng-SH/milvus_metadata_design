@@ -3,6 +3,7 @@
 #include "Holders.h"
 #include "Store.h"
 #include "schema.pb.h"
+#include "Types.h"
 #include <map>
 #include <memory>
 #include <deque>
@@ -18,31 +19,6 @@
 #include <atomic>
 #include <chrono>
 
-
-using CollectionScopedT = ScopedResource<Collection>;
-using CollectionCommitScopedT = ScopedResource<CollectionCommit>;
-
-using SchemaCommitScopedT = ScopedResource<SchemaCommit>;
-using SchemaCommitsT = std::map<ID_TYPE, SchemaCommitScopedT>;
-
-using FieldScopedT = ScopedResource<Field>;
-using FieldsT = std::map<ID_TYPE, FieldScopedT>;
-using FieldCommitScopedT = ScopedResource<FieldCommit>;
-using FieldCommitsT = std::map<ID_TYPE, FieldCommitScopedT>;
-using FieldElementScopedT = ScopedResource<FieldElement>;
-using FieldElementsT = std::map<ID_TYPE, FieldElementScopedT>;
-
-using PartitionScopedT = ScopedResource<Partition>;
-using PartitionCommitScopedT = ScopedResource<PartitionCommit>;
-using PartitionsT = std::map<ID_TYPE, PartitionScopedT>;
-using PartitionCommitsT = std::map<ID_TYPE, PartitionCommitScopedT>;
-
-using SegmentScopedT = ScopedResource<Segment>;
-using SegmentCommitScopedT = ScopedResource<SegmentCommit>;
-using SegmentFileScopedT = ScopedResource<SegmentFile>;
-using SegmentsT = std::map<ID_TYPE, SegmentScopedT>;
-using SegmentCommitsT = std::map<ID_TYPE, SegmentCommitScopedT>;
-using SegmentFilesT = std::map<ID_TYPE, SegmentFileScopedT>;
 
 class Snapshot : public ReferenceProxy {
 public:
