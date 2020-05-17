@@ -12,18 +12,8 @@
 #include <thread>
 
 
-class FieldMixin {
-public:
-
-protected:
-    void InstallField(const std::string& field);
-
-    std::vector<std::string> fields_;
-};
-
 template <typename ...Fields>
 class DBBaseResource : public ReferenceProxy,
-                       public FieldMixin,
                        public Fields... {
 public:
     DBBaseResource(const Fields&... fields);

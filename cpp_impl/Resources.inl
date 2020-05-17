@@ -4,10 +4,6 @@
 #include <iostream>
 
 
-void FieldMixin::InstallField(const std::string& field) {
-    fields_.push_back(field);
-}
-
 template <typename ...Fields>
 DBBaseResource<Fields...>::DBBaseResource(const Fields&... fields) : Fields(fields)... {
     /* InstallField("id"); */
@@ -18,12 +14,6 @@ DBBaseResource<Fields...>::DBBaseResource(const Fields&... fields) : Fields(fiel
 
 template <typename ...Fields>
 std::string DBBaseResource<Fields...>::ToString() const {
-    for (auto& field : fields_) {
-        std::cout << "Field->" << field << std::endl;
-    }
-    std::stringstream ss;
-    /* ss << "ID=" << id_ << ", Status=" << status_ << ", TS=" << created_on_; */
-    return ss.str();
 }
 
 Collection::Collection(const std::string& name, ID_TYPE id, State status, TS_TYPE created_on) :
