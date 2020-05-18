@@ -7,10 +7,8 @@ public:
     static constexpr const char* Name = "Build";
     using BaseT = Operations;
 
-    BuildOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
-        : BaseT(context, prev_ss) {};
-    BuildOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(context, collection_id, commit_id) {};
+    BuildOperation(const OperationContext& context, ScopedSnapshotT prev_ss);
+    BuildOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0);
 
     bool DoExecute() override;
     bool PreExecute() override;
@@ -22,10 +20,8 @@ class NewSegmentOperation : public Operations {
 public:
     using BaseT = Operations;
 
-    NewSegmentOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
-        : BaseT(context, prev_ss) {};
-    NewSegmentOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
-        : BaseT(context, collection_id, commit_id) {};
+    NewSegmentOperation(const OperationContext& context, ScopedSnapshotT prev_ss);
+    NewSegmentOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0);
 
     bool DoExecute() override;
 

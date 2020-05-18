@@ -1,5 +1,10 @@
 #include "CompoundOperations.h"
 
+BuildOperation::BuildOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
+    : BaseT(context, prev_ss) {};
+BuildOperation::BuildOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id)
+    : BaseT(context, collection_id, commit_id) {};
+
 bool
 BuildOperation::PreExecute() {
     SegmentCommitOperation op(context_, prev_ss_);
@@ -63,6 +68,11 @@ BuildOperation::NewSegmentFile(const SegmentFileContext& context) {
     context_.new_segment_files.push_back(new_sf_op.GetResource());
     return new_sf_op.GetResource();
 }
+
+NewSegmentOperation::NewSegmentOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
+    : BaseT(context, prev_ss) {};
+NewSegmentOperation::NewSegmentOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id)
+    : BaseT(context, collection_id, commit_id) {};
 
 bool
 NewSegmentOperation::DoExecute() {
