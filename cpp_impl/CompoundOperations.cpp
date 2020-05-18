@@ -158,3 +158,30 @@ MergeOperation::NewSegmentFile(const SegmentFileContext& context) {
     context_.new_segment_files.push_back(new_sf_op.GetResource());
     return new_sf_op.GetResource();
 }
+
+bool
+MergeOperation::PreExecute() {
+    // PXU TODO:
+    // 1. Check all requried field elements have related segment files
+    // 2. Check Stale and others
+    SegmentCommitOperation op(context_, prev_ss_);
+    op.OnExecute();
+    context_.new_segment_commit = op.GetResource();
+    if (!context_.new_segment_commit) return false;
+
+    PartitionCommitOperation pc_op(context_, prev_ss_);
+    pc_op.OnExecute();
+
+    OperationContext cc_context;
+    cc_context.new_partition_commit = pc_op.GetResource();
+    CollectionCommitOperation cc_op(cc_context, prev_ss_);
+    cc_op.OnExecute();
+
+    for (auto& new_segment_file : context_.new_segment_files) {
+        AddStep(*new_segment_file);
+    }
+    AddStep(*context_.new_segment_commit);
+    AddStep(*pc_op.GetResource());
+    AddStep(*cc_op.GetResource());
+    return true;
+}
