@@ -30,5 +30,15 @@ public:
     SegmentPtr NewSegment();
 
     SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
+};
 
+class MergeOperation : public Operations {
+public:
+    using BaseT = Operations;
+
+    MergeOperation(const OperationContext& context, ScopedSnapshotT prev_ss);
+    MergeOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0);
+
+    SegmentPtr NewSegment();
+    SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
 };

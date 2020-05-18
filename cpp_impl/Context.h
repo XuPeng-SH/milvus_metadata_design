@@ -35,6 +35,7 @@ struct OperationContext {
     SchemaCommitPtr new_schema_commit = nullptr;
 
     SegmentFilePtr stale_segment_file = nullptr;
+    std::vector<SegmentPtr> stale_segments;
 
     FieldPtr prev_field = nullptr;
     FieldElementPtr prev_field_element = nullptr;

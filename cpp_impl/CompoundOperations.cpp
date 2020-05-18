@@ -131,3 +131,30 @@ NewSegmentOperation::NewSegmentFile(const SegmentFileContext& context) {
     context_.new_segment_files.push_back(new_sf_op.GetResource());
     return new_sf_op.GetResource();
 }
+
+MergeOperation::MergeOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
+    : BaseT(context, prev_ss) {};
+MergeOperation::MergeOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id)
+    : BaseT(context, collection_id, commit_id) {};
+
+SegmentPtr
+MergeOperation::NewSegment() {
+    if (context_.new_segment) return context_.new_segment;
+    SegmentOperation op(context_, prev_ss_);
+    op.OnExecute();
+    context_.new_segment = op.GetResource();
+    return context_.new_segment;
+}
+
+SegmentFilePtr
+MergeOperation::NewSegmentFile(const SegmentFileContext& context) {
+    // PXU TODO: Check element type and segment file mapping rules
+    auto new_segment = NewSegment();
+    auto c = context;
+    c.segment_id = new_segment->GetID();
+    c.partition_id = new_segment->GetPartitionId();
+    SegmentFileOperation new_sf_op(c, prev_ss_);
+    new_sf_op.OnExecute();
+    context_.new_segment_files.push_back(new_sf_op.GetResource());
+    return new_sf_op.GetResource();
+}
