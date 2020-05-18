@@ -169,6 +169,8 @@ MergeOperation::PreExecute() {
     context_.new_segment_commit = op.GetResource();
     if (!context_.new_segment_commit) return false;
 
+    // PXU TODO: Check stale segments
+
     PartitionCommitOperation pc_op(context_, prev_ss_);
     pc_op.OnExecute();
 

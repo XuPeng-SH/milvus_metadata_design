@@ -29,6 +29,12 @@ PartitionCommitOperation::DoExecute() {
                 context_.new_segment_commit->GetSegmentId());
         if (prev_segment_commit)
             resource_->GetMappings().erase(prev_segment_commit->GetID());
+        if (context_.stale_segments.size() > 0) {
+            for (auto& stale_segment : context_.stale_segments) {
+                auto stale_segment_commit = prev_ss_->GetSegmentCommit(stale_segment->GetID());
+                resource_->GetMappings().erase(stale_segment_commit->GetID());
+            }
+        }
     } else {
         resource_ = std::make_shared<PartitionCommit>(prev_ss_->GetCollectionId(),
                                                       context_.new_segment_commit->GetPartitionId());
