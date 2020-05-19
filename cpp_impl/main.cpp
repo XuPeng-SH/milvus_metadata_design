@@ -92,7 +92,8 @@ int main() {
         build_op.OnExecute();
 
         auto prev_ss = build_op.GetSnapshot();
-        /* cout << "Snapshot " << prev_ss->GetCollectionCommit()->GetID() << endl; */
+        cout << "Snapshot " << prev_ss->GetCollectionCommit()->GetID() << endl;
+
         OperationContext n_seg_context;
         n_seg_context.prev_partition = prev_ss->GetPartition(1);
         NewSegmentOperation n_seg_op(n_seg_context, prev_ss);
