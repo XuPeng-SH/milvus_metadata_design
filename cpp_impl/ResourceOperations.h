@@ -16,6 +16,9 @@ public:
     bool DoExecute() override;
 };
 
+/*
+ * Context: new_segment_commit@requried stale_segments@optional
+ */
 class PartitionCommitOperation : public CommitOperation<PartitionCommit> {
 public:
     using BaseT = CommitOperation<PartitionCommit>;
@@ -32,6 +35,9 @@ public:
     bool DoExecute() override;
 };
 
+/*
+ * Context: new_segment_files@requried stale_segment_file@optional
+ */
 class SegmentCommitOperation : public CommitOperation<SegmentCommit> {
 public:
     using BaseT = CommitOperation<SegmentCommit>;
@@ -50,6 +56,9 @@ public:
     bool DoExecute() override;
 };
 
+/*
+ * Context: prev_partition@requried
+ */
 class SegmentOperation : public CommitOperation<Segment> {
 public:
     using BaseT = CommitOperation<Segment>;

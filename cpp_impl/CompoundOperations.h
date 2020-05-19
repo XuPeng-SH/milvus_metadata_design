@@ -5,7 +5,6 @@
 
 class BuildOperation : public Operations {
 public:
-    static constexpr const char* Name = "Build";
     using BaseT = Operations;
 
     BuildOperation(const OperationContext& context, ScopedSnapshotT prev_ss);
