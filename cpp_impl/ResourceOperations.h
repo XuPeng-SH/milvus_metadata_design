@@ -26,7 +26,7 @@ public:
 
     PartitionCommitPtr GetPrevResource() const override {
         auto& segment_commit = context_.new_segment_commit;
-        return prev_ss_->GetPartitionCommit(segment_commit->GetPartitionId());
+        return prev_ss_->GetPartitionCommitByPartitionId(segment_commit->GetPartitionId());
     }
 
     bool DoExecute() override;

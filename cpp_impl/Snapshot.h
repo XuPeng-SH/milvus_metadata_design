@@ -55,7 +55,7 @@ public:
         return itsc->second.Get();
     }
 
-    PartitionCommitPtr GetPartitionCommit(ID_TYPE partition_id) {
+    PartitionCommitPtr GetPartitionCommitByPartitionId(ID_TYPE partition_id) {
         auto it = p_pc_map_.find(partition_id);
         if (it == p_pc_map_.end()) return nullptr;
         auto itpc = partition_commits_.find(it->second);

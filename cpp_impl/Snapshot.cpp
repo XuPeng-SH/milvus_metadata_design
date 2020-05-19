@@ -89,7 +89,7 @@ Snapshot::Snapshot(ID_TYPE id) {
     for (auto& id : mappings) {
         auto partition_commit = partition_commits_holder.GetResource(id, false);
         auto partition = partitions_holder.GetResource(partition_commit->GetPartitionId(), false);
-        partition_commits_[partition_commit->GetPartitionId()] = partition_commit;
+        partition_commits_[partition_commit->GetID()] = partition_commit;
         p_pc_map_[partition_commit->GetPartitionId()] = partition_commit->GetID();
         partitions_[partition_commit->GetPartitionId()] = partition;
         auto& s_c_mappings = partition_commit->GetMappings();
@@ -142,6 +142,15 @@ Snapshot::Snapshot(ID_TYPE id) {
             }
         }
     }
+
+    /* for(auto kv : partition_commits_) { */
+    /*     std::cout << this << " Snapshot " << collection_commit_->GetID() << " PartitionCommit " << */
+    /*         kv.first << " Partition " << kv.second->GetPartitionId() << std::endl; */
+    /* } */
+    /* for(auto kv : p_pc_map_) { */
+    /*     std::cout << this << " Snapshot " << collection_commit_->GetID() << " P " << */
+    /*         kv.first << " PC " << kv.second << std::endl; */
+    /* } */
 
     RefAll();
 };

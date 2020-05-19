@@ -7,7 +7,7 @@ CollectionCommitOperation::DoExecute() {
     if (!prev_resource) return false;
     resource_ = std::make_shared<CollectionCommit>(*prev_resource);
     if (context_.new_partition_commit) {
-        auto prev_partition_commit = prev_ss_->GetPartitionCommit(
+        auto prev_partition_commit = prev_ss_->GetPartitionCommitByPartitionId(
                 context_.new_partition_commit->GetPartitionId());
         resource_->GetMappings().erase(prev_partition_commit->GetID());
         resource_->GetMappings().insert(context_.new_partition_commit->GetID());

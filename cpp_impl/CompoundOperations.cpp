@@ -6,6 +6,12 @@ BuildOperation::BuildOperation(const OperationContext& context, ScopedSnapshotT 
 BuildOperation::BuildOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id)
     : BaseT(context, collection_id, commit_id) {};
 
+ScopedSnapshotT
+BuildOperation::GetSnapshot() const {
+    //PXU TODO: Check is result ready or valid
+    return Snapshots::GetInstance().GetSnapshot(prev_ss_->GetCollectionId(), ids_.back());
+}
+
 bool
 BuildOperation::PreExecute() {
     SegmentCommitOperation op(context_, prev_ss_);

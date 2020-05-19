@@ -121,6 +121,7 @@ Snapshots::GetHolderNoLock(ID_TYPE collection_id) {
 
 void
 Snapshots::SnapshotGCCallback(Snapshot::Ptr ss_ptr) {
-    to_release_.push_back(ss_ptr);
-    std::cout << "Snapshot " << ss_ptr->GetID() << " To be removed" << std::endl;
+    /* to_release_.push_back(ss_ptr); */
+    ss_ptr->UnRef();
+    std::cout << &(*ss_ptr) << " Snapshot " << ss_ptr->GetID() << " RefCnt = " << ss_ptr->RefCnt() << " To be removed" << std::endl;
 }
