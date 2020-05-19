@@ -113,6 +113,7 @@ void
 SnapshotHolder::LoadNoLock(ID_TYPE collection_commit_id) {
     assert(collection_commit_id > max_id_);
     auto entry = Store::GetInstance().GetResource<CollectionCommit>(collection_commit_id);
+    /* auto entry = CollectionCommitsHolder::GetInstance.GetResource() */
     if (!entry) return;
     AddNoLock(collection_commit_id);
 }
