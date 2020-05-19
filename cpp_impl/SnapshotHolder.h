@@ -28,6 +28,9 @@ public:
     }
 
 private:
+    void LoadNoLock(ID_TYPE collection_commit_id);
+    bool AddNoLock(ID_TYPE id);
+
     void ReadyForRelease(Snapshot::Ptr ss) {
         if (gc_handler_) {
             gc_handler_(ss);

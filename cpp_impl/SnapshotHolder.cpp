@@ -1,4 +1,5 @@
 #include "SnapshotHolder.h"
+#include "Store.h"
 
 SnapshotHolder::SnapshotHolder(ID_TYPE collection_id, GCHandler gc_handler, size_t num_versions)
     : collection_id_(collection_id),
@@ -16,8 +17,12 @@ SnapshotHolder::GetSnapshot(ID_TYPE id, bool scoped) {
         auto ss = active_[max_id_];
         return ScopedSnapshotT(ss, scoped);
     }
-    if (id < min_id_ || id > max_id_) {
+    if (id < min_id_) {
         return ScopedSnapshotT();
+    }
+
+    if (id > max_id_) {
+        LoadNoLock(id);
     }
 
     auto it = active_.find(id);
@@ -27,10 +32,14 @@ SnapshotHolder::GetSnapshot(ID_TYPE id, bool scoped) {
     return ScopedSnapshotT(it->second, scoped);
 }
 
+bool SnapshotHolder::Add(ID_TYPE id) {
+    std::unique_lock<std::mutex> lock(mutex_);
+    return AddNoLock(id);
+}
+
 bool
-SnapshotHolder::Add(ID_TYPE id) {
+SnapshotHolder::AddNoLock(ID_TYPE id) {
     {
-        std::unique_lock<std::mutex> lock(mutex_);
         if (active_.size() > 0 && id < max_id_) {
             return false;
         }
@@ -39,7 +48,6 @@ SnapshotHolder::Add(ID_TYPE id) {
     {
         auto ss = std::make_shared<Snapshot>(id);
 
-        std::unique_lock<std::mutex> lock(mutex_);
         if (done_) { return false; };
         ss->RegisterOnNoRefCB(std::bind(&Snapshot::UnRefAll, ss));
         ss->Ref();
@@ -99,4 +107,12 @@ SnapshotHolder::BackgroundGC() {
         }
 
     }
+}
+
+void
+SnapshotHolder::LoadNoLock(ID_TYPE collection_commit_id) {
+    assert(collection_commit_id > max_id_);
+    auto entry = Store::GetInstance().GetResource<CollectionCommit>(collection_commit_id);
+    if (!entry) return;
+    AddNoLock(collection_commit_id);
 }
