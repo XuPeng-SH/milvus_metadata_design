@@ -9,17 +9,17 @@ BuildOperation::BuildOperation(const OperationContext& context, ID_TYPE collecti
 bool
 BuildOperation::PreExecute() {
     SegmentCommitOperation op(context_, prev_ss_);
-    op.OnExecute();
+    op();
     context_.new_segment_commit = op.GetResource();
     if (!context_.new_segment_commit) return false;
 
     PartitionCommitOperation pc_op(context_, prev_ss_);
-    pc_op.OnExecute();
+    pc_op();
 
     OperationContext cc_context;
     cc_context.new_partition_commit = pc_op.GetResource();
     CollectionCommitOperation cc_op(cc_context, prev_ss_);
-    cc_op.OnExecute();
+    cc_op();
 
     for (auto& new_segment_file : context_.new_segment_files) {
         AddStep(*new_segment_file);
@@ -65,7 +65,7 @@ BuildOperation::DoExecute() {
 SegmentFilePtr
 BuildOperation::NewSegmentFile(const SegmentFileContext& context) {
     SegmentFileOperation new_sf_op(context, prev_ss_);
-    new_sf_op.OnExecute();
+    new_sf_op();
     context_.new_segment_files.push_back(new_sf_op.GetResource());
     return new_sf_op.GetResource();
 }
@@ -94,17 +94,17 @@ NewSegmentOperation::PreExecute() {
     // 1. Check all requried field elements have related segment files
     // 2. Check Stale and others
     SegmentCommitOperation op(context_, prev_ss_);
-    op.OnExecute();
+    op();
     context_.new_segment_commit = op.GetResource();
     if (!context_.new_segment_commit) return false;
 
     PartitionCommitOperation pc_op(context_, prev_ss_);
-    pc_op.OnExecute();
+    pc_op();
 
     OperationContext cc_context;
     cc_context.new_partition_commit = pc_op.GetResource();
     CollectionCommitOperation cc_op(cc_context, prev_ss_);
-    cc_op.OnExecute();
+    cc_op();
 
     for (auto& new_segment_file : context_.new_segment_files) {
         AddStep(*new_segment_file);
@@ -119,7 +119,7 @@ NewSegmentOperation::PreExecute() {
 SegmentPtr
 NewSegmentOperation::NewSegment() {
     SegmentOperation op(context_, prev_ss_);
-    op.OnExecute();
+    op();
     context_.new_segment = op.GetResource();
     return context_.new_segment;
 }
@@ -130,7 +130,7 @@ NewSegmentOperation::NewSegmentFile(const SegmentFileContext& context) {
     c.segment_id = context_.new_segment->GetID();
     c.partition_id = context_.new_segment->GetPartitionId();
     SegmentFileOperation new_sf_op(c, prev_ss_);
-    new_sf_op.OnExecute();
+    new_sf_op();
     context_.new_segment_files.push_back(new_sf_op.GetResource());
     return new_sf_op.GetResource();
 }
@@ -144,7 +144,7 @@ SegmentPtr
 MergeOperation::NewSegment() {
     if (context_.new_segment) return context_.new_segment;
     SegmentOperation op(context_, prev_ss_);
-    op.OnExecute();
+    op();
     context_.new_segment = op.GetResource();
     return context_.new_segment;
 }
@@ -157,7 +157,7 @@ MergeOperation::NewSegmentFile(const SegmentFileContext& context) {
     c.segment_id = new_segment->GetID();
     c.partition_id = new_segment->GetPartitionId();
     SegmentFileOperation new_sf_op(c, prev_ss_);
-    new_sf_op.OnExecute();
+    new_sf_op();
     context_.new_segment_files.push_back(new_sf_op.GetResource());
     return new_sf_op.GetResource();
 }
@@ -168,19 +168,19 @@ MergeOperation::PreExecute() {
     // 1. Check all requried field elements have related segment files
     // 2. Check Stale and others
     SegmentCommitOperation op(context_, prev_ss_);
-    op.OnExecute();
+    op();
     context_.new_segment_commit = op.GetResource();
     if (!context_.new_segment_commit) return false;
 
     // PXU TODO: Check stale segments
 
     PartitionCommitOperation pc_op(context_, prev_ss_);
-    pc_op.OnExecute();
+    pc_op();
 
     OperationContext cc_context;
     cc_context.new_partition_commit = pc_op.GetResource();
     CollectionCommitOperation cc_op(cc_context, prev_ss_);
-    cc_op.OnExecute();
+    cc_op();
 
     for (auto& new_segment_file : context_.new_segment_files) {
         AddStep(*new_segment_file);

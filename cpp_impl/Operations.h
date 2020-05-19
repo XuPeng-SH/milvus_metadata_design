@@ -43,6 +43,8 @@ public:
 
     virtual ScopedSnapshotT GetSnapshot() const;
 
+    virtual void operator()();
+
     virtual ~Operations() {}
 
 protected:

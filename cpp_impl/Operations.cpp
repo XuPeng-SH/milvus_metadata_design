@@ -8,6 +8,11 @@ Operations::Operations(const OperationContext& context, ID_TYPE collection_id, I
     context_(context), prev_ss_(Snapshots::GetInstance().GetSnapshot(collection_id, commit_id)) {
 }
 
+void
+Operations::operator()() {
+    return OnExecute();
+}
+
 bool
 Operations::IsStale() const {
     auto curr_ss = Snapshots::GetInstance().GetSnapshot(prev_ss_->GetCollectionId());
