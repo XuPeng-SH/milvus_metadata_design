@@ -77,6 +77,9 @@ public:
         return resource_;
     }
 
+    // PXU TODO
+    /* virtual void OnFailed() */
+
 protected:
     typename ResourceT::Ptr resource_;
 };

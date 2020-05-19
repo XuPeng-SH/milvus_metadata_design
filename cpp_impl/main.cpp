@@ -84,6 +84,10 @@ int main() {
     n_seg_op.NewSegment();
     n_seg_op.NewSegmentFile(sf_context);
     n_seg_op.OnExecute();
+    auto ss = n_seg_op.GetSnapshot();
+    cout << "Collection=" << ss->GetName() << endl;
+    cout << "PrevSS=" << prev_ss->GetCollectionCommit()->GetID() << endl;
+    cout << "CurrSS=" << ss->GetCollectionCommit()->GetID() << endl;
 
     /* for(auto id : prev_ss->GetSegmentIds()) { */
     /*     std::cout << "Segment id=" << id << std::endl; */

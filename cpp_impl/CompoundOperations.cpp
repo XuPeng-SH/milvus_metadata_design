@@ -1,4 +1,5 @@
 #include "CompoundOperations.h"
+#include "Snapshots.h"
 
 BuildOperation::BuildOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
     : BaseT(context, prev_ss) {};
@@ -130,6 +131,13 @@ NewSegmentOperation::NewSegmentFile(const SegmentFileContext& context) {
     new_sf_op.OnExecute();
     context_.new_segment_files.push_back(new_sf_op.GetResource());
     return new_sf_op.GetResource();
+}
+
+/* typename Snapshot::Ptr */
+ScopedSnapshotT
+NewSegmentOperation::GetSnapshot() const {
+    //PXU TODO: Check is result ready or valid
+    return Snapshots::GetInstance().GetSnapshot(prev_ss_->GetCollectionId(), ids_.back());
 }
 
 MergeOperation::MergeOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
