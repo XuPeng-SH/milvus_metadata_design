@@ -15,7 +15,6 @@ public:
     bool PreExecute() override;
 
     SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
-    ScopedSnapshotT GetSnapshot() const;
 };
 
 class NewSegmentOperation : public Operations {
@@ -32,7 +31,6 @@ public:
     SegmentPtr NewSegment();
 
     SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
-    ScopedSnapshotT GetSnapshot() const;
 };
 
 class MergeOperation : public Operations {
@@ -46,5 +44,4 @@ public:
 
     SegmentPtr NewSegment();
     SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
-    ScopedSnapshotT GetSnapshot() const;
 };

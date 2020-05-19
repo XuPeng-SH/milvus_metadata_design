@@ -6,12 +6,6 @@ BuildOperation::BuildOperation(const OperationContext& context, ScopedSnapshotT 
 BuildOperation::BuildOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id)
     : BaseT(context, collection_id, commit_id) {};
 
-ScopedSnapshotT
-BuildOperation::GetSnapshot() const {
-    //PXU TODO: Check is result ready or valid
-    return Snapshots::GetInstance().GetSnapshot(prev_ss_->GetCollectionId(), ids_.back());
-}
-
 bool
 BuildOperation::PreExecute() {
     SegmentCommitOperation op(context_, prev_ss_);
@@ -141,13 +135,6 @@ NewSegmentOperation::NewSegmentFile(const SegmentFileContext& context) {
     return new_sf_op.GetResource();
 }
 
-/* typename Snapshot::Ptr */
-ScopedSnapshotT
-NewSegmentOperation::GetSnapshot() const {
-    //PXU TODO: Check is result ready or valid
-    return Snapshots::GetInstance().GetSnapshot(prev_ss_->GetCollectionId(), ids_.back());
-}
-
 MergeOperation::MergeOperation(const OperationContext& context, ScopedSnapshotT prev_ss)
     : BaseT(context, prev_ss) {};
 MergeOperation::MergeOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id)
@@ -202,10 +189,4 @@ MergeOperation::PreExecute() {
     AddStep(*pc_op.GetResource());
     AddStep(*cc_op.GetResource());
     return true;
-}
-
-ScopedSnapshotT
-MergeOperation::GetSnapshot() const {
-    //PXU TODO: Check is result ready or valid
-    return Snapshots::GetInstance().GetSnapshot(prev_ss_->GetCollectionId(), ids_.back());
 }

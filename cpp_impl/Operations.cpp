@@ -18,6 +18,13 @@ Operations::IsStale() const {
     return true;
 }
 
+ScopedSnapshotT
+Operations::GetSnapshot() const {
+    //PXU TODO: Check is result ready or valid
+    if (ids_.size() == 0) return ScopedSnapshotT();
+    return Snapshots::GetInstance().GetSnapshot(prev_ss_->GetCollectionId(), ids_.back());
+}
+
 void
 Operations::OnExecute() {
     auto r = PreExecute();

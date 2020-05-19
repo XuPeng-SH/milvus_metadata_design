@@ -41,6 +41,8 @@ public:
     virtual bool DoExecute();
     virtual bool PostExecute();
 
+    virtual ScopedSnapshotT GetSnapshot() const;
+
     virtual ~Operations() {}
 
 protected:
