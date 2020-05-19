@@ -35,7 +35,7 @@ void Snapshot::RefAll() {
 }
 
 void Snapshot::UnRefAll() {
-    /* std::cout << "UnRefAll YYYYYYYYYYYY " << collection_->GetID() << " RefCnt=" << RefCnt() << std::endl; */
+    /* std::cout << this << " UnRefAll " << collection_commit_->GetID() << " RefCnt=" << RefCnt() << std::endl; */
     collection_commit_->UnRef();
     for (auto& schema : schema_commits_) {
         schema.second->UnRef();

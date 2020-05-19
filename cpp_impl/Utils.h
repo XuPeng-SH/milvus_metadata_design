@@ -16,6 +16,8 @@ public:
 
     int RefCnt() const { return refcnt_; }
 
+    void ResetCnt() { refcnt_ = 0; }
+
     virtual ~ReferenceProxy();
 
 protected:

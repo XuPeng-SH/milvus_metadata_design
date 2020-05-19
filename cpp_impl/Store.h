@@ -169,6 +169,7 @@ public:
         auto c = std::make_shared<Collection>(collection);
         auto& id = std::get<Index<Collection::MapT, MockResourcesT>::value>(ids_);
         c->SetID(++id);
+        c->ResetCnt();
         resources[c->GetID()] = c;
         name_collections_[c->GetName()] = c;
         return GetResource<Collection>(c->GetID());
@@ -180,6 +181,7 @@ public:
         auto& resources = std::get<typename ResourceT::MapT>(resources_);
         auto res = std::make_shared<ResourceT>(resource);
         auto& id = std::get<Index<typename ResourceT::MapT, MockResourcesT>::value>(ids_);
+        res->ResetCnt();
         resources[res->GetID()] = res;
         return GetResource<ResourceT>(res->GetID());
     }
@@ -195,6 +197,7 @@ public:
         auto res = std::make_shared<ResourceT>(resource);
         auto& id = std::get<Index<typename ResourceT::MapT, MockResourcesT>::value>(ids_);
         res->SetID(++id);
+        res->ResetCnt();
         resources[res->GetID()] = res;
         return GetResource<ResourceT>(res->GetID());
     }

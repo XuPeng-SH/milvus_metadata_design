@@ -8,6 +8,7 @@
 #include "Proxy.h"
 #include "schema.pb.h"
 #include "CompoundOperations.h"
+#include "Holders.h"
 
 using namespace std;
 
@@ -85,6 +86,7 @@ int main() {
     /*     cout << "RefCnt=" << ss1->RefCnt() << endl; */
     /* } */
 
+    /* ScopedSnapshotT prev_ss; */
     {
         OperationContext context;
         BuildOperation build_op(context, 1);
@@ -92,17 +94,22 @@ int main() {
         build_op.OnExecute();
 
         auto prev_ss = build_op.GetSnapshot();
-        cout << "Snapshot " << prev_ss->GetCollectionCommit()->GetID() << endl;
+        {
+            OperationContext n_seg_context;
+            n_seg_context.prev_partition = prev_ss->GetPartition(1);
+            NewSegmentOperation n_seg_op(n_seg_context, prev_ss);
+            n_seg_op.NewSegment();
+            n_seg_op.NewSegmentFile(sf_context);
+            n_seg_op.OnExecute();
+            n_seg_op.GetSnapshot();
+        }
 
-        OperationContext n_seg_context;
-        n_seg_context.prev_partition = prev_ss->GetPartition(1);
-        NewSegmentOperation n_seg_op(n_seg_context, prev_ss);
-        n_seg_op.NewSegment();
-        n_seg_op.NewSegmentFile(sf_context);
-        n_seg_op.OnExecute();
-        prev_ss = n_seg_op.GetSnapshot();
-        cout << "Snapshot " << prev_ss->GetCollectionCommit()->GetID() << endl;
+        /* CollectionCommitsHolder::GetInstance().Dump("1111"); */
     }
+    /* CollectionCommitsHolder::GetInstance().Dump("2222"); */
+
+    /* prev_ss = ss_holder->GetSnapshot(); */
+    /* cout << "44 Snapshot " << prev_ss->GetCollectionCommit()->GetID() << " RefCnt " << prev_ss->RefCnt() << endl; */
     /* cout << "3 RefCnt=" << prev_ss->RefCnt() << endl; */
 
     /* cout << "Collection=" << ss->GetName() << endl; */

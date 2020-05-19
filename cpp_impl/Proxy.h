@@ -49,7 +49,7 @@ ScopedResource<ResourceT>::ScopedResource(ScopedResource<ResourceT>::ResourcePtr
 template <typename ResourceT>
 ScopedResource<ResourceT>&
 ScopedResource<ResourceT>::operator=(const ScopedResource<ResourceT>& res) {
-    if (this == &res) return *this;
+    if (this->res_ == res.res_) return *this;
     if (scoped_) {
         res_->UnRef();
     }
