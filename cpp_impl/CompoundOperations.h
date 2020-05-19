@@ -46,5 +46,5 @@ public:
 
     SegmentPtr NewSegment();
     SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
-    typename Snapshot::Ptr GetSnapshot() const;
+    ScopedSnapshotT GetSnapshot() const;
 };

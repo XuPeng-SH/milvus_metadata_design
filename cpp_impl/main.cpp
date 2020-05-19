@@ -93,16 +93,36 @@ int main() {
         auto seg_file = build_op.NewSegmentFile(sf_context);
         build_op.OnExecute();
 
+        OperationContext merge_context;
+
         auto prev_ss = build_op.GetSnapshot();
         {
             OperationContext n_seg_context;
             n_seg_context.prev_partition = prev_ss->GetPartition(1);
             NewSegmentOperation n_seg_op(n_seg_context, prev_ss);
-            n_seg_op.NewSegment();
+            auto seg = n_seg_op.NewSegment();
             n_seg_op.NewSegmentFile(sf_context);
             n_seg_op.OnExecute();
-            n_seg_op.GetSnapshot();
+            prev_ss = n_seg_op.GetSnapshot();
+            merge_context.stale_segments.push_back(seg);
+            merge_context.prev_partition = prev_ss->GetPartition(seg->GetPartitionId());
         }
+        {
+            OperationContext n_seg_context;
+            n_seg_context.prev_partition = prev_ss->GetPartition(1);
+            NewSegmentOperation n_seg_op(n_seg_context, prev_ss);
+            auto seg = n_seg_op.NewSegment();
+            n_seg_op.NewSegmentFile(sf_context);
+            n_seg_op.OnExecute();
+            prev_ss = n_seg_op.GetSnapshot();
+            merge_context.stale_segments.push_back(seg);
+        }
+
+        MergeOperation merge_op(merge_context, prev_ss);
+        auto seg = merge_op.NewSegment();
+        merge_op.NewSegmentFile(sf_context);
+        merge_op.OnExecute();
+        merge_op.GetSnapshot();
 
         /* CollectionCommitsHolder::GetInstance().Dump("1111"); */
     }

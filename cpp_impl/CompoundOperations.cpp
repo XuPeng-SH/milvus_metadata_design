@@ -203,3 +203,9 @@ MergeOperation::PreExecute() {
     AddStep(*cc_op.GetResource());
     return true;
 }
+
+ScopedSnapshotT
+MergeOperation::GetSnapshot() const {
+    //PXU TODO: Check is result ready or valid
+    return Snapshots::GetInstance().GetSnapshot(prev_ss_->GetCollectionId(), ids_.back());
+}
