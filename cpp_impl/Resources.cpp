@@ -58,8 +58,8 @@ PartitionCommit::PartitionCommit(ID_TYPE collection_id, ID_TYPE partition_id,
     BaseT(collection_id, partition_id, mappings, id, status, created_on) {
 }
 
-Segment::Segment(ID_TYPE partition_id, ID_TYPE id, State status, TS_TYPE created_on) :
-    BaseT(partition_id, id, status, created_on)
+Segment::Segment(ID_TYPE partition_id, ID_TYPE num, ID_TYPE id, State status, TS_TYPE created_on) :
+    BaseT(partition_id, num, id, status, created_on)
 {
 }
 

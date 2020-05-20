@@ -300,6 +300,7 @@ public:
 using PartitionCommitPtr = PartitionCommit::Ptr;
 
 class Segment : public DBBaseResource<PartitionIdField,
+                                      NumField,
                                       IdField,
                                       StatusField,
                                       CreatedOnField>
@@ -309,9 +310,9 @@ public:
     using MapT = std::map<ID_TYPE, Ptr>;
     using VecT = std::vector<Ptr>;
     static constexpr const char* Name = "Segment";
-    using BaseT = DBBaseResource<PartitionIdField, IdField, StatusField, CreatedOnField>;
+    using BaseT = DBBaseResource<PartitionIdField, NumField, IdField, StatusField, CreatedOnField>;
 
-    Segment(ID_TYPE partition_id, ID_TYPE id = 0, State status = PENDING,
+    Segment(ID_TYPE partition_id, ID_TYPE num = 0, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
 };
 
