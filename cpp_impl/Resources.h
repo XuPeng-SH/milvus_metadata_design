@@ -37,6 +37,14 @@ public:
         return true;
     }
 
+    void Deactivate() {
+        status_ = DEACTIVE;
+    }
+
+    void ResetStatus() {
+        status_ = PENDING;
+    }
+
 protected:
     State status_;
 };

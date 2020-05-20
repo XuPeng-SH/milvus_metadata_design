@@ -40,6 +40,7 @@ public:
     MergeOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0);
 
     bool PreExecute() override;
+    bool DoExecute() override;
 
     SegmentPtr NewSegment();
     SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);

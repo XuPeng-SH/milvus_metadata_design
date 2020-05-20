@@ -185,8 +185,22 @@ MergeOperation::PreExecute() {
     for (auto& new_segment_file : context_.new_segment_files) {
         AddStep(*new_segment_file);
     }
+    AddStep(*context_.new_segment);
     AddStep(*context_.new_segment_commit);
     AddStep(*pc_op.GetResource());
     AddStep(*cc_op.GetResource());
+    return true;
+}
+
+bool
+MergeOperation::DoExecute() {
+    auto i = 0;
+    for(; i<context_.new_segment_files.size(); ++i) {
+        std::any_cast<SegmentFilePtr>(steps_[i])->Activate();
+    }
+    std::any_cast<SegmentPtr>(steps_[i++])->Activate();
+    std::any_cast<SegmentCommitPtr>(steps_[i++])->Activate();
+    std::any_cast<PartitionCommitPtr>(steps_[i++])->Activate();
+    std::any_cast<CollectionCommitPtr>(steps_[i++])->Activate();
     return true;
 }

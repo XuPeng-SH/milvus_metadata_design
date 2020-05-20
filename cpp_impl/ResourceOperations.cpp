@@ -6,6 +6,7 @@ CollectionCommitOperation::DoExecute() {
     auto prev_resource = GetPrevResource();
     if (!prev_resource) return false;
     resource_ = std::make_shared<CollectionCommit>(*prev_resource);
+    resource_->ResetStatus();
     if (context_.new_partition_commit) {
         auto prev_partition_commit = prev_ss_->GetPartitionCommitByPartitionId(
                 context_.new_partition_commit->GetPartitionId());
@@ -25,6 +26,7 @@ PartitionCommitOperation::DoExecute() {
     if (prev_resource) {
         resource_ = std::make_shared<PartitionCommit>(*prev_resource);
         resource_->SetID(0);
+        resource_->ResetStatus();
         auto prev_segment_commit = prev_ss_->GetSegmentCommit(
                 context_.new_segment_commit->GetSegmentId());
         if (prev_segment_commit)
@@ -53,6 +55,7 @@ SegmentCommitOperation::DoExecute() {
     if (prev_resource) {
         resource_ = std::make_shared<SegmentCommit>(*prev_resource);
         resource_->SetID(0);
+        resource_->ResetStatus();
         if (context_.stale_segment_file) {
             resource_->GetMappings().erase(context_.stale_segment_file->GetID());
         }
