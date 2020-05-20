@@ -118,6 +118,8 @@ int main() {
             merge_context.stale_segments.push_back(seg);
         }
 
+        prev_ss->DumpSegments();
+
         MergeOperation merge_op(merge_context, prev_ss);
         auto seg = merge_op.NewSegment();
         merge_op.NewSegmentFile(sf_context);

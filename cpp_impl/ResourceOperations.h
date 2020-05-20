@@ -71,7 +71,8 @@ public:
         if (!context_.prev_partition) {
             return false;
         }
-        resource_ = std::make_shared<Segment>(context_.prev_partition->GetID());
+        auto prev_num = prev_ss_->GetMaxSegmentNumByPartition(context_.prev_partition->GetID());
+        resource_ = std::make_shared<Segment>(context_.prev_partition->GetID(), prev_num+1);
         AddStep(*resource_);
         return true;
     }

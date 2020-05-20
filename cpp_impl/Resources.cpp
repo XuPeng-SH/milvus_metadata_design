@@ -63,6 +63,17 @@ Segment::Segment(ID_TYPE partition_id, ID_TYPE num, ID_TYPE id, State status, TS
 {
 }
 
+std::string
+Segment::ToString() const {
+    std::stringstream ss;
+    ss << "Segment [" << this << "]: ";
+    ss << "id=" << GetID() << ", ";
+    ss << "partition_id=" << GetPartitionId() << ", ";
+    ss << "num=" << (NUM_TYPE)GetNum() << ", ";
+    ss << "status=" << GetStatus() << ", ";
+    return ss.str();
+}
+
 SegmentCommit::SegmentCommit(ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE segment_id,
         const MappingT& mappings, ID_TYPE id, State status, TS_TYPE created_on) :
     BaseT(schema_id, partition_id, segment_id, mappings, id, status, created_on) {

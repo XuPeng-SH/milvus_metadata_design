@@ -2,6 +2,17 @@
 #include "Store.h"
 #include "Holders.h"
 
+
+void
+Snapshot:: DumpSegments(const std::string& tag) {
+    std::cout << typeid(*this).name() << " DumpSegments Start [" << tag <<  "]:" << segments_.size() << std::endl;
+    for (auto& kv : segments_) {
+        /* std::cout << "\t" << kv.first << " RefCnt " << kv.second->RefCnt() << std::endl; */
+        std::cout << "\t" << kv.second->ToString() << std::endl;
+    }
+    std::cout << typeid(*this).name() << " DumpSegments   End [" << tag <<  "]" << std::endl;
+}
+
 void Snapshot::RefAll() {
     collection_commit_->Ref();
     for (auto& schema : schema_commits_) {

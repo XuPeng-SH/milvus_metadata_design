@@ -84,6 +84,7 @@ class NumField {
 public:
     NumField(NUM_TYPE num) : num_(num) {}
     NUM_TYPE GetNum() const { return num_; };
+    void SetNum(NUM_TYPE num) { num_ = num; }
 
 protected:
     NUM_TYPE num_;
@@ -314,6 +315,8 @@ public:
 
     Segment(ID_TYPE partition_id, ID_TYPE num = 0, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
+
+    std::string ToString() const override;
 };
 
 using SegmentPtr = Segment::Ptr;
