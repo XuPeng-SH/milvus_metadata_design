@@ -58,6 +58,19 @@ PartitionCommit::PartitionCommit(ID_TYPE collection_id, ID_TYPE partition_id,
     BaseT(collection_id, partition_id, mappings, id, status, created_on) {
 }
 
+std::string
+PartitionCommit::ToString() const {
+    std::stringstream ss;
+    ss << "PartitionCommit [" << this << "]: ";
+    ss << "id=" << GetID() << ", ";
+    ss << "partition_id=" << GetPartitionId() << ", mappings=(";
+    for(auto sc_id : GetMappings()) {
+        ss << sc_id << ", ";
+    }
+    ss << ") status=" << GetStatus() << " ";
+    return ss.str();
+}
+
 Segment::Segment(ID_TYPE partition_id, ID_TYPE num, ID_TYPE id, State status, TS_TYPE created_on) :
     BaseT(partition_id, num, id, status, created_on)
 {
@@ -77,6 +90,17 @@ Segment::ToString() const {
 SegmentCommit::SegmentCommit(ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE segment_id,
         const MappingT& mappings, ID_TYPE id, State status, TS_TYPE created_on) :
     BaseT(schema_id, partition_id, segment_id, mappings, id, status, created_on) {
+}
+
+std::string
+SegmentCommit::ToString() const {
+    std::stringstream ss;
+    ss << "SegmentCommit [" << this << "]: ";
+    ss << "id=" << GetID() << ", ";
+    ss << "partition_id=" << GetPartitionId() << ", ";
+    ss << "segment_id=" << GetSegmentId() << ", ";
+    ss << "status=" << GetStatus() << ", ";
+    return ss.str();
 }
 
 SegmentFile::SegmentFile(ID_TYPE partition_id, ID_TYPE segment_id, ID_TYPE field_element_id, ID_TYPE id,

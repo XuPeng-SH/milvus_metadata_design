@@ -365,7 +365,7 @@ private:
                 int random_segments = rand() % 2 + 1;
                 MappingT p_c_m;
                 for (auto si=1; si<=random_segments; ++si) {
-                    auto s = CreateResource<Segment>(Segment(p->GetID()));
+                    auto s = CreateResource<Segment>(Segment(p->GetID(), si));
                     all_records.push_back(s);
                     auto& schema_m = schema->GetMappings();
                     MappingT s_c_m;

@@ -4,13 +4,31 @@
 
 
 void
-Snapshot:: DumpSegments(const std::string& tag) {
+Snapshot::DumpSegments(const std::string& tag) {
     std::cout << typeid(*this).name() << " DumpSegments Start [" << tag <<  "]:" << segments_.size() << std::endl;
     for (auto& kv : segments_) {
         /* std::cout << "\t" << kv.first << " RefCnt " << kv.second->RefCnt() << std::endl; */
         std::cout << "\t" << kv.second->ToString() << std::endl;
     }
     std::cout << typeid(*this).name() << " DumpSegments   End [" << tag <<  "]" << std::endl;
+}
+
+void
+Snapshot::DumpPartitionCommits(const std::string& tag) {
+    std::cout << typeid(*this).name() << " DumpPartitionCommits Start [" << tag <<  "]:" << partition_commits_.size() << std::endl;
+    for (auto& kv : partition_commits_) {
+        std::cout << "\t" << kv.second->ToString() << std::endl;
+    }
+    std::cout << typeid(*this).name() << " DumpPartitionCommits   End [" << tag <<  "]" << std::endl;
+}
+
+void
+Snapshot::DumpSegmentCommits(const std::string& tag) {
+    std::cout << typeid(*this).name() << " DumpSegmentCommits Start [" << tag <<  "]:" << segment_commits_.size() << std::endl;
+    for (auto& kv : segment_commits_) {
+        std::cout << "\t" << kv.second->ToString() << std::endl;
+    }
+    std::cout << typeid(*this).name() << " DumpSegmentCommits   End [" << tag <<  "]" << std::endl;
 }
 
 void Snapshot::RefAll() {
@@ -103,6 +121,7 @@ Snapshot::Snapshot(ID_TYPE id) {
         partition_commits_[partition_commit->GetID()] = partition_commit;
         p_pc_map_[partition_commit->GetPartitionId()] = partition_commit->GetID();
         partitions_[partition_commit->GetPartitionId()] = partition;
+        p_max_seg_num_[partition->GetID()] = 0;
         auto& s_c_mappings = partition_commit->GetMappings();
         for (auto& s_c_id : s_c_mappings) {
             auto segment_commit = segment_commits_holder.GetResource(s_c_id, false);
@@ -110,6 +129,9 @@ Snapshot::Snapshot(ID_TYPE id) {
             auto schema = schema_holder.GetResource(segment_commit->GetSchemaId(), false);
             schema_commits_[schema->GetID()] = schema;
             segment_commits_[segment_commit->GetID()] = segment_commit;
+            if (segment->GetNum() > p_max_seg_num_[segment->GetPartitionId()]) {
+                p_max_seg_num_[segment->GetPartitionId()] = segment->GetNum();
+            }
             segments_[segment->GetID()] = segment;
             seg_segc_map_[segment->GetID()] = segment_commit->GetID();
             auto& s_f_mappings = segment_commit->GetMappings();

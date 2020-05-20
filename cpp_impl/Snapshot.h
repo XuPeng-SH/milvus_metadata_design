@@ -148,26 +148,17 @@ public:
     }
 
     NUM_TYPE GetMaxSegmentNumByPartition(ID_TYPE partition_id) {
-        auto partition_commit = GetPartitionCommitByPartitionId(partition_id);
-        if (!partition_commit) return 0;
-
-        auto& mappings = partition_commit->GetMappings();
-        if (mappings.empty()) return 0;
-        ID_TYPE segment_commit_id = *mappings.rbegin();
-
-        auto it = segment_commits_.find(segment_commit_id);
-        if (it == segment_commits_.end()) return 0;
-        ID_TYPE segment_id = it->second->GetSegmentId();
-
-        auto itseg = segments_.find(segment_id);
-        if (itseg == segments_.end()) return 0;
-        return itseg->second->GetNum();
+        auto it = p_max_seg_num_.find(partition_id);
+        if (it == p_max_seg_num_.end()) return 0;
+        return it->second;
     }
 
     void RefAll();
     void UnRefAll();
 
     void DumpSegments(const std::string& tag = "");
+    void DumpSegmentCommits(const std::string& tag = "");
+    void DumpPartitionCommits(const std::string& tag = "");
 
 private:
     // PXU TODO: Re-org below data structures to reduce memory usage
@@ -189,6 +180,7 @@ private:
     std::map<ID_TYPE, ID_TYPE> seg_segc_map_;
     std::map<ID_TYPE, ID_TYPE> p_pc_map_;
     ID_TYPE latest_schema_commit_id_;
+    std::map<ID_TYPE, NUM_TYPE> p_max_seg_num_;
 };
 
 using ScopedSnapshotT = ScopedResource<Snapshot>;

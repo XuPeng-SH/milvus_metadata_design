@@ -296,6 +296,8 @@ public:
     PartitionCommit(ID_TYPE collection_id, ID_TYPE partition_id,
             const MappingT& mappings = {}, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
+
+    std::string ToString() const override;
 };
 
 using PartitionCommitPtr = PartitionCommit::Ptr;
@@ -339,6 +341,8 @@ public:
     SegmentCommit(ID_TYPE schema_id, ID_TYPE partition_id, ID_TYPE segment_id,
             const MappingT& mappings = {}, ID_TYPE id = 0, State status = PENDING,
             TS_TYPE created_on = GetMicroSecTimeStamp());
+
+    std::string ToString() const override;
 };
 
 using SegmentCommitPtr = SegmentCommit::Ptr;

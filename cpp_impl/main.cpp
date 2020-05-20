@@ -107,6 +107,7 @@ int main() {
             merge_context.stale_segments.push_back(seg);
             merge_context.prev_partition = prev_ss->GetPartition(seg->GetPartitionId());
         }
+
         {
             OperationContext n_seg_context;
             n_seg_context.prev_partition = prev_ss->GetPartition(1);
@@ -117,8 +118,6 @@ int main() {
             prev_ss = n_seg_op.GetSnapshot();
             merge_context.stale_segments.push_back(seg);
         }
-
-        prev_ss->DumpSegments();
 
         MergeOperation merge_op(merge_context, prev_ss);
         auto seg = merge_op.NewSegment();
