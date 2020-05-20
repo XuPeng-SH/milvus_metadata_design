@@ -1,6 +1,6 @@
 #pragma once
 #include "Schema.h"
-#include "Proxy.h"
+#include "ScopedResource.h"
 #include "Resources.h"
 #include "BaseHolders.h"
 #include <string>

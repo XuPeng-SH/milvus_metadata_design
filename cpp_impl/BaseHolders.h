@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Schema.h"
-#include "Proxy.h"
+#include "ScopedResource.h"
 #include <string>
 #include <map>
 #include <memory>

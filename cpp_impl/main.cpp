@@ -5,7 +5,7 @@
 #include "Utils.h"
 #include "Resources.h"
 #include "Snapshots.h"
-#include "Proxy.h"
+#include "ScopedResource.h"
 #include "schema.pb.h"
 #include "CompoundOperations.h"
 #include "Holders.h"
