@@ -1,6 +1,6 @@
 #include "SnapshotHolder.h"
 #include "Store.h"
-#include "Holders.h"
+#include "ResourceHolders.h"
 
 SnapshotHolder::SnapshotHolder(ID_TYPE collection_id, GCHandler gc_handler, size_t num_versions)
     : collection_id_(collection_id),

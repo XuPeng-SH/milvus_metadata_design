@@ -1,6 +1,6 @@
 #include "Snapshot.h"
 #include "Store.h"
-#include "Holders.h"
+#include "ResourceHolders.h"
 
 
 void

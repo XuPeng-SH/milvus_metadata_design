@@ -8,7 +8,7 @@
 #include "ScopedResource.h"
 #include "schema.pb.h"
 #include "CompoundOperations.h"
-#include "Holders.h"
+#include "ResourceHolders.h"
 
 using namespace std;
 
