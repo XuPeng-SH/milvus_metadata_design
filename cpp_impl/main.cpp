@@ -2,7 +2,7 @@
 #include <thread>
 #include <unistd.h>
 #include <memory>
-#include "Utils.h"
+#include "ReferenceProxy.h"
 #include "Resources.h"
 #include "Snapshots.h"
 #include "ScopedResource.h"
