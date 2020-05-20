@@ -2,7 +2,7 @@
 
 #include "BaseResource.h"
 #include "Helper.h"
-#include "Schema.h"
+#include "ResourceTypes.h"
 #include "ScopedResource.h"
 #include <string>
 #include <map>

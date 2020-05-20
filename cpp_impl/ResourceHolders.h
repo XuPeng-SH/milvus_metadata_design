@@ -1,5 +1,5 @@
 #pragma once
-#include "Schema.h"
+#include "ResourceTypes.h"
 #include "ScopedResource.h"
 #include "Resources.h"
 #include "BaseHolders.h"

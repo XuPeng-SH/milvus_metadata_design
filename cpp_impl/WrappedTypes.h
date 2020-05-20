@@ -1,7 +1,7 @@
 #pragma once
 #include "Resources.h"
 #include "ScopedResource.h"
-#include "Schema.h"
+#include "ResourceTypes.h"
 #include <map>
 #include <vector>
 #include <set>

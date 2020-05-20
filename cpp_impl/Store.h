@@ -1,6 +1,6 @@
 #pragma once
 #include "Resources.h"
-#include "Schema.h"
+#include "ResourceTypes.h"
 #include "schema.pb.h"
 
 #include <stdlib.h>

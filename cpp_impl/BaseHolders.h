@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Schema.h"
+#include "ResourceTypes.h"
 #include "ScopedResource.h"
 #include <string>
 #include <map>
