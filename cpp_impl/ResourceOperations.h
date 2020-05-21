@@ -107,6 +107,32 @@ protected:
     SegmentFileContext context_;
 };
 
+template <>
+class LoadOperation<Collection> : public Operations {
+public:
+    LoadOperation(const LoadOperationContext& context) :
+       Operations(OperationContext(), ScopedSnapshotT()), context_(context) {}
+
+    void ApplyToStore(Store& store) override {
+        if (status_ != OP_PENDING) return;
+        if (context_.id == 0 && context_.name != "") {
+            resource_ = store.GetCollection(context_.name);
+        } else {
+            resource_ = store.GetResource<Collection>(context_.id);
+        }
+        Done();
+    }
+
+    CollectionPtr GetResource() const  {
+        if (status_ == OP_PENDING) return nullptr;
+        return resource_;
+    }
+
+protected:
+    LoadOperationContext context_;
+    CollectionPtr resource_;
+};
+
 } // snapshot
 } // engine
 } // milvus

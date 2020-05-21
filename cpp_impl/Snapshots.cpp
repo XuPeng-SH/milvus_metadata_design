@@ -1,5 +1,4 @@
 #include "Snapshots.h"
-#include "Store.h"
 #include "CompoundOperations.h"
 
 namespace milvus {
@@ -105,8 +104,11 @@ Snapshots::GetHolder(const std::string& name) {
             return GetHolderNoLock(kv->second);
         }
     }
-    auto& store = Store::GetInstance();
-    auto c = store.GetCollection(name);
+    LoadOperationContext context;
+    context.name = name;
+    auto op = std::make_shared<LoadOperation<Collection>>(context);
+    op->Run();
+    auto c = op->GetResource();
     if (!c) return nullptr;
     return Load(c->GetID());
 }

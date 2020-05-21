@@ -17,8 +17,9 @@ struct SegmentFileContext {
 };
 
 struct LoadOperationContext {
-    ID_TYPE id;
+    ID_TYPE id = 0;
     State status = INVALID;
+    std::string name;
 };
 
 struct OperationContext {
