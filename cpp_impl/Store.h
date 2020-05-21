@@ -428,6 +428,7 @@ private:
     std::unordered_map<std::type_index, std::function<ID_TYPE(std::any const&)>> any_flush_vistors_;
 };
 
+
 } // snapshot
 } // engine
 } // milvus

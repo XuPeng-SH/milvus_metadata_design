@@ -9,6 +9,7 @@
 #include "schema.pb.h"
 #include "CompoundOperations.h"
 #include "ResourceHolders.h"
+#include "OperationExecutor.h"
 
 using namespace std;
 using namespace milvus::engine::snapshot;
@@ -158,12 +159,16 @@ int main() {
     /*     std::cout << "Partition id=" << id << std::endl; */
     /* } */
 
+    auto& executor = OperationExecutor::GetInstance();
+    executor.Start();
+
     LoadOperationContext load_ctx;
     load_ctx.id = 1;
-    LoadOperation<Field> load_op(load_ctx);
-    Store::GetInstance().Apply(load_op);
-    auto field = load_op.GetResource();
-
+    auto load_op = std::make_shared<LoadOperation<Field>>(load_ctx);
+    executor.Submit(load_op);
+    auto field = load_op->GetResource();
     cout << "Field " << field->GetID() << endl;
+    executor.Stop();
+
     return 0;
 }

@@ -17,6 +17,9 @@
 #include <assert.h>
 #include <vector>
 #include <any>
+#include <mutex>
+#include <thread>
+#include <condition_variable>
 
 namespace milvus {
 namespace engine {
@@ -60,6 +63,23 @@ public:
 
     virtual void operator()();
 
+    virtual void ApplyToStore(Store& store) {
+
+    }
+
+    bool WaitToFinish() {
+        std::unique_lock<std::mutex> lock(finish_mtx_);
+        finish_cond_.wait(lock, [this] {
+            return status_ != OP_PENDING;
+        });
+        return true;
+    }
+
+    void Done() {
+        status_ = OP_OK;
+        finish_cond_.notify_all();
+    }
+
     virtual ~Operations() {}
 
 protected:
@@ -68,6 +88,8 @@ protected:
     StepsT steps_;
     std::vector<ID_TYPE> ids_;
     OpStatus status_ = OP_PENDING;
+    mutable std::mutex finish_mtx_;
+    std::condition_variable finish_cond_;
 };
 
 template<typename StepT>
@@ -104,14 +126,15 @@ protected:
 };
 
 template <typename ResourceT>
-class LoadOperation {
+class LoadOperation : public Operations {
 public:
-    LoadOperation(const LoadOperationContext& context) : context_(context) {}
+    LoadOperation(const LoadOperationContext& context) :
+       Operations(OperationContext(), ScopedSnapshotT()), context_(context) {}
 
-    void ApplyToStore(Store& store) {
+    void ApplyToStore(Store& store) override {
         if (status_ != OP_PENDING) return;
         resource_ = store.GetResource<ResourceT>(context_.id);
-        status_ = OP_OK;
+        Done();
     }
 
     typename ResourceT::Ptr GetResource() const  {
@@ -120,10 +143,11 @@ public:
     }
 
 protected:
-    OpStatus status_ = OP_PENDING;
     LoadOperationContext context_;
     typename ResourceT::Ptr resource_;
 };
+
+using OperationsPtr = std::shared_ptr<Operations>;
 
 } // snapshot
 } // engine
