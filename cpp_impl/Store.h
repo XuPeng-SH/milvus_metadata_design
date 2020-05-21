@@ -259,8 +259,8 @@ public:
 private:
 
     ID_TYPE ProcessOperationStep(const std::any& step_v) {
-        if (const auto it = any_vistors_.find(std::type_index(step_v.type()));
-                it != any_vistors_.cend()) {
+        if (const auto it = any_flush_vistors_.find(std::type_index(step_v.type()));
+                it != any_flush_vistors_.cend()) {
             return it->second(step_v);
         } else {
             std::cerr << "Unregisted step type " << std::quoted(step_v.type().name());
@@ -289,7 +289,7 @@ private:
     {
         std::cout << "Register visitor for type "
                   << std::quoted(typeid(T).name()) << '\n';
-        any_vistors_.insert(to_any_visitor<T>(f));
+        any_flush_vistors_.insert(to_any_visitor<T>(f));
     }
 
     Store() {
@@ -420,7 +420,7 @@ private:
     MockResourcesT resources_;
     MockIDST ids_;
     std::map<std::string, CollectionPtr> name_collections_;
-    std::unordered_map<std::type_index, std::function<ID_TYPE(std::any const&)>> any_vistors_;
+    std::unordered_map<std::type_index, std::function<ID_TYPE(std::any const&)>> any_flush_vistors_;
 };
 
 } // snapshot
