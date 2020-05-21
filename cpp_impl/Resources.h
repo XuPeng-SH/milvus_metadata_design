@@ -12,7 +12,7 @@
 #pragma once
 
 #include "BaseResource.h"
-#include "Helper.h"
+#include "db/Utils.h"
 #include "ResourceTypes.h"
 #include "ScopedResource.h"
 #include <string>
@@ -23,7 +23,7 @@
 #include <mutex>
 #include <thread>
 
-/* using milvus::engine::utils::GetMicroSecTimeStamp; */
+using milvus::engine::utils::GetMicroSecTimeStamp;
 
 namespace milvus {
 namespace engine {
