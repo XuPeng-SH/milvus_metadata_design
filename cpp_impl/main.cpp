@@ -11,6 +11,7 @@
 #include "ResourceHolders.h"
 
 using namespace std;
+using namespace milvus::engine::snapshot;
 
 const int32_t IVFSQ8 = 1;
 

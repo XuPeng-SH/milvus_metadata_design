@@ -1,8 +1,20 @@
+// Copyright (C) 2019-2020 Zilliz. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance
+// with the License. You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software distributed under the License
+// is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+// or implied. See the License for the specific language governing permissions and limitations under the License.
+
 #pragma once
 #include "Resources.h"
 #include "ResourceTypes.h"
-#include "schema.pb.h"
+/* #include "schema.pb.h" */
 
+#include <iostream>
 #include <stdlib.h>
 #include <time.h>
 #include <sstream>
@@ -12,6 +24,10 @@
 #include <unordered_map>
 #include <functional>
 #include <iomanip>
+
+namespace milvus {
+namespace engine {
+namespace snapshot {
 
 template <class T, class Tuple>
 struct Index;
@@ -202,41 +218,41 @@ public:
         return GetResource<ResourceT>(res->GetID());
     }
 
-    CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) {
-        auto collection = CreateCollection(Collection(collection_schema.name()));
-        MappingT field_commit_ids = {};
-        for (auto i=0; i<collection_schema.fields_size(); ++i) {
-            auto field_schema = collection_schema.fields(i);
-            auto& field_name = field_schema.name();
-            auto& field_info = field_schema.info();
-            auto field_type = field_info.type();
-            auto field = CreateResource<Field>(Field(field_name, i));
-            MappingT element_ids = {};
-            auto raw_element = CreateResource<FieldElement>(FieldElement(collection->GetID(),
-                        field->GetID(), "RAW", 1));
-            element_ids.insert(raw_element->GetID());
-            for(auto j=0; j<field_schema.elements_size(); ++j) {
-                auto element_schema = field_schema.elements(j);
-                auto& element_name = element_schema.name();
-                auto& element_info = element_schema.info();
-                auto element_type = element_info.type();
-                auto element = CreateResource<FieldElement>(FieldElement(collection->GetID(), field->GetID(),
-                            element_name, element_type));
-                element_ids.insert(element->GetID());
-            }
-            auto field_commit = CreateResource<FieldCommit>(FieldCommit(collection->GetID(), field->GetID(), element_ids));
-            field_commit_ids.insert(field_commit->GetID());
-        }
-        auto schema_commit = CreateResource<SchemaCommit>(SchemaCommit(collection->GetID(), field_commit_ids));
+    /* CollectionPtr CreateCollection(const schema::CollectionSchemaPB& collection_schema) { */
+    /*     auto collection = CreateCollection(Collection(collection_schema.name())); */
+    /*     MappingT field_commit_ids = {}; */
+    /*     for (auto i=0; i<collection_schema.fields_size(); ++i) { */
+    /*         auto field_schema = collection_schema.fields(i); */
+    /*         auto& field_name = field_schema.name(); */
+    /*         auto& field_info = field_schema.info(); */
+    /*         auto field_type = field_info.type(); */
+    /*         auto field = CreateResource<Field>(Field(field_name, i)); */
+    /*         MappingT element_ids = {}; */
+    /*         auto raw_element = CreateResource<FieldElement>(FieldElement(collection->GetID(), */
+    /*                     field->GetID(), "RAW", 1)); */
+    /*         element_ids.insert(raw_element->GetID()); */
+    /*         for(auto j=0; j<field_schema.elements_size(); ++j) { */
+    /*             auto element_schema = field_schema.elements(j); */
+    /*             auto& element_name = element_schema.name(); */
+    /*             auto& element_info = element_schema.info(); */
+    /*             auto element_type = element_info.type(); */
+    /*             auto element = CreateResource<FieldElement>(FieldElement(collection->GetID(), field->GetID(), */
+    /*                         element_name, element_type)); */
+    /*             element_ids.insert(element->GetID()); */
+    /*         } */
+    /*         auto field_commit = CreateResource<FieldCommit>(FieldCommit(collection->GetID(), field->GetID(), element_ids)); */
+    /*         field_commit_ids.insert(field_commit->GetID()); */
+    /*     } */
+    /*     auto schema_commit = CreateResource<SchemaCommit>(SchemaCommit(collection->GetID(), field_commit_ids)); */
 
-        MappingT empty_mappings = {};
-        auto partition = CreateResource<Partition>(Partition("_default", collection->GetID()));
-        auto partition_commit = CreateResource<PartitionCommit>(PartitionCommit(collection->GetID(), partition->GetID(),
-                    empty_mappings));
-        auto collection_commit = CreateResource<CollectionCommit>(CollectionCommit(collection->GetID(),
-                    schema_commit->GetID(), {partition_commit->GetID()}));
-        return collection;
-    }
+    /*     MappingT empty_mappings = {}; */
+    /*     auto partition = CreateResource<Partition>(Partition("_default", collection->GetID())); */
+    /*     auto partition_commit = CreateResource<PartitionCommit>(PartitionCommit(collection->GetID(), partition->GetID(), */
+    /*                 empty_mappings)); */
+    /*     auto collection_commit = CreateResource<CollectionCommit>(CollectionCommit(collection->GetID(), */
+    /*                 schema_commit->GetID(), {partition_commit->GetID()})); */
+    /*     return collection; */
+    /* } */
 
     void Mock() { DoMock(); }
 
@@ -406,3 +422,7 @@ private:
     std::map<std::string, CollectionPtr> name_collections_;
     std::unordered_map<std::type_index, std::function<ID_TYPE(std::any const&)>> any_vistors_;
 };
+
+} // snapshot
+} // engine
+} // milvus
