@@ -146,6 +146,29 @@ protected:
     typename ResourceT::Ptr resource_;
 };
 
+template <typename ResourceT>
+class HardDeleteOperation : public Operations {
+public:
+    HardDeleteOperation(ID_TYPE id) :
+       Operations(OperationContext(), ScopedSnapshotT()), id_(id) {}
+
+    void ApplyToStore(Store& store) override {
+        if (status_ != OP_PENDING) return;
+        ok_ = store.RemoveResource<ResourceT>(id_);
+        Done();
+    }
+
+    bool GetStatus() const  {
+        if (status_ == OP_PENDING) return false;
+        return ok_;
+    }
+
+protected:
+    ID_TYPE id_;
+    // PXU TODO: Replace all bool to Status type
+    bool ok_;
+};
+
 using OperationsPtr = std::shared_ptr<Operations>;
 
 } // snapshot

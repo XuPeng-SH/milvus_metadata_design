@@ -90,9 +90,9 @@ bool ResourceHolder<ResourceT, Derived>::Release(ID_TYPE id) {
 template <typename ResourceT, typename Derived>
 bool
 ResourceHolder<ResourceT, Derived>::HardDelete(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    bool ok = store.RemoveResource<ResourceT>(id);
-    return ok;
+    auto op = std::make_shared<HardDeleteOperation<ResourceT>>(id);
+    op->Run();
+    return op->GetStatus();
 }
 
 template <typename ResourceT, typename Derived>
