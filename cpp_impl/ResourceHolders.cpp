@@ -10,7 +10,7 @@
 // or implied. See the License for the specific language governing permissions and limitations under the License.
 
 #include "ResourceHolders.h"
-#include "Store.h"
+#include "CompoundOperations.h"
 #include <sstream>
 #include <iostream>
 
@@ -18,28 +18,31 @@ namespace milvus {
 namespace engine {
 namespace snapshot {
 
-/* CollectionsHolder::ResourcePtr */
-/* CollectionsHolder::Load(const std::string& name) { */
-/*     auto& store = Store::GetInstance(); */
-/*     auto c = store.GetCollection(name); */
-/*     if (c) { */
-/*         BaseT::AddNoLock(c); */
-/*         return c; */
-/*     } */
-/*     return nullptr; */
-/* } */
+CollectionsHolder::ResourcePtr
+CollectionsHolder::Load(const std::string& name) {
+    LoadOperationContext context;
+    context.name = name;
+    auto op = std::make_shared<LoadOperation<Collection>>(context);
+    op->Run();
+    auto c = op->GetResource();
+    if (c) {
+        BaseT::AddNoLock(c);
+        return c;
+    }
+    return nullptr;
+}
 
-/* CollectionsHolder::ScopedT */
-/* CollectionsHolder::GetCollection(const std::string& name, bool scoped) { */
-/*     std::unique_lock<std::mutex> lock(BaseT::mutex_); */
-/*     auto cit = name_map_.find(name); */
-/*     if (cit == name_map_.end()) { */
-/*         auto ret = Load(name); */
-/*         if (!ret) return BaseT::ScopedT(); */
-/*         return BaseT::ScopedT(ret, scoped); */
-/*     } */
-/*     return BaseT::ScopedT(cit->second, scoped); */
-/* } */
+CollectionsHolder::ScopedT
+CollectionsHolder::GetCollection(const std::string& name, bool scoped) {
+    std::unique_lock<std::mutex> lock(BaseT::mutex_);
+    auto cit = name_map_.find(name);
+    if (cit == name_map_.end()) {
+        auto ret = Load(name);
+        if (!ret) return BaseT::ScopedT();
+        return BaseT::ScopedT(ret, scoped);
+    }
+    return BaseT::ScopedT(cit->second, scoped);
+}
 
 bool CollectionsHolder::Add(CollectionsHolder::ResourcePtr resource) {
     if (!resource) return false;

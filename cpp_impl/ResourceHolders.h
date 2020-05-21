@@ -22,14 +22,14 @@ public:
     using ResourcePtr = typename BaseT::ResourcePtr;
     using NameMapT = std::map<std::string, ResourcePtr>;
 
-    /* ScopedT GetCollection(const std::string& name, bool scoped = true); */
+    ScopedT GetCollection(const std::string& name, bool scoped = true);
 
     bool Add(ResourcePtr resource) override;
     bool Release(ID_TYPE id) override;
     bool Release(const std::string& name);
 
 private:
-    /* ResourcePtr Load(const std::string& name) override; */
+    ResourcePtr Load(const std::string& name) override;
 
     NameMapT name_map_;
 };
