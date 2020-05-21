@@ -158,6 +158,12 @@ int main() {
     /*     std::cout << "Partition id=" << id << std::endl; */
     /* } */
 
+    LoadOperationContext load_ctx;
+    load_ctx.id = 1;
+    LoadOperation<Field> load_op(load_ctx);
+    Store::GetInstance().Apply(load_op);
+    auto field = load_op.GetResource();
 
+    cout << "Field " << field->GetID() << endl;
     return 0;
 }

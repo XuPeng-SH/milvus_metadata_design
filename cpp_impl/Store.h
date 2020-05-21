@@ -83,6 +83,11 @@ public:
         }
     }
 
+    template <typename OpT>
+    void Apply(OpT& op) {
+        op.ApplyToStore(*this);
+    }
+
     void StartTransanction() {}
     void FinishTransaction() {}
 

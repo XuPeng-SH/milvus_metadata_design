@@ -16,6 +16,11 @@ struct SegmentFileContext {
     ID_TYPE partition_id;
 };
 
+struct LoadOperationContext {
+    ID_TYPE id;
+    State status = INVALID;
+};
+
 struct OperationContext {
     SegmentPtr new_segment = nullptr;
     SegmentCommitPtr new_segment_commit = nullptr;

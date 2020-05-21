@@ -103,6 +103,28 @@ protected:
     typename ResourceT::Ptr resource_;
 };
 
+template <typename ResourceT>
+class LoadOperation {
+public:
+    LoadOperation(const LoadOperationContext& context) : context_(context) {}
+
+    void ApplyToStore(Store& store) {
+        if (status_ != OP_PENDING) return;
+        resource_ = store.GetResource<ResourceT>(context_.id);
+        status_ = OP_OK;
+    }
+
+    typename ResourceT::Ptr GetResource() const  {
+        if (status_ == OP_PENDING) return nullptr;
+        return resource_;
+    }
+
+protected:
+    OpStatus status_ = OP_PENDING;
+    LoadOperationContext context_;
+    typename ResourceT::Ptr resource_;
+};
+
 } // snapshot
 } // engine
 } // milvus
