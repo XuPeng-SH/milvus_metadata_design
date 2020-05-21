@@ -1,6 +1,5 @@
 #pragma once
 #include "SnapshotHolder.h"
-#include "schema.pb.h"
 #include <map>
 #include <memory>
 #include <string>

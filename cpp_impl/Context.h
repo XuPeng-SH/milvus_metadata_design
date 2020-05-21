@@ -13,22 +13,6 @@ struct SegmentFileContext {
 };
 
 struct OperationContext {
-    /* OperationContext(const OperationContext& other) { */
-    /*     new_segment_file = other.new_segment_file; */
-    /*     new_segment_commit = other.new_segment_commit; */
-    /*     new_partition_commit = other.new_partition_commit; */
-    /*     new_schema_commit = other.new_schema_commit; */
-    /*     prev_field = other.prev_field; */
-    /*     prev_field_element = other.prev_field_element; */
-    /*     prev_segment = other.prev_segment; */
-    /*     prev_segment_commit = other.prev_segment_commit; */
-    /*     prev_partition = other.prev_partition; */
-    /*     prev_partition_commit = other.prev_partition_commit; */
-    /*     prev_collection_commit = other.prev_collection_commit; */
-    /* } */
-
-    /* OperationContext() {} */
-
     SegmentPtr new_segment = nullptr;
     SegmentCommitPtr new_segment_commit = nullptr;
     PartitionCommitPtr new_partition_commit = nullptr;
