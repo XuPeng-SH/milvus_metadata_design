@@ -61,6 +61,28 @@ public:
     SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
 };
 
+class GetSnapshotIDsOperation : public Operations {
+public:
+    using BaseT = Operations;
+
+    GetSnapshotIDsOperation(ID_TYPE collection_id, bool reversed = true)
+        : BaseT(OperationContext(), ScopedSnapshotT()), collection_id_(collection_id), reversed_(reversed) {};
+
+    bool DoExecute(Store& store) override {
+        ids_ = store.AllActiveCollectionCommitIds(collection_id_, reversed_);
+        return true;
+    }
+
+    const IDS_TYPE& GetSnapshotIDs() const {
+        return ids_;
+    }
+
+protected:
+    ID_TYPE collection_id_;
+    bool reversed_;
+    IDS_TYPE ids_;
+};
+
 } // snapshot
 } // engine
 } // milvus

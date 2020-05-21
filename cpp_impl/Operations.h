@@ -38,7 +38,7 @@ enum OpStatus {
     OP_FAIL_FLUSH_META
 };
 
-class Operations {
+class Operations : public std::enable_shared_from_this<Operations> {
 public:
     /* static constexpr const char* Name = Derived::Name; */
     Operations(const OperationContext& context, ScopedSnapshotT prev_ss);
@@ -62,6 +62,7 @@ public:
     virtual ScopedSnapshotT GetSnapshot() const;
 
     virtual void operator()(Store& store);
+    virtual void Run();
 
     virtual void ApplyToStore(Store& store);
 

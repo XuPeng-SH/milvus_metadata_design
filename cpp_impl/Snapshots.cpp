@@ -1,5 +1,6 @@
 #include "Snapshots.h"
 #include "Store.h"
+#include "CompoundOperations.h"
 
 namespace milvus {
 namespace engine {
@@ -69,8 +70,9 @@ Snapshots::Load(ID_TYPE collection_id) {
 
 SnapshotHolderPtr
 Snapshots::LoadNoLock(ID_TYPE collection_id) {
-    auto& store = Store::GetInstance();
-    auto collection_commit_ids = store.AllActiveCollectionCommitIds(collection_id, false);
+    auto op = std::make_shared<GetSnapshotIDsOperation>(collection_id, false);
+    op->Run();
+    auto& collection_commit_ids = op->GetSnapshotIDs();
     if (collection_commit_ids.size() == 0) {
         return nullptr;
     }

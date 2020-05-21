@@ -10,8 +10,9 @@
 // or implied. See the License for the specific language governing permissions and limitations under the License.
 
 #include "BaseHolders.h"
-#include "Store.h"
+#include "Operations.h"
 #include <iostream>
+#include <memory>
 
 namespace milvus {
 namespace engine {
@@ -31,8 +32,11 @@ void ResourceHolder<ResourceT, Derived>::Dump(const std::string& tag) {
 template <typename ResourceT, typename Derived>
 typename ResourceHolder<ResourceT, Derived>::ResourcePtr
 ResourceHolder<ResourceT, Derived>::Load(ID_TYPE id) {
-    auto& store = Store::GetInstance();
-    auto c = store.GetResource<ResourceT>(id);
+    LoadOperationContext context;
+    context.id = id;
+    auto op = std::make_shared<LoadOperation<ResourceT>>(context);
+    op->Run();
+    auto c = op->GetResource();
     if (c) {
         AddNoLock(c);
         return c;

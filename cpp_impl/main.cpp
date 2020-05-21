@@ -51,6 +51,8 @@ schema::CollectionSchemaPB proto_lab() {
 }
 
 int main() {
+    auto& EXECTOR = OperationExecutor::GetInstance();
+    EXECTOR.Start();
     Store::GetInstance().Mock();
     auto& sss = Snapshots::GetInstance();
     auto ss_holder = sss.GetHolder("c_1");
@@ -88,14 +90,13 @@ int main() {
     /*     cout << "RefCnt=" << ss1->RefCnt() << endl; */
     /* } */
 
-    auto& EXECTOR = OperationExecutor::GetInstance();
-    EXECTOR.Start();
 
     {
         OperationContext context;
         auto build_op = make_shared<BuildOperation>(context, 1);
         auto seg_file = build_op->NewSegmentFile(sf_context);
-        EXECTOR.Submit(build_op);
+        /* EXECTOR.Submit(build_op); */
+        build_op->Run();
 
         OperationContext merge_context;
 
@@ -106,7 +107,7 @@ int main() {
             auto n_seg_op = make_shared<NewSegmentOperation>(n_seg_context, prev_ss);
             auto seg = n_seg_op->NewSegment();
             n_seg_op->NewSegmentFile(sf_context);
-            EXECTOR.Submit(n_seg_op);
+            n_seg_op->Run();
             prev_ss = n_seg_op->GetSnapshot();
             merge_context.stale_segments.push_back(seg);
             merge_context.prev_partition = prev_ss->GetPartition(seg->GetPartitionId());
@@ -118,7 +119,7 @@ int main() {
             auto n_seg_op = make_shared<NewSegmentOperation>(n_seg_context, prev_ss);
             auto seg = n_seg_op->NewSegment();
             n_seg_op->NewSegmentFile(sf_context);
-            EXECTOR.Submit(n_seg_op);
+            n_seg_op->Run();
             prev_ss = n_seg_op->GetSnapshot();
             merge_context.stale_segments.push_back(seg);
             merge_context.prev_partition = prev_ss->GetPartition(seg->GetPartitionId());
@@ -127,7 +128,7 @@ int main() {
         auto merge_op = make_shared<MergeOperation>(merge_context, prev_ss);
         auto seg = merge_op->NewSegment();
         merge_op->NewSegmentFile(sf_context);
-        EXECTOR.Submit(merge_op);
+        merge_op->Run();
         merge_op->GetSnapshot();
     }
     /* CollectionCommitsHolder::GetInstance().Dump("2222"); */

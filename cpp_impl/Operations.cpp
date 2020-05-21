@@ -11,6 +11,7 @@
 
 #include "Operations.h"
 #include "Snapshots.h"
+#include "OperationExecutor.h"
 
 namespace milvus {
 namespace engine {
@@ -26,6 +27,12 @@ Operations::Operations(const OperationContext& context, ID_TYPE collection_id, I
 void
 Operations::operator()(Store& store) {
     return ApplyToStore(store);
+}
+
+void
+Operations::Run() {
+    OperationExecutor::GetInstance().Submit(shared_from_this());
+    this->WaitToFinish();
 }
 
 bool
@@ -78,7 +85,6 @@ Operations::DoExecute(Store& store) {
 
 bool
 Operations::PostExecute(Store& store) {
-    /* std::cout << "Operations " << Name << " is OnExecute with " << steps_.size() << " steps" << std::endl; */
     auto ok = store.DoCommitOperation(*this);
     if (!ok) status_ = OP_FAIL_FLUSH_META;
     return ok;
