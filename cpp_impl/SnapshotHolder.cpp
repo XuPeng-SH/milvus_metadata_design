@@ -131,7 +131,7 @@ SnapshotHolder::LoadNoLock(ID_TYPE collection_commit_id) {
     LoadOperationContext context;
     context.id = collection_commit_id;
     auto op = std::make_shared<LoadOperation<CollectionCommit>>(context);
-    op->Run();
+    op->Push();
     auto entry = op->GetResource();
     if (!entry) return;
     AddNoLock(collection_commit_id);

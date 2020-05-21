@@ -94,9 +94,9 @@ int main() {
     {
         OperationContext context;
         auto build_op = make_shared<BuildOperation>(context, 1);
-        auto seg_file = build_op->NewSegmentFile(sf_context);
+        auto seg_file = build_op->CommitNewSegmentFile(sf_context);
         /* EXECTOR.Submit(build_op); */
-        build_op->Run();
+        build_op->Push();
 
         OperationContext merge_context;
 
@@ -105,9 +105,9 @@ int main() {
             OperationContext n_seg_context;
             n_seg_context.prev_partition = prev_ss->GetPartition(1);
             auto n_seg_op = make_shared<NewSegmentOperation>(n_seg_context, prev_ss);
-            auto seg = n_seg_op->NewSegment();
-            n_seg_op->NewSegmentFile(sf_context);
-            n_seg_op->Run();
+            auto seg = n_seg_op->CommitNewSegment();
+            n_seg_op->CommitNewSegmentFile(sf_context);
+            n_seg_op->Push();
             prev_ss = n_seg_op->GetSnapshot();
             merge_context.stale_segments.push_back(seg);
             merge_context.prev_partition = prev_ss->GetPartition(seg->GetPartitionId());
@@ -117,18 +117,18 @@ int main() {
             OperationContext n_seg_context;
             n_seg_context.prev_partition = prev_ss->GetPartition(1);
             auto n_seg_op = make_shared<NewSegmentOperation>(n_seg_context, prev_ss);
-            auto seg = n_seg_op->NewSegment();
-            n_seg_op->NewSegmentFile(sf_context);
-            n_seg_op->Run();
+            auto seg = n_seg_op->CommitNewSegment();
+            n_seg_op->CommitNewSegmentFile(sf_context);
+            n_seg_op->Push();
             prev_ss = n_seg_op->GetSnapshot();
             merge_context.stale_segments.push_back(seg);
             merge_context.prev_partition = prev_ss->GetPartition(seg->GetPartitionId());
         }
 
         auto merge_op = make_shared<MergeOperation>(merge_context, prev_ss);
-        auto seg = merge_op->NewSegment();
-        merge_op->NewSegmentFile(sf_context);
-        merge_op->Run();
+        auto seg = merge_op->CommitNewSegment();
+        merge_op->CommitNewSegmentFile(sf_context);
+        merge_op->Push();
         merge_op->GetSnapshot();
     }
     /* CollectionCommitsHolder::GetInstance().Dump("2222"); */

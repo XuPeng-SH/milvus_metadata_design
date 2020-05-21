@@ -35,7 +35,7 @@ ResourceHolder<ResourceT, Derived>::Load(ID_TYPE id) {
     LoadOperationContext context;
     context.id = id;
     auto op = std::make_shared<LoadOperation<ResourceT>>(context);
-    op->Run();
+    op->Push();
     auto c = op->GetResource();
     if (c) {
         AddNoLock(c);
@@ -91,7 +91,7 @@ template <typename ResourceT, typename Derived>
 bool
 ResourceHolder<ResourceT, Derived>::HardDelete(ID_TYPE id) {
     auto op = std::make_shared<HardDeleteOperation<ResourceT>>(id);
-    op->Run();
+    op->Push();
     return op->GetStatus();
 }
 

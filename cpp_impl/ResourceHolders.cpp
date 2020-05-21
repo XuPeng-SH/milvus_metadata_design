@@ -23,7 +23,7 @@ CollectionsHolder::Load(const std::string& name) {
     LoadOperationContext context;
     context.name = name;
     auto op = std::make_shared<LoadOperation<Collection>>(context);
-    op->Run();
+    op->Push();
     auto c = op->GetResource();
     if (c) {
         BaseT::AddNoLock(c);

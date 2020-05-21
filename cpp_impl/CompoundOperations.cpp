@@ -79,7 +79,7 @@ BuildOperation::DoExecute(Store& store) {
 }
 
 SegmentFilePtr
-BuildOperation::NewSegmentFile(const SegmentFileContext& context) {
+BuildOperation::CommitNewSegmentFile(const SegmentFileContext& context) {
     auto new_sf_op = std::make_shared<SegmentFileOperation>(context, prev_ss_);
     OperationExecutor::GetInstance().Submit(new_sf_op);
     new_sf_op->WaitToFinish();
@@ -134,7 +134,7 @@ NewSegmentOperation::PreExecute(Store& store) {
 }
 
 SegmentPtr
-NewSegmentOperation::NewSegment() {
+NewSegmentOperation::CommitNewSegment() {
     auto op = std::make_shared<SegmentOperation>(context_, prev_ss_);
     OperationExecutor::GetInstance().Submit(op);
     op->WaitToFinish();
@@ -143,7 +143,7 @@ NewSegmentOperation::NewSegment() {
 }
 
 SegmentFilePtr
-NewSegmentOperation::NewSegmentFile(const SegmentFileContext& context) {
+NewSegmentOperation::CommitNewSegmentFile(const SegmentFileContext& context) {
     auto c = context;
     c.segment_id = context_.new_segment->GetID();
     c.partition_id = context_.new_segment->GetPartitionId();
@@ -160,7 +160,7 @@ MergeOperation::MergeOperation(const OperationContext& context, ID_TYPE collecti
     : BaseT(context, collection_id, commit_id) {};
 
 SegmentPtr
-MergeOperation::NewSegment() {
+MergeOperation::CommitNewSegment() {
     if (context_.new_segment) return context_.new_segment;
     auto op = std::make_shared<SegmentOperation>(context_, prev_ss_);
     OperationExecutor::GetInstance().Submit(op);
@@ -170,9 +170,9 @@ MergeOperation::NewSegment() {
 }
 
 SegmentFilePtr
-MergeOperation::NewSegmentFile(const SegmentFileContext& context) {
+MergeOperation::CommitNewSegmentFile(const SegmentFileContext& context) {
     // PXU TODO: Check element type and segment file mapping rules
-    auto new_segment = NewSegment();
+    auto new_segment = CommitNewSegment();
     auto c = context;
     c.segment_id = new_segment->GetID();
     c.partition_id = new_segment->GetPartitionId();

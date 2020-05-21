@@ -62,7 +62,7 @@ public:
     virtual ScopedSnapshotT GetSnapshot() const;
 
     virtual void operator()(Store& store);
-    virtual void Run();
+    virtual void Push();
 
     virtual void ApplyToStore(Store& store);
 

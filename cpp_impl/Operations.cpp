@@ -30,7 +30,7 @@ Operations::operator()(Store& store) {
 }
 
 void
-Operations::Run() {
+Operations::Push() {
     OperationExecutor::GetInstance().Submit(shared_from_this());
     this->WaitToFinish();
 }

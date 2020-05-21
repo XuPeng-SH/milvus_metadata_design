@@ -70,7 +70,7 @@ Snapshots::Load(ID_TYPE collection_id) {
 SnapshotHolderPtr
 Snapshots::LoadNoLock(ID_TYPE collection_id) {
     auto op = std::make_shared<GetSnapshotIDsOperation>(collection_id, false);
-    op->Run();
+    op->Push();
     auto& collection_commit_ids = op->GetIDs();
     if (collection_commit_ids.size() == 0) {
         return nullptr;
@@ -88,7 +88,7 @@ Snapshots::LoadNoLock(ID_TYPE collection_id) {
 void
 Snapshots::Init() {
     auto op = std::make_shared<GetCollectionIDsOperation>();
-    op->Run();
+    op->Push();
     auto& collection_ids = op->GetIDs();
     for (auto collection_id : collection_ids) {
         Load(collection_id);
@@ -107,7 +107,7 @@ Snapshots::GetHolder(const std::string& name) {
     LoadOperationContext context;
     context.name = name;
     auto op = std::make_shared<LoadOperation<Collection>>(context);
-    op->Run();
+    op->Push();
     auto c = op->GetResource();
     if (!c) return nullptr;
     return Load(c->GetID());

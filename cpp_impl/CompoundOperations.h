@@ -28,7 +28,7 @@ public:
     bool DoExecute(Store&) override;
     bool PreExecute(Store&) override;
 
-    SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
+    SegmentFilePtr CommitNewSegmentFile(const SegmentFileContext& context);
 };
 
 class NewSegmentOperation : public Operations {
@@ -42,9 +42,9 @@ public:
 
     bool PreExecute(Store&) override;
 
-    SegmentPtr NewSegment();
+    SegmentPtr CommitNewSegment();
 
-    SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
+    SegmentFilePtr CommitNewSegmentFile(const SegmentFileContext& context);
 };
 
 class MergeOperation : public Operations {
@@ -57,8 +57,8 @@ public:
     bool PreExecute(Store&) override;
     bool DoExecute(Store&) override;
 
-    SegmentPtr NewSegment();
-    SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
+    SegmentPtr CommitNewSegment();
+    SegmentFilePtr CommitNewSegmentFile(const SegmentFileContext& context);
 };
 
 class GetSnapshotIDsOperation : public Operations {
