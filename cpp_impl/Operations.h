@@ -54,18 +54,16 @@ public:
 
     StepsT& GetSteps() { return steps_; }
 
-    virtual void OnExecute();
-    virtual bool PreExecute();
-    virtual bool DoExecute();
-    virtual bool PostExecute();
+    virtual void OnExecute(Store&);
+    virtual bool PreExecute(Store&);
+    virtual bool DoExecute(Store&);
+    virtual bool PostExecute(Store&);
 
     virtual ScopedSnapshotT GetSnapshot() const;
 
-    virtual void operator()();
+    virtual void operator()(Store& store);
 
-    virtual void ApplyToStore(Store& store) {
-
-    }
+    virtual void ApplyToStore(Store& store);
 
     bool WaitToFinish() {
         std::unique_lock<std::mutex> lock(finish_mtx_);

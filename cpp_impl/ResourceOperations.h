@@ -28,7 +28,7 @@ public:
         return prev_ss_->GetCollectionCommit();
     }
 
-    bool DoExecute() override;
+    bool DoExecute(Store&) override;
 };
 
 /*
@@ -47,7 +47,7 @@ public:
         return prev_ss_->GetPartitionCommitByPartitionId(segment_commit->GetPartitionId());
     }
 
-    bool DoExecute() override;
+    bool DoExecute(Store&) override;
 };
 
 /*
@@ -68,7 +68,7 @@ public:
         return nullptr;
     }
 
-    bool DoExecute() override;
+    bool DoExecute(Store&) override;
 };
 
 /*
@@ -82,7 +82,7 @@ public:
     SegmentOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(context, collection_id, commit_id) {};
 
-    bool DoExecute() override {
+    bool DoExecute(Store& store) override {
         if (!context_.prev_partition) {
             return false;
         }
@@ -101,7 +101,7 @@ public:
     SegmentFileOperation(const SegmentFileContext& sc, ID_TYPE collection_id, ID_TYPE commit_id = 0)
         : BaseT(OperationContext(), collection_id, commit_id), context_(sc) {};
 
-    bool DoExecute() override;
+    bool DoExecute(Store& store) override;
 
 protected:
     SegmentFileContext context_;

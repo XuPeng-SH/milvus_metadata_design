@@ -25,8 +25,8 @@ public:
     BuildOperation(const OperationContext& context, ScopedSnapshotT prev_ss);
     BuildOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0);
 
-    bool DoExecute() override;
-    bool PreExecute() override;
+    bool DoExecute(Store&) override;
+    bool PreExecute(Store&) override;
 
     SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);
 };
@@ -38,9 +38,9 @@ public:
     NewSegmentOperation(const OperationContext& context, ScopedSnapshotT prev_ss);
     NewSegmentOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0);
 
-    bool DoExecute() override;
+    bool DoExecute(Store&) override;
 
-    bool PreExecute() override;
+    bool PreExecute(Store&) override;
 
     SegmentPtr NewSegment();
 
@@ -54,8 +54,8 @@ public:
     MergeOperation(const OperationContext& context, ScopedSnapshotT prev_ss);
     MergeOperation(const OperationContext& context, ID_TYPE collection_id, ID_TYPE commit_id = 0);
 
-    bool PreExecute() override;
-    bool DoExecute() override;
+    bool PreExecute(Store&) override;
+    bool DoExecute(Store&) override;
 
     SegmentPtr NewSegment();
     SegmentFilePtr NewSegmentFile(const SegmentFileContext& context);

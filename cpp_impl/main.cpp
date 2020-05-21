@@ -88,24 +88,26 @@ int main() {
     /*     cout << "RefCnt=" << ss1->RefCnt() << endl; */
     /* } */
 
-    /* ScopedSnapshotT prev_ss; */
+    auto& EXECTOR = OperationExecutor::GetInstance();
+    EXECTOR.Start();
+
     {
         OperationContext context;
-        BuildOperation build_op(context, 1);
-        auto seg_file = build_op.NewSegmentFile(sf_context);
-        build_op();
+        auto build_op = make_shared<BuildOperation>(context, 1);
+        auto seg_file = build_op->NewSegmentFile(sf_context);
+        EXECTOR.Submit(build_op);
 
         OperationContext merge_context;
 
-        auto prev_ss = build_op.GetSnapshot();
+        auto prev_ss = build_op->GetSnapshot();
         {
             OperationContext n_seg_context;
             n_seg_context.prev_partition = prev_ss->GetPartition(1);
-            NewSegmentOperation n_seg_op(n_seg_context, prev_ss);
-            auto seg = n_seg_op.NewSegment();
-            n_seg_op.NewSegmentFile(sf_context);
-            n_seg_op();
-            prev_ss = n_seg_op.GetSnapshot();
+            auto n_seg_op = make_shared<NewSegmentOperation>(n_seg_context, prev_ss);
+            auto seg = n_seg_op->NewSegment();
+            n_seg_op->NewSegmentFile(sf_context);
+            EXECTOR.Submit(n_seg_op);
+            prev_ss = n_seg_op->GetSnapshot();
             merge_context.stale_segments.push_back(seg);
             merge_context.prev_partition = prev_ss->GetPartition(seg->GetPartitionId());
         }
@@ -113,21 +115,20 @@ int main() {
         {
             OperationContext n_seg_context;
             n_seg_context.prev_partition = prev_ss->GetPartition(1);
-            NewSegmentOperation n_seg_op(n_seg_context, prev_ss);
-            auto seg = n_seg_op.NewSegment();
-            n_seg_op.NewSegmentFile(sf_context);
-            n_seg_op();
-            prev_ss = n_seg_op.GetSnapshot();
+            auto n_seg_op = make_shared<NewSegmentOperation>(n_seg_context, prev_ss);
+            auto seg = n_seg_op->NewSegment();
+            n_seg_op->NewSegmentFile(sf_context);
+            EXECTOR.Submit(n_seg_op);
+            prev_ss = n_seg_op->GetSnapshot();
             merge_context.stale_segments.push_back(seg);
+            merge_context.prev_partition = prev_ss->GetPartition(seg->GetPartitionId());
         }
 
-        MergeOperation merge_op(merge_context, prev_ss);
-        auto seg = merge_op.NewSegment();
-        merge_op.NewSegmentFile(sf_context);
-        merge_op();
-        merge_op.GetSnapshot();
-
-        /* CollectionCommitsHolder::GetInstance().Dump("1111"); */
+        auto merge_op = make_shared<MergeOperation>(merge_context, prev_ss);
+        auto seg = merge_op->NewSegment();
+        merge_op->NewSegmentFile(sf_context);
+        EXECTOR.Submit(merge_op);
+        merge_op->GetSnapshot();
     }
     /* CollectionCommitsHolder::GetInstance().Dump("2222"); */
 
@@ -159,16 +160,7 @@ int main() {
     /*     std::cout << "Partition id=" << id << std::endl; */
     /* } */
 
-    auto& executor = OperationExecutor::GetInstance();
-    executor.Start();
-
-    LoadOperationContext load_ctx;
-    load_ctx.id = 1;
-    auto load_op = std::make_shared<LoadOperation<Field>>(load_ctx);
-    executor.Submit(load_op);
-    auto field = load_op->GetResource();
-    cout << "Field " << field->GetID() << endl;
-    executor.Stop();
+    EXECTOR.Stop();
 
     return 0;
 }

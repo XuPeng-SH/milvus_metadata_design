@@ -24,8 +24,8 @@ Operations::Operations(const OperationContext& context, ID_TYPE collection_id, I
 }
 
 void
-Operations::operator()() {
-    return OnExecute();
+Operations::operator()(Store& store) {
+    return ApplyToStore(store);
 }
 
 bool
@@ -46,34 +46,39 @@ Operations::GetSnapshot() const {
 }
 
 void
-Operations::OnExecute() {
-    auto r = PreExecute();
+Operations::ApplyToStore(Store& store) {
+    OnExecute(store);
+    Done();
+}
+
+void
+Operations::OnExecute(Store& store) {
+    auto r = PreExecute(store);
     if (!r) {
         status_ = OP_FAIL_FLUSH_META;
         return;
     }
-    r = DoExecute();
+    r = DoExecute(store);
     if (!r) {
         status_ = OP_FAIL_FLUSH_META;
         return;
     }
-    PostExecute();
+    PostExecute(store);
 }
 
 bool
-Operations::PreExecute() {
+Operations::PreExecute(Store& store) {
     return true;
 }
 
 bool
-Operations::DoExecute() {
+Operations::DoExecute(Store& store) {
     return true;
 }
 
 bool
-Operations::PostExecute() {
+Operations::PostExecute(Store& store) {
     /* std::cout << "Operations " << Name << " is OnExecute with " << steps_.size() << " steps" << std::endl; */
-    auto& store = Store::GetInstance();
     auto ok = store.DoCommitOperation(*this);
     if (!ok) status_ = OP_FAIL_FLUSH_META;
     return ok;

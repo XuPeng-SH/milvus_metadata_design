@@ -16,7 +16,7 @@ namespace engine {
 namespace snapshot {
 
 bool
-CollectionCommitOperation::DoExecute() {
+CollectionCommitOperation::DoExecute(Store& store) {
     auto prev_resource = GetPrevResource();
     if (!prev_resource) return false;
     resource_ = std::make_shared<CollectionCommit>(*prev_resource);
@@ -35,7 +35,7 @@ CollectionCommitOperation::DoExecute() {
 }
 
 bool
-PartitionCommitOperation::DoExecute() {
+PartitionCommitOperation::DoExecute(Store& store) {
     auto prev_resource = GetPrevResource();
     if (prev_resource) {
         resource_ = std::make_shared<PartitionCommit>(*prev_resource);
@@ -63,7 +63,7 @@ PartitionCommitOperation::DoExecute() {
 
 
 bool
-SegmentCommitOperation::DoExecute() {
+SegmentCommitOperation::DoExecute(Store& store) {
     auto prev_resource = GetPrevResource();
 
     if (prev_resource) {
@@ -86,7 +86,7 @@ SegmentCommitOperation::DoExecute() {
 }
 
 bool
-SegmentFileOperation::DoExecute() {
+SegmentFileOperation::DoExecute(Store& store) {
     auto field_element_id = prev_ss_->GetFieldElementId(context_.field_name, context_.field_element_name);
     resource_ = std::make_shared<SegmentFile>(context_.partition_id, context_.segment_id, field_element_id);
     AddStep(*resource_);
