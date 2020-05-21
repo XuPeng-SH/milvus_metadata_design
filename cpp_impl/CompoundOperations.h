@@ -73,12 +73,33 @@ public:
         return true;
     }
 
-    const IDS_TYPE& GetSnapshotIDs() const {
+    const IDS_TYPE& GetIDs() const {
         return ids_;
     }
 
 protected:
     ID_TYPE collection_id_;
+    bool reversed_;
+    IDS_TYPE ids_;
+};
+
+class GetCollectionIDsOperation : public Operations {
+public:
+    using BaseT = Operations;
+
+    GetCollectionIDsOperation(bool reversed = true)
+        : BaseT(OperationContext(), ScopedSnapshotT()), reversed_(reversed) {};
+
+    bool DoExecute(Store& store) override {
+        ids_ = store.AllActiveCollectionIds(reversed_);
+        return true;
+    }
+
+    const IDS_TYPE& GetIDs() const {
+        return ids_;
+    }
+
+protected:
     bool reversed_;
     IDS_TYPE ids_;
 };
