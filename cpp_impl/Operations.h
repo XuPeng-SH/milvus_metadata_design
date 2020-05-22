@@ -66,18 +66,9 @@ public:
 
     virtual void ApplyToStore(Store& store);
 
-    bool WaitToFinish() {
-        std::unique_lock<std::mutex> lock(finish_mtx_);
-        finish_cond_.wait(lock, [this] {
-            return status_ != OP_PENDING;
-        });
-        return true;
-    }
+    bool WaitToFinish();
 
-    void Done() {
-        status_ = OP_OK;
-        finish_cond_.notify_all();
-    }
+    void Done();
 
     virtual ~Operations() {}
 

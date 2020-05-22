@@ -65,17 +65,11 @@ class GetSnapshotIDsOperation : public Operations {
 public:
     using BaseT = Operations;
 
-    GetSnapshotIDsOperation(ID_TYPE collection_id, bool reversed = true)
-        : BaseT(OperationContext(), ScopedSnapshotT()), collection_id_(collection_id), reversed_(reversed) {};
+    GetSnapshotIDsOperation(ID_TYPE collection_id, bool reversed = true);
 
-    bool DoExecute(Store& store) override {
-        ids_ = store.AllActiveCollectionCommitIds(collection_id_, reversed_);
-        return true;
-    }
+    bool DoExecute(Store& store) override;
 
-    const IDS_TYPE& GetIDs() const {
-        return ids_;
-    }
+    const IDS_TYPE& GetIDs() const;
 
 protected:
     ID_TYPE collection_id_;
@@ -87,17 +81,11 @@ class GetCollectionIDsOperation : public Operations {
 public:
     using BaseT = Operations;
 
-    GetCollectionIDsOperation(bool reversed = true)
-        : BaseT(OperationContext(), ScopedSnapshotT()), reversed_(reversed) {};
+    GetCollectionIDsOperation(bool reversed = true);
 
-    bool DoExecute(Store& store) override {
-        ids_ = store.AllActiveCollectionIds(reversed_);
-        return true;
-    }
+    bool DoExecute(Store& store) override;
 
-    const IDS_TYPE& GetIDs() const {
-        return ids_;
-    }
+    const IDS_TYPE& GetIDs() const;
 
 protected:
     bool reversed_;

@@ -226,6 +226,39 @@ MergeOperation::DoExecute(Store& store) {
     return true;
 }
 
+GetSnapshotIDsOperation::GetSnapshotIDsOperation(ID_TYPE collection_id, bool reversed)
+    : BaseT(OperationContext(), ScopedSnapshotT()),
+      collection_id_(collection_id),
+      reversed_(reversed) {
+}
+
+bool
+GetSnapshotIDsOperation::DoExecute(Store& store) {
+    ids_ = store.AllActiveCollectionCommitIds(collection_id_, reversed_);
+    return true;
+}
+
+const IDS_TYPE&
+GetSnapshotIDsOperation::GetIDs() const {
+    return ids_;
+}
+
+GetCollectionIDsOperation::GetCollectionIDsOperation(bool reversed)
+    : BaseT(OperationContext(), ScopedSnapshotT()),
+      reversed_(reversed) {
+}
+
+bool
+GetCollectionIDsOperation::DoExecute(Store& store) {
+    ids_ = store.AllActiveCollectionIds(reversed_);
+    return true;
+}
+
+const IDS_TYPE&
+GetCollectionIDsOperation::GetIDs() const {
+    return ids_;
+}
+
 } // snapshot
 } // engine
 } // milvus

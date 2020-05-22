@@ -29,6 +29,21 @@ Operations::operator()(Store& store) {
     return ApplyToStore(store);
 }
 
+bool
+Operations::WaitToFinish() {
+    std::unique_lock<std::mutex> lock(finish_mtx_);
+    finish_cond_.wait(lock, [this] {
+        return status_ != OP_PENDING;
+    });
+    return true;
+}
+
+void
+Operations::Done() {
+    status_ = OP_OK;
+    finish_cond_.notify_all();
+}
+
 void
 Operations::Push() {
     OperationExecutor::GetInstance().Submit(shared_from_this());
