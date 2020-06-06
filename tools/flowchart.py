@@ -1,4 +1,5 @@
 import re
+import random
 from pprint import pprint
 from collections import OrderedDict
 from fire import Fire
@@ -7,35 +8,78 @@ from graphviz import Digraph
 LINE0 = '<BO(SS=131,N_CC=6,N_PC=8,N_SC=12,N_SF=[51],LSN=2)> | DONE | OK'
 # LINE1= '<BO(SS=145,N_CC=7,N_PC=9,N_SC=13,N_SE=12,N_SF=[52],LSN=3)> | DONE | OK'
 LINE1= '<NSO(SS=145,N_CC=7,N_PC=9,N_SC=13,N_SE=12,N_SF=[52],LSN=3)> | DONE | OK'
-LINE2 = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN=4)> | DONE | OK'
-LINE3 = '<BO(SS=174,,N_SF=[54],LSN=6)> | DONE | Error code(70003): Specified snapshot holder not found'
-LINE4 = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN=8)> | DONE | OK'
+LINE2 = '<DCO(SS=176,,LSN=4)> | DONE | OK'
+LINE3 = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN=5)> | DONE | OK'
+LINE4 = '<BO(SS=174,,N_SF=[54],LSN=6)> | DONE | Error code(70003): Specified snapshot holder not found'
+LINE5 = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN=8)> | DONE | OK'
+LINE6 = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN=9)> | DONE | OK'
+LINE7 = '<BO(SS=174,,N_SF=[54],LSN=10)> | DONE | Error code(70003): Specified snapshot holder not found'
+LINE8 = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN=11)> | DONE | OK'
+LINE9= '<NSO(SS=145,N_CC=7,N_PC=9,N_SC=13,N_SE=12,N_SF=[52],LSN=12)> | DONE | OK'
+LINE10 = '<DCO(SS=176,,LSN=13)> | DONE | OK'
+LINE11 = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN=14)> | DONE | OK'
 # LINE = '<CCO(CID=0,CNAME="c1",N_CC=1,N_CID=1,N_CNAME="c1",N_PC=1,N_PID=1,N_PNAME="_default",LSN=2)> | DONE | OK'
-LINES = [LINE0, LINE1, LINE2, LINE3, LINE4]
+LINES = [LINE0, LINE1, LINE2, LINE3, LINE4, LINE5, LINE6, LINE7, LINE8, LINE9, LINE10, LINE11]
+
+BO_S_LINE = '<BO(LSN={})> | PENDING'
+BO_P_LINE = '<BO(LSN={})> | DONE | OK'
+BO_E_LINE = '<BO(LSN={})> | DONE | Error code(70003): xx'
+MO_S_LINE = '<MO(LSN={})> | PENDING'
+MO_P_LINE = '<MO(LSN={})> | DONE | OK'
+MO_E_LINE = '<MO(LSN={})> | DONE | Error code(70004): xx'
+DCO_S_LINE = '<DCO(LSN={})> | PENDING'
+DCO_P_LINE = '<DCO(LSN={})> | DONE | OK'
+DCO_E_LINE = '<DCO(LSN={})> | DONE | Error code(70005): xx'
+NSO_S_LINE = '<NSO(LSN={})> | PENDING'
+NSO_P_LINE = '<NSO(LSN={})> | DONE | OK'
+NSO_E_LINE = '<NSO(LSN={})> | DONE | Error code(70006): xx'
+
+TEMPLATES = [BO_S_LINE, BO_P_LINE, BO_E_LINE, MO_S_LINE, MO_P_LINE, MO_E_LINE,
+        DCO_S_LINE, DCO_P_LINE, DCO_E_LINE, NSO_S_LINE, NSO_P_LINE, NSO_E_LINE]
+
+def mock_lines(loop):
+    lines = []
+    pendings = []
+    for i in range(1, loop+1):
+        template_id = random.randint(0, len(TEMPLATES) - 1)
+        line = TEMPLATES[template_id]
+        lines.append(line.format(i))
+        if line.endswith('PENDING'):
+            pendings.append((template_id, i))
+        fin_pending = random.randint(0, 9) > 5 and len(pendings) > 0
+        if fin_pending:
+            tid, lsn = pendings.pop(0)
+            tid = random.randint(1,2) + tid
+            line = TEMPLATES[tid]
+            lines.append(line.format(lsn))
+
+    return lines
 
 class Parser:
     def parse_lines(self, lines):
         nodes = OrderedDict()
-        for line in lines:
-            lsn, node = self.parse_line(line)
-            if not lsn:
+        for idx, line in enumerate(lines, 1):
+            node = self.parse_line(line)
+            if not node:
                 continue
-            nodes[lsn] = node
+            nodes[idx] = node
         return nodes
 
     def parse_line(self, line):
         if not line:
-            return None, {}
+            return {}
         lines = list(map(str.strip, line.split('|')))
         kvs = OrderedDict()
         kvs['node'] = self._parse_node(lines[0])
         kvs['lsn'] = kvs['node'].pop('lsn')
         kvs['state'] = lines[1]
-        if len(lines) == 3:
+        if len(lines) > 2:
             health = lines[2]
             kvs['health'] = self._parse_health(health)
+        elif len(lines) == 2:
+            kvs['health'] = {'status': 'UNKOWN'}
 
-        return kvs['lsn'], kvs
+        return kvs
 
     def _parse_health(self, line):
         if not line:
@@ -89,12 +133,16 @@ def create_end_node(g):
     return node_id
 
 def create_node(g, node_id, node_info):
-    node_name = node_info['node']['name']
+    node_name = str(node_info['lsn'])
     attrs = {}
-    if node_info['health']['status'] != 'OK':
+    if node_info['health']['status'] == 'ERR':
         attrs['color'] = 'pink'
         error_code = node_info['health']['error_code']
         node_name = f'{node_name}:<{error_code}>'
+    if node_info['state'] == 'PENDING':
+        attrs['color'] = 'green'
+        node_name = f'{node_name}:(P)'
+
     g.node(node_id, node_name, **attrs)
     return node_id
 
@@ -104,60 +152,55 @@ class Flow:
         self.nodes = nodes
         self.kwargs = kwargs
 
+    def _build_subg(self, g, name, op_type, points, **kwargs):
+        style = kwargs.get('style', 'filled')
+        color = kwargs.get('color', 'lightgrey')
+        node_style = kwargs.get('node_style', 'filled')
+        node_color = kwargs.get('node_color', 'white')
+        label = kwargs.get('label', None)
+        label = label if label else name
+        sub_points = []
+        with g.subgraph(name=name) as c:
+            c.attr(style=style, color=color)
+            c.node_attr.update(style=node_style, color=node_color)
+            for ts, node in self.nodes.items():
+                node_id = str(ts)
+                if node['node']['name'] != op_type:
+                    continue
+                create_node(c, node_id, node)
+                points[ts] = node_id
+                sub_points.append(node_id)
+            if not sub_points:
+                return
+
+            edges = [[sub_points[0]]]
+            for point in sub_points[1:]:
+                edge = edges[-1]
+                edge.append(point)
+                edges.append([point])
+
+            edges = [edge for edge in edges if len(edge) == 2]
+            for edge in edges:
+                lens = int(edge[1]) - int(edge[0])
+                c.edge(*edge, style='invis', length=str(lens))
+            c.attr(label=label)
+
     def draw_cluster(self):
         fmt = self.kwargs.get('format', 'svg')
-        g = Digraph(self.name, filename='cluster.gv')
-        # g.node_attr.update(style='filled', color='lightblue')
+        # 'dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage',
+        g = Digraph(name=self.name, filename='cluster.gv', format=fmt, engine='dot')
         points = {}
-        with g.subgraph(name='cluster_0') as bo:
-            bo.attr(style='filled', color='lightgrey')
-            # bo.attr(color='blue')
-            bo.node_attr.update(style='filled', color='white')
-            bo_points = []
-            for lsn, node in self.nodes.items():
-                node_id = str(lsn)
-                if node['node']['name'] != 'BO':
-                    continue
-                points[lsn] = node_id
-                bo_points.append(node_id)
-
-            bo_edges = [[bo_points[0]]]
-            for point in bo_points[1:]:
-                edge = bo_edges[-1]
-                edge.append(point)
-                bo_edges.append([point])
-
-            bo_edges = [edge for edge in bo_edges if len(edge) == 2]
-            bo.edges(bo_edges)
-            bo.attr(label='Build Op')
-
-        with g.subgraph(name='cluster_1') as mo:
-            mo.attr(style='filled', color='lightblue')
-            mo.node_attr.update(style='filled', color='white')
-            mo_points = []
-            for lsn, node in self.nodes.items():
-                node_id = str(lsn)
-                if node['node']['name'] != 'MO':
-                    continue
-                points[lsn] = node_id
-                mo_points.append(node_id)
-            mo_edges = [[mo_points[0]]]
-            for point in mo_points[1:]:
-                edge = mo_edges[-1]
-                edge.append(point)
-                mo_edges.append([point])
-
-            mo_edges = [edge for edge in mo_edges if len(edge) == 2]
-            mo.edges(mo_edges)
-            mo.attr(label='Merge Op')
+        self._build_subg(g, 'cluster_0', 'BO', points, label='Build')
+        self._build_subg(g, 'cluster_1', 'MO', points, color='lightblue', label='Merge')
+        self._build_subg(g, 'cluster_2', 'NSO', points, color='lightblue2', label='NewSeg')
+        self._build_subg(g, 'cluster_3', 'DCO', points, color='lightgrey', label='DropC')
 
         start_id = create_start_node(g)
         end_id = create_end_node(g)
+
         edges = [[start_id]]
-        pprint(points)
-        # for lsn, point in points.items():
+
         for lsn in sorted(points.keys()):
-            print(lsn)
             edge = edges[-1]
             edge.append(points[lsn])
             edges.append([points[lsn]])
@@ -165,28 +208,18 @@ class Flow:
         edge = edges[-1]
         edge.append(end_id)
 
-        pprint(edges)
         for edge in edges:
             if len(edge) != 2:
                 continue
             g.edge(*edge)
-
-
-
-        # g.edge(start_id, '2')
-        # g.edge(start_id, '4')
-        # g.edge('2', '8')
-        # g.edge('4', '6')
-        # g.edge('6', '-1')
-        # g.edge('8', '-1')
 
         g.view()
 
     def draw(self):
         fmt = self.kwargs.get('format', 'svg')
         # engine: fdp, sfdp, neato
-        dot = Digraph(comment=self.name, format=fmt, engine='sfdp')
-        dot.attr(color='lightdark', style='filled', size='10,10')
+        # 'dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage',
+        dot = Digraph(name=self.name, filename='single.gv', format=fmt, engine='neato')
         dot.node_attr.update(style='filled', color='lightblue')
         start_id = create_start_node(dot)
         edges = [[start_id]]
@@ -212,8 +245,15 @@ class Flow:
 
         dot.view()
 
-if __name__ == '__main__':
+def draw(num=10, name='sample', cluster=False):
     p = Parser()
-    nodes = p.parse_lines(LINES)
-    f = Flow('sample', nodes)
-    f.draw_cluster()
+    nodes = p.parse_lines(mock_lines(num))
+    # pprint(nodes)
+    f = Flow(name, nodes)
+    if cluster:
+        f.draw_cluster()
+    else:
+        f.draw()
+
+if __name__ == '__main__':
+    Fire(draw)
