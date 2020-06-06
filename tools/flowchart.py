@@ -219,20 +219,23 @@ class Flow:
         fmt = self.kwargs.get('format', 'svg')
         # engine: fdp, sfdp, neato
         # 'dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage',
-        dot = Digraph(name=self.name, filename='single.gv', format=fmt, engine='neato')
+        dot = Digraph(name=self.name, filename='single.gv', format=fmt, engine='dot')
         dot.node_attr.update(style='filled', color='lightblue')
         start_id = create_start_node(dot)
         edges = [[start_id]]
-        for lsn, node in self.nodes.items():
-            node_id = str(lsn)
+        pendings = {}
+        for ts, node in self.nodes.items():
+            node_id = str(ts)
             create_node(dot, node_id, node)
-            if len(edges) == 0:
-                edge = [node_id]
-                edges.append(edge)
+            edge = edges[-1]
+            edge.append(node_id)
+            if node['state'] == 'PENDING':
+                pendings[node['lsn']] = node_id
             else:
-                edge = edges[-1]
-                edge.append(node_id)
-                edges.append([node_id])
+                start = pendings.pop(node['lsn'], None)
+                if start and (int(node_id) - int(start)) > 1:
+                    edges.append([start, node_id])
+            edges.append([node_id])
 
         end_id = create_end_node(dot)
         edges[-1].append(end_id)
@@ -248,7 +251,6 @@ class Flow:
 def draw(num=10, name='sample', cluster=False):
     p = Parser()
     nodes = p.parse_lines(mock_lines(num))
-    # pprint(nodes)
     f = Flow(name, nodes)
     if cluster:
         f.draw_cluster()
