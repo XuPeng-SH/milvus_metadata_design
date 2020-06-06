@@ -22,7 +22,7 @@ namespace engine {
 namespace snapshot {
 
 using ThreadPtr = std::shared_ptr<std::thread>;
-using OperationQueueT = BlockingQueue<OperationsPtr>;
+using OperationQueueT = server::BlockingQueue<OperationsPtr>;
 using OperationQueuePtr = std::shared_ptr<OperationQueueT>;
 
 struct Executor {

@@ -17,6 +17,9 @@
 
 #pragma once
 
+namespace milvus {
+namespace server {
+
 template <typename T>
 void
 BlockingQueue<T>::Put(const T& task) {
@@ -78,3 +81,6 @@ void
 BlockingQueue<T>::SetCapacity(const size_t capacity) {
     capacity_ = (capacity > 0 ? capacity : capacity_);
 }
+
+} // server
+} // milvus

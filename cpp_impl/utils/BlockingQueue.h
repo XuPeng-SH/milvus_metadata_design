@@ -23,6 +23,9 @@
 #include <queue>
 #include <vector>
 
+namespace milvus {
+namespace server {
+
 template <typename T>
 class BlockingQueue {
  public:
@@ -62,5 +65,8 @@ class BlockingQueue {
     std::queue<T> queue_;
     size_t capacity_ = 32;
 };
+
+} // server
+} // milvus
 
 #include "./BlockingQueue.inl"
