@@ -1,7 +1,7 @@
 import re
+import json
 import random
 from pprint import pprint
-from collections import OrderedDict
 from fire import Fire
 from graphviz import Digraph
 
@@ -21,18 +21,18 @@ LINE11 = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN=14
 # LINE = '<CCO(CID=0,CNAME="c1",N_CC=1,N_CID=1,N_CNAME="c1",N_PC=1,N_PID=1,N_PNAME="_default",LSN=2)> | DONE | OK'
 LINES = [LINE0, LINE1, LINE2, LINE3, LINE4, LINE5, LINE6, LINE7, LINE8, LINE9, LINE10, LINE11]
 
-BO_S_LINE = '<BO(LSN={})> | PENDING'
-BO_P_LINE = '<BO(LSN={})> | DONE | OK'
-BO_E_LINE = '<BO(LSN={})> | DONE | Error code(70003): xx'
-MO_S_LINE = '<MO(LSN={})> | PENDING'
-MO_P_LINE = '<MO(LSN={})> | DONE | OK'
-MO_E_LINE = '<MO(LSN={})> | DONE | Error code(70004): xx'
-DCO_S_LINE = '<DCO(LSN={})> | PENDING'
-DCO_P_LINE = '<DCO(LSN={})> | DONE | OK'
-DCO_E_LINE = '<DCO(LSN={})> | DONE | Error code(70005): xx'
-NSO_S_LINE = '<NSO(LSN={})> | PENDING'
-NSO_P_LINE = '<NSO(LSN={})> | DONE | OK'
-NSO_E_LINE = '<NSO(LSN={})> | DONE | Error code(70006): xx'
+BO_S_LINE = '<BO(SS=131,N_CC=6,N_PC=8,N_SC=12,N_SF=[51],LSN={})> | PENDING'
+BO_P_LINE = '<BO(SS=131,N_CC=6,N_PC=8,N_SC=12,N_SF=[51],LSN={})> | DONE | OK'
+BO_E_LINE = '<BO(SS=131,N_CC=6,N_PC=8,N_SC=12,N_SF=[51],LSN={})> | DONE | Error code(70003): xx'
+MO_S_LINE = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN={})> | PENDING'
+MO_P_LINE = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN={})> | DONE | OK'
+MO_E_LINE = '<MO(SS=161,N_CC=8,N_PC=10,N_SC=14,N_SE=13,S_SE=[1:12],N_SF=[53],LSN={})> | DONE | Error code(70004): xx'
+DCO_S_LINE = '<DCO(SS=176,,LSN={})> | PENDING'
+DCO_P_LINE = '<DCO(SS=176,,LSN={})> | DONE | OK'
+DCO_E_LINE = '<DCO(SS=176,,LSN={})> | DONE | Error code(70005): xx'
+NSO_S_LINE = '<NSO(SS=145,N_CC=7,N_PC=9,N_SC=13,N_SE=12,N_SF=[52],LSN={})> | PENDING'
+NSO_P_LINE = '<NSO(SS=145,N_CC=7,N_PC=9,N_SC=13,N_SE=12,N_SF=[52],LSN={})> | DONE | OK'
+NSO_E_LINE = '<NSO(SS=145,N_CC=7,N_PC=9,N_SC=13,N_SE=12,N_SF=[52],LSN={})> | DONE | Error code(70006): xx'
 
 TEMPLATES = [BO_S_LINE, BO_P_LINE, BO_E_LINE, MO_S_LINE, MO_P_LINE, MO_E_LINE,
         DCO_S_LINE, DCO_P_LINE, DCO_E_LINE, NSO_S_LINE, NSO_P_LINE, NSO_E_LINE]
@@ -57,7 +57,7 @@ def mock_lines(loop):
 
 class Parser:
     def parse_lines(self, lines):
-        nodes = OrderedDict()
+        nodes = dict()
         for idx, line in enumerate(lines, 1):
             node = self.parse_line(line)
             if not node:
@@ -69,7 +69,7 @@ class Parser:
         if not line:
             return {}
         lines = list(map(str.strip, line.split('|')))
-        kvs = OrderedDict()
+        kvs = dict()
         kvs['node'] = self._parse_node(lines[0])
         kvs['lsn'] = kvs['node'].pop('lsn')
         kvs['state'] = lines[1]
@@ -84,7 +84,7 @@ class Parser:
     def _parse_health(self, line):
         if not line:
             return {}
-        r = OrderedDict()
+        r = dict()
         if line.startswith('OK'):
             r['status'] = 'OK'
         elif line.startswith('Error'):
@@ -102,14 +102,14 @@ class Parser:
     def _parse_node(self, line):
         if not line or not line.startswith('<') or not line.endswith('>'):
             raise RuntimeError(f'Invalid node info: {line}')
-        r = OrderedDict()
+        r = dict()
         line = line[1:-1]
         m = re.match(r'(\w+)\((.*)\)', line)
         if not m:
             raise RuntimeError(f'Invalid node info: {line}')
         op = m.group(1)
         action_items = [s for s in map(str.strip, m.group(2).split(',')) if s]
-        actions = OrderedDict()
+        actions = dict()
 
         for item in action_items:
             tt = item.split('=')
@@ -146,8 +146,53 @@ def create_cluster_node(g, node_id, node_info):
     g.node(node_id, node_name, **attrs)
     return node_id
 
-def create_node(g, node_id, node_info):
+def create_nodes(g, node_id, node_info):
     node_name = f'{node_id}:{node_info["node"]["name"]}{node_info["lsn"]}'
+    actions = node_info['node'].get('actions', {})
+    ptemplate = f"({'{}'})[{'{}'}]"
+    news = {}
+    stales = {}
+    for k, v in actions.items():
+        if k.startswith('N_'):
+            news[k[2:]] = v
+        elif k.startswith('S_'):
+            stales[k[2:]] = v
+
+    n_str = json.dumps(news) if news else ''
+    s_str = json.dumps(stales) if stales else ''
+    secondary_node_name = ptemplate.format(n_str, s_str)
+    attrs = {}
+    secondary_node_id = f'sni_{node_id}'
+    if node_info['health']['status'] == 'ERR':
+        attrs['color'] = 'pink'
+        error_code = node_info['health']['error_code']
+        secondary_node_name = f'<{error_code}>'
+    if node_info['state'] == 'PENDING':
+        attrs['color'] = 'green'
+        secondary_node_name = f'[PENDING]'
+
+    g.node(node_id, node_name, **attrs)
+    g.node(secondary_node_id, secondary_node_name, **attrs)
+    return node_id, secondary_node_id
+
+
+def create_node(g, node_id, node_info, paradise=1):
+    pprint(node_info)
+    node_name = f'{node_id}:{node_info["node"]["name"]}{node_info["lsn"]}'
+    if paradise == 1:
+        actions = node_info['node'].get('actions', {})
+        ptemplate = f"{node_name}({'{}'})[{'{}'}]"
+        news = {}
+        stales = {}
+        for k, v in actions.items():
+            if k.startswith('N_'):
+                news[k[2:]] = v
+            elif k.startswith('S_'):
+                stales[k[2:]] = v
+
+        n_str = json.dumps(news) if news else ''
+        s_str = json.dumps(stales) if stales else ''
+        node_name = ptemplate.format(n_str, s_str)
     attrs = {}
     if node_info['health']['status'] == 'ERR':
         attrs['color'] = 'pink'
@@ -165,6 +210,7 @@ class Flow:
         self.name = name
         self.nodes = nodes
         self.kwargs = kwargs
+        self.filename = kwargs.pop('filename', 'sample.gv')
 
     def _build_subg(self, g, name, op_type, points, **kwargs):
         style = kwargs.get('style', 'filled')
@@ -229,18 +275,21 @@ class Flow:
 
         g.view()
 
-    def draw(self):
+    def draw(self, **kwargs):
+        style = kwargs.get('style', None)
         fmt = self.kwargs.get('format', 'svg')
-        # engine: fdp, sfdp, neato
-        # 'dot', 'neato', 'twopi', 'circo', 'fdp', 'sfdp', 'patchwork', 'osage',
-        dot = Digraph(name=self.name, filename='single.gv', format=fmt, engine='dot')
+        dot = Digraph(name=self.name, filename=self.filename, format=fmt, engine='dot')
         dot.node_attr.update(style='filled', color='lightblue')
         start_id = create_start_node(dot)
         edges = [[start_id]]
         pendings = {}
+        create_node_func = create_node
+        if style == 'verbose':
+            create_node_func = create_nodes
         for ts, node in self.nodes.items():
             node_id = str(ts)
-            create_node(dot, node_id, node)
+            node_ids = create_node_func(dot, node_id, node)
+            # create_node(dot, node_id, node)
             edge = edges[-1]
             edge.append(node_id)
             if node['state'] == 'PENDING':
@@ -249,28 +298,38 @@ class Flow:
                 start = pendings.pop(node['lsn'], None)
                 if start and (int(node_id) - int(start)) > 1:
                     edges.append([start, node_id])
+            if len(node_ids) == 2:
+                node_ids = list(node_ids)
+                node_ids.append({'arrowhead': 'none',
+                                 'style': 'dashed',
+                                 'len': '5.00'})
+                edges.append(node_ids)
             edges.append([node_id])
 
         end_id = create_end_node(dot)
         edges[-1].append(end_id)
 
         for edge in edges:
-            if len(edge) != 2:
+            if len(edge) < 2:
                 continue
-            dot.edge(*edge)
-
+            kw = {}
+            if len(edge) == 3:
+                kw = edge[-1]
+                edge = edge[0:2]
+            dot.edge(*edge, **kw)
 
         dot.view()
 
-def draw(num=10, name='sample', cluster=False):
+
+def draw(num=10, name='sample', cluster=False, filename='sample.gv', style=None):
     p = Parser()
-    nodes = p.parse_lines(mock_lines(num))
-    # nodes = p.parse_lines(LINES)
-    f = Flow(name, nodes)
+    # nodes = p.parse_lines(mock_lines(num))
+    nodes = p.parse_lines(LINES)
+    f = Flow(name, nodes, filename=filename)
     if cluster:
         f.draw_cluster()
     else:
-        f.draw()
+        f.draw(style=style)
 
 if __name__ == '__main__':
     Fire(draw)
