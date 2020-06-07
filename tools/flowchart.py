@@ -132,7 +132,7 @@ def create_end_node(g):
     n = g.node(node_id, 'End', shape='doublecircle')
     return node_id
 
-def create_node(g, node_id, node_info):
+def create_cluster_node(g, node_id, node_info):
     node_name = str(node_info['lsn'])
     attrs = {}
     if node_info['health']['status'] == 'ERR':
@@ -145,6 +145,20 @@ def create_node(g, node_id, node_info):
 
     g.node(node_id, node_name, **attrs)
     return node_id
+
+def create_node(g, node_id, node_info):
+    node_name = f'{node_id}:{node_info["node"]["name"]}{node_info["lsn"]}'
+    attrs = {}
+    if node_info['health']['status'] == 'ERR':
+        attrs['color'] = 'pink'
+        error_code = node_info['health']['error_code']
+        node_name = f'{node_name}:<{error_code}>'
+    if node_info['state'] == 'PENDING':
+        attrs['color'] = 'green'
+        node_name = f'{node_name}:[P]'
+
+    g.node(node_id, node_name, **attrs)
+    return node_name
 
 class Flow:
     def __init__(self, name, nodes, **kwargs):
@@ -167,7 +181,7 @@ class Flow:
                 node_id = str(ts)
                 if node['node']['name'] != op_type:
                     continue
-                create_node(c, node_id, node)
+                create_cluster_node(c, node_id, node)
                 points[ts] = node_id
                 sub_points.append(node_id)
             if not sub_points:
@@ -251,6 +265,7 @@ class Flow:
 def draw(num=10, name='sample', cluster=False):
     p = Parser()
     nodes = p.parse_lines(mock_lines(num))
+    # nodes = p.parse_lines(LINES)
     f = Flow(name, nodes)
     if cluster:
         f.draw_cluster()
