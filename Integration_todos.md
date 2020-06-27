@@ -78,7 +78,7 @@ Init(snapshot::ScopedSnapshot ss);
 - [ ] **QueryByIDs**: `?`
 - [ ] **QueryAsync**: `?`
 - [ ] **GetFilesToBuildIndex**: `?`
--
+
 ## MergeMangerImpl
 > Replace meta_ptr_ with snapshot
 
