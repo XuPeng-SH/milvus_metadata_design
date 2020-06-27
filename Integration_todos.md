@@ -55,13 +55,14 @@ Init(snapshot::ScopedSnapshot ss);
 - [ ] **GetVectorIDs**
 - [ ] **FlushAttrsIndex**
 - [ ] **DescribeIndex**
-- [ ] **DropIndex**: Need new CompoundOperation
+- [ ] **DropIndex**
+> Need new CompoundOperation
 - [ ] **Query**
 - [ ] **QueryByFileID**
 - [ ] **Size**
 - [ ] **BackgroundMerge**
-    [x] DBImpl bussiness logic
-    [ ] [MergeManagerImpl][##MergeMangerImpl]
+    - [x] DBImpl bussiness logic
+    - [ ] [MergeManagerImpl][##MergeMangerImpl]
 - [ ] **BackgroundBuildIndex**
 - [ ] **GetPartitionByTag**
 - [ ] **GetPartitionByTags**
@@ -88,4 +89,5 @@ Init(snapshot::ScopedSnapshot ss);
 - [ ] [LoadVectorFieldElementHandler](###LoadVectorFieldElementHandler)
 
 ### LoadVectorFieldElementHandler
-- [ ] Bussiness logic: Need to be discussed
+- [ ] Bussiness logic
+> Need to be discussed
