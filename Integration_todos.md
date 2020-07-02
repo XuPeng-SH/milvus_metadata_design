@@ -1,6 +1,6 @@
 # Integration
 
-## WalManager
+## WalManager -- C
 - [ ] Add New **Init**
 > WalManager could init from Snapshot
 - [ ] Use ID as primary key
@@ -9,23 +9,23 @@ ErrorCode
 Init(snapshot::ScopedSnapshot ss);
 ```
 
-## MemManagerImpl
+## MemManagerImpl -- A
 
 - [ ] Replace meta_ with snapshot
 
-## MemTable
+## MemTable -- A
 
 - [ ] Replace meta_ with snapshot
 
-## MemTableFile
+## MemTableFile -- A
 
 - [ ] Replace meta_ with snapshot
 
 ## DBImpl
 
-- [ ] Snapshot action implementation in **Start()**
-- [ ] Snapshot action implementation in **Stop()**
-- [ ] **DropAll()**
+- [ ] Snapshot action implementation in **Start()** -- **C**
+- [ ] Snapshot action implementation in **Stop()** -- **C**
+- [ ] **DropAll()** -- **B**
 - [x] **CreateCollection**
 - [x] **DropCollection**
 - [x] **DescribeCollection**
@@ -36,58 +36,58 @@ Init(snapshot::ScopedSnapshot ss);
 - [x] **DropPartition**
 > EraseMemVector Needed?
 - [x] **ShowPartitions**
-- [ ] **UpdateCollectionFlag**
-- [ ] **GetCollectionRowCount**
-- [ ] **GetCollectionInfo**
-- [ ] **ReLoadSegmentsDeletedDocs**
-- [ ] **PreloadCollection**
+- [ ] **UpdateCollectionFlag** -- **D**
+- [ ] **GetCollectionRowCount** -- **B**
+- [ ] **GetCollectionInfo** -- **B**
+- [ ] **ReLoadSegmentsDeletedDocs** -- **A**
+- [ ] **PreloadCollection** -- **B**
     - [x] DBImpl bussiness logic
     - [ ] [LoadVectorFieldHandler](##SnapshotHandlers###LoadVectorFieldHandler)
-- [ ] **Compact**
-- [ ] **CompactFile**
-- [ ] **GetVectorsByID**
-- [ ] **GetVectorsByIDHelper**
-- [ ] **GetEntitiesByID**
-- [ ] **GetEntitiesByIDHelper**
-- [ ] **CreateIndex**
-- [ ] **SerializeStructuredIndex**
-- [ ] **GetVectorIDs**
-- [ ] **GetVectorIDs**
-- [ ] **FlushAttrsIndex**
-- [ ] **DescribeIndex**
-- [ ] **DropIndex**
+- [ ] **Compact** -- **A**
+- [ ] **CompactFile** -- **A**
+- [ ] **GetVectorsByID** -- **C**
+- [ ] **GetVectorsByIDHelper** -- **C**
+- [ ] **GetEntitiesByID** -- **C**
+- [ ] **GetEntitiesByIDHelper** -- **C**
+- [ ] **CreateIndex** -- **A**
+- [ ] **SerializeStructuredIndex** -- **D**
+- [ ] **GetVectorIDs** -- **C**
+- [ ] **GetVectorIDs** -- **C**
+- [ ] **FlushAttrsIndex** -- **D**
+- [ ] **DescribeIndex** -- **D**
+- [ ] **DropIndex** -- **B**
 > Need new CompoundOperation
-- [ ] **Query**
-- [ ] **QueryByFileID**
-- [ ] **Size**
-- [ ] **BackgroundMerge**
+- [ ] **Query** -- **C**
+- [ ] **QueryByFileID** -- **C**
+- [ ] **Size** -- **B**
+- [ ] **BackgroundMerge** -- **A**
     - [x] DBImpl bussiness logic
     - [ ] [MergeManagerImpl][##MergeMangerImpl]
-- [ ] **BackgroundBuildIndex**
-- [ ] **GetPartitionByTag**
-- [ ] **GetPartitionByTags**
-- [ ] **ExecWalRecord**
+- [ ] **BackgroundBuildIndex** -- **A**
+- [ ] **GetPartitionByTag** -- **C**
+- [ ] **GetPartitionByTags** -- **C**
+- [ ] **ExecWalRecord** -- **C**
 
-- [ ] **InsertVectors**: `?`
-- [ ] **InsertEntities**: `?`
-- [ ] **CopyToAttr**: `?`
-- [ ] **DeleteVector**: `?`
-- [ ] **DeleteVectors**: `?`
-- [ ] **Flush**: `?`
-- [ ] **CreateStructuredIndex**: `?`
-- [ ] **QueryByIDs**: `?`
-- [ ] **QueryAsync**: `?`
-- [ ] **GetFilesToBuildIndex**: `?`
+- [ ] **InsertVectors**: `?` -- **C**
+- [ ] **InsertEntities**: `?` -- **C**
+- [ ] **CopyToAttr**: `?` -- **C**
+- [ ] **DeleteVector**: `?` -- **C**
+- [ ] **DeleteVectors**: `?` -- **C**
+- [ ] **Flush**: `?` -- **C**
+- [ ] **CreateStructuredIndex**: `?` -- **D**
+- [ ] **QueryByIDs**: `?` -- **C**
+- [ ] **QueryAsync**: `?` -- **C**
+- [ ] **GetFilesToBuildIndex**: `?` -- **D**
 
-## MergeMangerImpl
+## MergeMangerImpl -- A
 > Replace meta_ptr_ with snapshot
 
-## SnapshotHandlers
+## SnapshotHandlers -- B
 
-### LoadVectorFieldHandler
+### LoadVectorFieldHandler -- B
 - [ ] Bussiness logic
 - [ ] [LoadVectorFieldElementHandler](###LoadVectorFieldElementHandler)
 
-### LoadVectorFieldElementHandler
+### LoadVectorFieldElementHandler -- B
 - [ ] Bussiness logic
 > Need to be discussed
