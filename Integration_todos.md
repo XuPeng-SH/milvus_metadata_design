@@ -36,10 +36,10 @@ Init(snapshot::ScopedSnapshot ss);
 - [x] **DropPartition**
 > EraseMemVector Needed?
 - [x] **ShowPartitions**
-~~- [ ] **UpdateCollectionFlag** -- **D**~~
+- [ ] ~~**UpdateCollectionFlag** -- **D**~~
 - [x] **GetCollectionRowCount** -- **B**
 - [ ] **GetCollectionInfo** -- **B**
-- [-] **ReLoadSegmentsDeletedDocs** -- **A**
+- [ ] ~~**ReLoadSegmentsDeletedDocs** -- **A**~~
 - [ ] **PreloadCollection** -- **B**
     - [x] DBImpl bussiness logic
     - [ ] [LoadVectorFieldHandler](##SnapshotHandlers###LoadVectorFieldHandler)
