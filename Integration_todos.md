@@ -36,7 +36,7 @@ Init(snapshot::ScopedSnapshot ss);
 - [x] **DropPartition**
 > EraseMemVector Needed?
 - [x] **ShowPartitions**
-- ~~[ ] **UpdateCollectionFlag** -- **D**~~
+~~- [ ] **UpdateCollectionFlag** -- **D**~~
 - [x] **GetCollectionRowCount** -- **B**
 - [ ] **GetCollectionInfo** -- **B**
 - [-] **ReLoadSegmentsDeletedDocs** -- **A**
