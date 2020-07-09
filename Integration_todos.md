@@ -45,8 +45,8 @@ Init(snapshot::ScopedSnapshot ss);
     - [ ] [LoadVectorFieldHandler](##SnapshotHandlers###LoadVectorFieldHandler)
 - [ ] **Compact** -- **A**
 - [ ] **CompactFile** -- **A**
-- [-] **GetVectorsByID** -- **C**
-- [-] **GetVectorsByIDHelper** -- **C**
+- [ ] ~~**GetVectorsByID** -- **C**~~
+- [ ] ~~**GetVectorsByIDHelper** -- **C**~~
 - [x] **GetEntitiesByID** -- **C**
 - [ ] ~~**GetEntitiesByIDHelper** -- **C**~~
 - [ ] **CreateIndex** -- **A**
