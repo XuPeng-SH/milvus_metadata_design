@@ -48,12 +48,12 @@ Init(snapshot::ScopedSnapshot ss);
 - [-] **GetVectorsByID** -- **C**
 - [-] **GetVectorsByIDHelper** -- **C**
 - [x] **GetEntitiesByID** -- **C**
-- [-] **GetEntitiesByIDHelper** -- **C**
+- [ ] ~~**GetEntitiesByIDHelper** -- **C**~~
 - [ ] **CreateIndex** -- **A**
-- [-] **SerializeStructuredIndex** -- **D**
-- [-] **GetVectorIDs** -- **C**
-- [-] **FlushAttrsIndex** -- **D**
-- [-] **DescribeIndex** -- **D**
+- [ ] ~~**SerializeStructuredIndex** -- **D**~~
+- [ ] ~~**GetVectorIDs** -- **C**~~
+- [ ] ~~**FlushAttrsIndex** -- **D**~~
+- [ ] ~~**DescribeIndex** -- **D**~~
 - [x] **DropIndex** -- **B**
 > Need new CompoundOperation
 - [x] **Query** -- **C**
@@ -63,20 +63,20 @@ Init(snapshot::ScopedSnapshot ss);
     - [x] DBImpl bussiness logic
     - [ ] [MergeManagerImpl][##MergeMangerImpl]
 - [ ] **BackgroundBuildIndex** -- **A**
-- [-] **GetPartitionByTag** -- **C**
-- [-] **GetPartitionByTags** -- **C**
+- [ ] ~~**GetPartitionByTag** -- **C**~~
+- [ ] ~~**GetPartitionByTags** -- **C**~~
 - [ ] **ExecWalRecord** -- **C**
 
-- [-] **InsertVectors**: `?` -- **C**
+- [ ] ~~**InsertVectors**: `?` -- **C**~~
 - [ ] **InsertEntities**: `?` -- **C**
 - [x] **CopyToAttr**: `?` -- **C**
-- [-] **DeleteVector**: `?` -- **C**
-- [-] **DeleteVectors**: `?` -- **C**
+- [ ] ~~**DeleteVector**: `?` -- **C**~~
+- [ ] ~~**DeleteVectors**: `?` -- **C**~~
 - [ ] **Flush**: `?` -- **C**
-- [-] **CreateStructuredIndex**: `?` -- **D**
-- [-] **QueryByIDs**: `?` -- **C**
-- [-] **QueryAsync**: `?` -- **C**
-- [-] **GetFilesToBuildIndex**: `?` -- **D**
+- [ ] ~~**CreateStructuredIndex**: `?` -- **D**~~
+- [ ] ~~**QueryByIDs**: `?` -- **C**~~
+- [ ] ~~**QueryAsync**: `?` -- **C**~~
+- [ ] ~~**GetFilesToBuildIndex**: `?` -- **D**~~
 
 ## MergeMangerImpl -- A
 > Replace meta_ptr_ with snapshot
